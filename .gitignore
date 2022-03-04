@@ -1,0 +1,9 @@
+
+/build/cmake/*
+!/build/cmake/CMakeLists.txt
+
+/build/packed/
+
+/lib32/
+/lib/
+/lib64/
