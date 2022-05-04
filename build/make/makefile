@@ -7,7 +7,7 @@
 CC = g++
 LINK = g++
 
-CFLAGS = -c -I../../include --std=c++17 -O3 --Wall -pedantic
+CFLAGS = -c -I../../include --std=c++17 -O3 -Wall -pedantic
 LFLAGS = -O3 -Wall -pedantic
 
 OBJS = main.o gpio.o
@@ -24,8 +24,8 @@ $(EXE): $(OBJS)
 main.o: ../../test/system/main.cpp ../../include/rpihal/gpio.h
 	$(CC) $(CFLAGS) ../../test/system/main.cpp
 
-gpio.o: ../../src/gpio.cpp ../../include/rpihal/gpio.h
-	$(CC) $(CFLAGS) ../../src/gpio.cpp
+gpio.o: ../../src/gpio.c ../../include/rpihal/gpio.h
+	$(CC) $(CFLAGS) ../../src/gpio.c
 
 all: $(EXE)
 	

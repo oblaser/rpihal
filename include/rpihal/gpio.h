@@ -37,6 +37,8 @@ extern "C" {
 #define GPIO_AF_4   4
 #define GPIO_AF_5   5
 
+typedef volatile uint32_t* RPIHAL_regptr_t;
+
 typedef struct
 {
     int mode;
@@ -51,7 +53,7 @@ int GPIO_readPin(int pin);
 int GPIO_writePin(int pin, int state);
 int GPIO_togglePin(int pin);
 int GPIO_defaultInitStruct(GPIO_init_t* initStruct);
-volatile uint32_t* GPIO_getMemBasePtr();
+RPIHAL_regptr_t GPIO_getMemBasePtr();
 int GPIO_isUsingGpiomem();
 
 

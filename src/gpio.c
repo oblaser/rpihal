@@ -101,7 +101,7 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 
-static volatile uint32_t* mem_gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
+static RPIHAL_regptr_t mem_gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
 
 
@@ -141,9 +141,9 @@ int GPIO_init()
 
         if(!r)
         {
-            mem_gpio_base = mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
+            mem_gpio_base = (RPIHAL_regptr_t)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
 
-            if(mem_gpio_base == MAP_FAILED)
+            if(mem_gpio_base == (RPIHAL_regptr_t)MAP_FAILED)
             {
                 r = 2;
                 mem_gpio_base = NULL;
