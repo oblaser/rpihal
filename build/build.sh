@@ -98,7 +98,6 @@ function procArg()
     elif [ "$1" == "clean" ]; then cmd_clean
     elif [ "$1" == "run" ]
     then
-        copyAssets
         cd ./$cmakeDirName
         procErrorCode $?
         ./$exeName

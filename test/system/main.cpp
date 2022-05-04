@@ -25,10 +25,12 @@ int main(int argc, char** argv)
 
     initStruct.mode = GPIO_MODE_OUT;
     GPIO_initPin(10, &initStruct);
-    GPIO_initPin(26, &initStruct);
+/*    GPIO_initPin(26, &initStruct);
 
     initStruct.mode = GPIO_MODE_OUT;
     GPIO_initPin(4, &initStruct);
+
+    cout << 
 
     while(true)
     {
@@ -38,6 +40,6 @@ int main(int argc, char** argv)
         if(GPIO_readPin(4)) GPIO_writePin(10, 1);
         else GPIO_writePin(10, 0);
     }
-
+*/
     return 0;
 }

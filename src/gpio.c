@@ -14,7 +14,7 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #include <sys/types.h>
 #include <unistd.h>
 
-
+#include <stdio.h>
 
 // 
 // BCM defines
@@ -156,14 +156,14 @@ int GPIO_init()
 
 int GPIO_initPin(int pin, const GPIO_init_t* initStruct)
 {
-    int r = 0;
+    int r = 0; printf("GPIO_initPin %i %i %i\n",mem_gpio_base , initStruct , checkPin(pin));
 
     if(mem_gpio_base && initStruct && checkPin(pin))
     {
         initPin(pin, initStruct);
     }
     else r = 1;
-
+printf("GPIO_initPin return %i\n", r);
     return r;
 }
 
