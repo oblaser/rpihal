@@ -9,4 +9,5 @@
 - https://elinux.org/RPi_GPIO_Code_Samples
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#general-purpose-io-gpio
 - https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+- http://www.scribd.com/doc/101830961/GPIO-Pads-Control2
 - https://forums.raspberrypi.com/viewtopic.php?t=243166

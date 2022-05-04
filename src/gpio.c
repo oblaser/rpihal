@@ -92,7 +92,7 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 
-static RPIHAL_regptr_t mem_gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
+static RPIHAL_regptr_t gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
 static int sysGpioLocked = 1;
 
@@ -113,7 +113,7 @@ int GPIO_init()
 {
     int r = 0;
 
-    if (!mem_gpio_base)
+    if (!gpio_base)
     {
         int fd;
         off_t mmapoffs;
@@ -137,12 +137,12 @@ int GPIO_init()
 
         if (!r)
         {
-            mem_gpio_base = (RPIHAL_regptr_t)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
+            gpio_base = (RPIHAL_regptr_t)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
 
-            if (mem_gpio_base == MAP_FAILED)
+            if (gpio_base == MAP_FAILED)
             {
                 r = 2;
-                mem_gpio_base = NULL;
+                gpio_base = NULL;
             }
         }
     }
@@ -157,7 +157,7 @@ int GPIO_initPin(int pin, const GPIO_init_t* initStruct)
 {
     int r = 0;
 
-    if (mem_gpio_base && initStruct && checkPin(pin))
+    if (gpio_base && initStruct && checkPin(pin))
     {
         initPin(pin, initStruct);
     }
@@ -172,7 +172,7 @@ int GPIO_readPin(int pin)
 {
     int r = 0;
 
-    if (mem_gpio_base && checkPin(pin)) r = readPin(pin);
+    if (gpio_base && checkPin(pin)) r = readPin(pin);
     else r = -1;
 
     return r;
@@ -185,7 +185,7 @@ int GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
-    if (mem_gpio_base && checkPin(pin)) writePin(pin, state);
+    if (gpio_base && checkPin(pin)) writePin(pin, state);
     else r = 1;
 
     return r;
@@ -197,7 +197,7 @@ int GPIO_togglePin(int pin)
 {
     int r = 0;
 
-    if (mem_gpio_base && checkPin(pin)) writePin(pin, !readPin(pin));
+    if (gpio_base && checkPin(pin)) writePin(pin, !readPin(pin));
     else r = 1;
 
     return r;
@@ -222,7 +222,7 @@ int GPIO_defaultInitStruct(GPIO_init_t* initStruct)
 
 RPIHAL_regptr_t GPIO_getMemBasePtr()
 {
-    return mem_gpio_base;
+    return gpio_base;
 }
 
 //! @return TRUE (`1`), FALSE (`0`) or unknown (`-1`)
@@ -287,7 +287,7 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 
     // fsel
 
-    addr = mem_gpio_base + (GPFSEL0 / 4) + (pin / 10);
+    addr = gpio_base + (GPFSEL0 / 4) + (pin / 10);
     shift = 3 * (pin % 10);
     if (initStruct->mode == GPIO_MODE_OUT) value = FSEL_OUT;
     else if (initStruct->mode == GPIO_MODE_AF) value = FSEL_AF_LUT[initStruct->altfunc];
@@ -300,14 +300,14 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 
     // pud
 
-    addr = mem_gpio_base + (GPPUD / 4);
+    addr = gpio_base + (GPPUD / 4);
     value = (uint32_t)(initStruct->pull);
     mask = 0b11;
     BCM2835_reg_write_bits(addr, value, mask);
 
     if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2;
 
-    addr = mem_gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
+    addr = gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
     shift = (pin % 32);
     value = 1 << shift;
     mask = 1 << shift;
@@ -315,14 +315,14 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 
     if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2;
 
-    addr = mem_gpio_base + (GPPUD / 4);
+    addr = gpio_base + (GPPUD / 4);
     value = 0;
     mask = 0b11;
     BCM2835_reg_write_bits(addr, value, mask);
 
     if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
 
-    addr = mem_gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
+    addr = gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
     BCM2835_reg_write(addr, 0);
 
     if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
@@ -335,7 +335,7 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 int readPin(int pin)
 {
     int r;
-    RPIHAL_regptr_t addr = mem_gpio_base + (GPLEV0 / 4) + (pin / 32);
+    RPIHAL_regptr_t addr = gpio_base + (GPLEV0 / 4) + (pin / 32);
     const uint32_t bit = 1 << (pin % 32);
 
     if (BCM2835_reg_read(addr) & bit) r = 1;
@@ -346,7 +346,7 @@ int readPin(int pin)
 
 void writePin(int pin, int state)
 {
-    RPIHAL_regptr_t addr = mem_gpio_base + (pin / 32);
+    RPIHAL_regptr_t addr = gpio_base + (pin / 32);
     const uint32_t bit = 1 << (pin % 32);
 
     if (state) addr += (GPSET0 / 4);
