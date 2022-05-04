@@ -197,6 +197,21 @@ int GPIO_togglePin(int pin)
     return r;
 }
 
+int GPIO_defaultInitStruct(GPIO_init_t* initStruct)
+{
+    int r = 0;
+
+    if(initStruct)
+    {
+        initStruct->mode = GPIO_MODE_IN;
+        initStruct->pull = GPIO_PULL_NONE;
+        initStruct->altfunc = GPIO_AF_0;
+    }
+    else r = 1;
+
+    return r;
+}
+
 volatile uint32_t* GPIO_getMemBasePtr()
 {
     return mem_gpio_base;

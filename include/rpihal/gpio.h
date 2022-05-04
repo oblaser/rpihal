@@ -50,6 +50,7 @@ int GPIO_initPin(int pin, const GPIO_init_t* initStruct);
 int GPIO_readPin(int pin);
 int GPIO_writePin(int pin, int state);
 int GPIO_togglePin(int pin);
+int GPIO_defaultInitStruct(GPIO_init_t* initStruct);
 volatile uint32_t* GPIO_getMemBasePtr();
 int GPIO_isUsingGpiomem();
 
