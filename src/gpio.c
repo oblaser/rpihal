@@ -101,7 +101,7 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 
-static RPIHAL_regptr_t mem_gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
+static volatile uint32_t* mem_gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
 
 
@@ -138,25 +138,25 @@ int GPIO_init()
 
             if(fd < 0) r = 1;
         }
-
+printf("GPIO_init %i %i", fd, usingGpiomem);
         if(!r)
         {
-            mem_gpio_base = (RPIHAL_regptr_t)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
+            mem_gpio_base = (volatile uint32_t*)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
 
-            if(mem_gpio_base == (RPIHAL_regptr_t)MAP_FAILED)
+            if(mem_gpio_base == MAP_FAILED)
             {
                 r = 2;
                 mem_gpio_base = NULL;
             }
         }
     }
-
+printf("GPIO_init return %i", r);
     return r;
 }
 
 int GPIO_initPin(int pin, const GPIO_init_t* initStruct)
 {
-    int r = 0; printf("GPIO_initPin %i %i %i\n",mem_gpio_base , initStruct , checkPin(pin));
+    int r = 0; printf("GPIO_initPin %i %i %i\n", (int)mem_gpio_base , (int)initStruct , checkPin(pin));
 
     if(mem_gpio_base && initStruct && checkPin(pin))
     {
