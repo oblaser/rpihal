@@ -1,6 +1,6 @@
 # Raspberry Pi Hardware Abstraction Layer
 
-> __CAUTION!__ Currently only supports models with the BCM283x. Be aware of the different header pinouts on the various boards!
+> __CAUTION!__ Currently only supports models with the _~~BCM283x~~_ BCM2836 and BCM2837. Be aware of the different header pinouts on the various boards!
 
 > __CAUTION!__ look for _DEVICE SPECIFIC_ or _DEVSPEC_ comments in code.
 
