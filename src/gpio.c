@@ -14,7 +14,7 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <stdio.h>
+
 
 // 
 // BCM defines
@@ -30,64 +30,55 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 
 #define PERI_ADR_OFFSET_GPIO        0x00200000 // BCM283x and BCM2711
 
-#define GPIO_PIN_FIRST   (0)
-#define GPIO_PIN_LAST    (53)
-
 
 
 // 
-// BCM register defines
+// GPIO register offsets
 // 
 
-#define GP_REG(offs)    (*(mem_gpio_base + offs))
+#define GPFSEL0     0x0000
+#define GPFSEL1     0x0004
+#define GPFSEL2     0x0008
+#define GPFSEL3     0x000C
+#define GPFSEL4     0x0010
+#define GPFSEL5     0x0014
 
-#define GPFSEL0     (*(mem_gpio_base + GPFSEL_ADR_OFFSET[0]))
-#define GPFSEL1     (*(mem_gpio_base + GPFSEL_ADR_OFFSET[1]))
-#define GPFSEL2     (*(mem_gpio_base + GPFSEL_ADR_OFFSET[2]))
-#define GPFSEL3     (*(mem_gpio_base + GPFSEL_ADR_OFFSET[3]))
-#define GPFSEL4     (*(mem_gpio_base + GPFSEL_ADR_OFFSET[4]))
-#define GPFSEL5     (*(mem_gpio_base + GPFSEL_ADR_OFFSET[5]))
-static const int GPFSEL_ADR_OFFSET[] = { 0x0000, 0x0004, 0x0008, 0x000C, 0x0010, 0x0014 };
+#define GPSET0      0x001C
+#define GPSET1      0x0020
 
-#define GPSET0      (*(mem_gpio_base + GPSET_ADR_OFFSET[0]))
-#define GPSET1      (*(mem_gpio_base + GPSET_ADR_OFFSET[1]))
-static const int GPSET_ADR_OFFSET[] = { 0x001C, 0x0020 };
+#define GPCLR0      0x0028
+#define GPCLR1      0x002C
 
-#define GPCLR0      (*(mem_gpio_base + GPCLR_ADR_OFFSET[0]))
-#define GPCLR1      (*(mem_gpio_base + GPCLR_ADR_OFFSET[1]))
-static const int GPCLR_ADR_OFFSET[] = { 0x0028, 0x002C };
+#define GPLEV0      0x0034
+#define GPLEV1      0x0038
 
-#define GPLEV0      (*(mem_gpio_base + GPLEV_ADR_OFFSET[0]))
-#define GPLEV1      (*(mem_gpio_base + GPLEV_ADR_OFFSET[1]))
-static const int GPLEV_ADR_OFFSET[] = { 0x0034, 0x0038 };
+#define GPEDS0      0x0040
+#define GPEDS1      0x0044
 
-//#define GPEDS0      (*(mem_gpio_base + 0x0040))
-//#define GPEDS1      (*(mem_gpio_base + 0x0044))
+#define GPREN0      0x004C
+#define GPREN1      0x0050
 
-//#define GPREN0      (*(mem_gpio_base + 0x004C))
-//#define GPREN1      (*(mem_gpio_base + 0x0050))
+#define GPFEN0      0x0058
+#define GPFEN1      0x005C
 
-//#define GPFEN0      (*(mem_gpio_base + 0x0058))
-//#define GPFEN1      (*(mem_gpio_base + 0x005C))
+#define GPHEN0      0x0064
+#define GPHEN1      0x0068
 
-//#define GPHEN0      (*(mem_gpio_base + 0x0064))
-//#define GPHEN1      (*(mem_gpio_base + 0x0068))
+#define GPLEN0      0x0070
+#define GPLEN1      0x0074
 
-//#define GPLEN0      (*(mem_gpio_base + 0x0070))
-//#define GPLEN1      (*(mem_gpio_base + 0x0074))
+#define GPAREN0     0x007C
+#define GPAREN1     0x0080
 
-//#define GPAREN0     (*(mem_gpio_base + 0x007C))
-//#define GPAREN1     (*(mem_gpio_base + 0x0080))
+#define GPAFEN0     0x0088
+#define GPAFEN1     0x008C
 
-//#define GPAFEN0     (*(mem_gpio_base + 0x0088))
-//#define GPAFEN1     (*(mem_gpio_base + 0x008C))
-
-#define GPPUD       (*(mem_gpio_base + 0x0094))
-#define GPPUDCLK0   (*(mem_gpio_base + GPPUDCLK_ADR_OFFSET[0]))
-#define GPPUDCLK1   (*(mem_gpio_base + GPPUDCLK_ADR_OFFSET[1]))
-static const int GPPUDCLK_ADR_OFFSET[] = { 0x0098, 0x009C };
+#define GPPUD       0x0094
+#define GPPUDCLK0   0x0098
+#define GPPUDCLK1   0x009C
 
 
+#define FSEL_MASK   (0b111)
 #define FSEL_IN     (0b000)
 #define FSEL_OUT    (0b001)
 #define FSEL_AF0    (0b100)
@@ -101,8 +92,9 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 
-static volatile uint32_t* mem_gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
+static RPIHAL_regptr_t mem_gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
+static int sysGpioLocked = 1;
 
 
 
@@ -113,18 +105,22 @@ static void writePin(int pin, int state);
 
 
 
+//! @return __0__ on success
+//! 
+//! Needs to be called once at the start of the app.
+//! 
 int GPIO_init()
 {
     int r = 0;
 
-    if(!mem_gpio_base)
+    if (!mem_gpio_base)
     {
         int fd;
         off_t mmapoffs;
 
         fd = open("/dev/gpiomem", O_RDWR | O_SYNC | O_CLOEXEC); // no root access needed
 
-        if(fd >= 0)
+        if (fd >= 0)
         {
             mmapoffs = 0;
             usingGpiomem = 1;
@@ -136,72 +132,84 @@ int GPIO_init()
 
             fd = open("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC); // root access needed
 
-            if(fd < 0) r = 1;
+            if (fd < 0) r = 1;
         }
-printf("GPIO_init %i %i", fd, usingGpiomem);
-        if(!r)
-        {
-            mem_gpio_base = (volatile uint32_t*)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
 
-            if(mem_gpio_base == MAP_FAILED)
+        if (!r)
+        {
+            mem_gpio_base = (RPIHAL_regptr_t)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
+
+            if (mem_gpio_base == MAP_FAILED)
             {
                 r = 2;
                 mem_gpio_base = NULL;
             }
         }
     }
-printf("GPIO_init return %i", r);
+
     return r;
 }
 
+//! @param pin BCM GPIO pin number
+//! @param initStruct Pointer to the pin settings
+//! @return __0__ on success
 int GPIO_initPin(int pin, const GPIO_init_t* initStruct)
 {
-    int r = 0; printf("GPIO_initPin %i %i %i\n", (int)mem_gpio_base , (int)initStruct , checkPin(pin));
+    int r = 0;
 
-    if(mem_gpio_base && initStruct && checkPin(pin))
+    if (mem_gpio_base && initStruct && checkPin(pin))
     {
         initPin(pin, initStruct);
     }
     else r = 1;
-printf("GPIO_initPin return %i\n", r);
+
     return r;
 }
 
+//! @param pin BCM GPIO pin number
+//! @return __0__ on success
 int GPIO_readPin(int pin)
 {
     int r = 0;
 
-    if(mem_gpio_base && checkPin(pin)) r = readPin(pin);
+    if (mem_gpio_base && checkPin(pin)) r = readPin(pin);
     else r = -1;
 
     return r;
 }
 
+//! @param pin BCM GPIO pin number
+//! @param state Boolean value representing the pin states HIGH (`1`) and LOW (`0`)
+//! @return __0__ on success
 int GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
-    if(mem_gpio_base && checkPin(pin)) writePin(pin, state);
+    if (mem_gpio_base && checkPin(pin)) writePin(pin, state);
     else r = 1;
 
     return r;
 }
 
+//! @param pin BCM GPIO pin number
+//! @return __0__ on success
 int GPIO_togglePin(int pin)
 {
     int r = 0;
 
-    if(mem_gpio_base && checkPin(pin)) writePin(pin, !readPin(pin));
+    if (mem_gpio_base && checkPin(pin)) writePin(pin, !readPin(pin));
     else r = 1;
 
     return r;
 }
 
+//! @param initStruct Pointer to the pin settings which will be set to the default values
+//! @return __0__ on success
 int GPIO_defaultInitStruct(GPIO_init_t* initStruct)
 {
     int r = 0;
 
-    if(initStruct)
+    if (initStruct)
     {
         initStruct->mode = GPIO_MODE_IN;
         initStruct->pull = GPIO_PULL_NONE;
@@ -212,11 +220,12 @@ int GPIO_defaultInitStruct(GPIO_init_t* initStruct)
     return r;
 }
 
-volatile uint32_t* GPIO_getMemBasePtr()
+RPIHAL_regptr_t GPIO_getMemBasePtr()
 {
     return mem_gpio_base;
 }
 
+//! @return TRUE (`1`), FALSE (`0`) or unknown (`-1`)
 int GPIO_isUsingGpiomem()
 {
     return usingGpiomem;
@@ -224,41 +233,99 @@ int GPIO_isUsingGpiomem()
 
 
 
+uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr)
+{
+    // the last read could potentially go wrong (see chapter 1.3 in BCM2835-ARM-Peripherals.pdf).
+    uint32_t value = *addr;
+    uint32_t garbage __attribute__((unused)) = *addr;
+    return value;
+}
+void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value)
+{
+    // the first write could potentially go wrong (see chapter 1.3 in BCM2835-ARM-Peripherals.pdf).
+    *addr = value;
+    *addr = value;
+}
+void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask)
+{
+    uint32_t regval = BCM2835_reg_read(addr);
+    regval &= ~mask;
+    regval |= (value & mask);
+    BCM2835_reg_write(addr, regval);
+}
+
+
+
+//! @param pin BCM GPIO pin number
+//! @return Boolean value TRUE (`1`) if it's allowed to access the pin, otherwhise FALSE (`0`)
 int checkPin(int pin)
 {
-    if((pin >= GPIO_PIN_FIRST) && (pin <= GPIO_PIN_LAST))
-        return 1;
+    // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+]
 
-    return 0;
+    int r = 0;
+
+    if (sysGpioLocked)
+    {
+        if ((pin >= 2) && (pin <= 27)) r = 1;
+    }
+    else
+    {
+        if ((pin >= 0) && (pin <= 53)) r = 1;
+    }
+
+    return r;
 }
 
 void initPin(int pin, const GPIO_init_t* initStruct)
 {
-    uint32_t fselMask = FSEL_IN;
-    const int fselRegOffs = GPFSEL_ADR_OFFSET[pin / 10];
-
-    if(initStruct->mode == GPIO_MODE_OUT) fselMask = FSEL_OUT;
-    else if(initStruct->mode == GPIO_MODE_AF) fselMask = FSEL_AF_LUT[initStruct->altfunc];
-    else fselMask = FSEL_IN;
-
-    fselMask <<= ((pin % 10) * 3);
-
-    GP_REG(fselRegOffs) &= fselMask;
-    GP_REG(fselRegOffs) |= fselMask;
+    RPIHAL_regptr_t addr;
+    int shift;
+    uint32_t value;
+    uint32_t mask;
 
 
 
-    const int pudclkRegOffs = GPPUDCLK_ADR_OFFSET[pin / 32];
-    const uint32_t pudclkValue = 1 << (pin % 32);
+    // fsel
 
-    GPPUD = (uint32_t)(initStruct->pull);
-    if(!usleep(5)) for(int i = 0; i < 200; ++i) fselMask += 2;
-    GP_REG(pudclkRegOffs) = pudclkValue;
-    if(!usleep(5)) for(int i = 0; i < 200; ++i) fselMask += 2;
-    GPPUD = 0;
-    if(!usleep(5)) for(int i = 0; i < 200; ++i) fselMask += 2; // shouldn't be necesary, to be tested without
-    GP_REG(pudclkRegOffs) = 0;
-    if(!usleep(5)) for(int i = 0; i < 200; ++i) fselMask += 2; // shouldn't be necesary, to be tested without
+    addr = mem_gpio_base + (GPFSEL0 / 4) + (pin / 10);
+    shift = 3 * (pin % 10);
+    if (initStruct->mode == GPIO_MODE_OUT) value = FSEL_OUT;
+    else if (initStruct->mode == GPIO_MODE_AF) value = FSEL_AF_LUT[initStruct->altfunc];
+    else value = FSEL_IN;
+    value <<= shift;
+    mask = FSEL_MASK << shift;
+    BCM2835_reg_write_bits(addr, value, mask);
+
+
+
+    // pud
+
+    addr = mem_gpio_base + (GPPUD / 4);
+    value = (uint32_t)(initStruct->pull);
+    mask = 0b11;
+    BCM2835_reg_write_bits(addr, value, mask);
+
+    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2;
+
+    addr = mem_gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
+    shift = (pin % 32);
+    value = 1 << shift;
+    mask = 1 << shift;
+    BCM2835_reg_write_bits(addr, value, mask);
+
+    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2;
+
+    addr = mem_gpio_base + (GPPUD / 4);
+    value = 0;
+    mask = 0b11;
+    BCM2835_reg_write_bits(addr, value, mask);
+
+    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
+
+    addr = mem_gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
+    BCM2835_reg_write(addr, 0);
+
+    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
 
 
 
@@ -268,10 +335,10 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 int readPin(int pin)
 {
     int r;
-    const int offs = GPLEV_ADR_OFFSET[pin / 32];
+    RPIHAL_regptr_t addr = mem_gpio_base + (GPLEV0 / 4) + (pin / 32);
     const uint32_t bit = 1 << (pin % 32);
 
-    if(GP_REG(offs) & bit) r = 1;
+    if (BCM2835_reg_read(addr) & bit) r = 1;
     else r = 0;
 
     return r;
@@ -279,8 +346,11 @@ int readPin(int pin)
 
 void writePin(int pin, int state)
 {
+    RPIHAL_regptr_t addr = mem_gpio_base + (pin / 32);
     const uint32_t bit = 1 << (pin % 32);
 
-    if(state) GP_REG(GPSET_ADR_OFFSET[pin / 32]) |= bit;
-    else GP_REG(GPCLR_ADR_OFFSET[pin / 32]) |= bit;
+    if (state) addr += (GPSET0 / 4);
+    else addr += (GPCLR0 / 4);
+
+    BCM2835_reg_write(addr, bit);
 }
