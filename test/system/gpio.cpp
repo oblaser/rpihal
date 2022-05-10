@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     GPIO_initPin(BTN_0, &initStruct);
     GPIO_initPin(BTN_1, &initStruct);
 
-    if (GPIO_initPin(0, &initStruct)) cout << "init pin 0 failed, which is OK" << endl;
+    if (GPIO_initPin(0, &initStruct)) cout << "init pin 0 failed, which is right" << endl;
     else cout << "init pin 0 should have failed!" << endl;
 
     uint32_t cnt = 0;
