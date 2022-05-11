@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            10.05.2022
+date            11.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -76,13 +76,16 @@ int UART_read2(const UART_port_t* port, uint8_t* buffer, size_t bufferSize, size
 int UART_read(const UART_port_t* port, uint8_t* buffer, size_t bufferSize)
 { return UART_read2(port, buffer, bufferSize, NULL); }
 
+int UART_readByte2(const UART_port_t* port, uint8_t* byte, size_t* nBytesRead)
+{ return UART_read2(port, byte, 1, nBytesRead); }
+
 int UART_readByte(const UART_port_t* port, uint8_t* byte)
-{ return UART_read2(port, byte, 1, NULL); }
+{ return UART_readByte2(port, byte, NULL); }
 
 int UART_write2(const UART_port_t* port, const uint8_t* data, size_t count, size_t* nBytesWritten);
 
 int UART_write(const UART_port_t* port, const uint8_t* data, size_t count)
-{ return UART_write2(port, data, count); }
+{ return UART_write2(port, data, count, NULL); }
 
 int UART_print2(const UART_port_t* port, const char* str, size_t* nBytesWritten);
 
