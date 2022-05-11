@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            04.05.2022
+date            11.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -12,7 +12,6 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 
 
@@ -24,8 +23,9 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #define BCM_BLOCK_SIZE              (4*1024)
 
 #define PERI_ADR_BASE_BCM2835       0x20000000
-#define PERI_ADR_BASE_BCM2836       0x3F000000
-#define PERI_ADR_BASE_BCM2837       0x3F000000
+#define PERI_ADR_BASE_BCM2836_7     0x3F000000
+#define PERI_ADR_BASE_BCM2836       PERI_ADR_BASE_BCM2836_7
+#define PERI_ADR_BASE_BCM2837       PERI_ADR_BASE_BCM2836_7
 #define PERI_ADR_BASE_BCM2711       0xFE000000
 
 #define PERI_ADR_OFFSET_GPIO        0x00200000 // BCM283x and BCM2711
@@ -127,7 +127,7 @@ int GPIO_init()
         }
         else
         {
-            mmapoffs = PERI_ADR_BASE_BCM2837 + PERI_ADR_OFFSET_GPIO; // !!! DEVICE SPECIFIC !!! DEVSPEC
+            mmapoffs = PERI_ADR_BASE_BCM2836_7 + PERI_ADR_OFFSET_GPIO; // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3) B[+] / 3 A+ / CM 3[+]
             usingGpiomem = 0;
 
             fd = open("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC); // root access needed
@@ -260,7 +260,7 @@ void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask)
 //! @return Boolean value TRUE (`1`) if it's allowed to access the pin, otherwhise FALSE (`0`)
 int checkPin(int pin)
 {
-    // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+]
+    // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
 
     int r = 0;
 

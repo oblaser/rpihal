@@ -21,4 +21,4 @@ Eexcept the `pack_*` scripts don't.
 
 - `build/dep_vstr.txt`
 - ~~`build/dep_readme.txt`~~
-- ~~`src/project.h`~~
+- `include/rpihal/defs.h.h`

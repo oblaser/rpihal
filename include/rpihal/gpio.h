@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            04.05.2022
+date            11.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -38,7 +38,9 @@ extern "C" {
 #define GPIO_AF_4   4
 #define GPIO_AF_5   5
 
-typedef volatile uint32_t* RPIHAL_regptr_t;
+
+typedef volatile uint32_t RPIHAL_reg_t; // register type
+typedef RPIHAL_reg_t* RPIHAL_regptr_t;  // register pointer
 
 typedef struct
 {
@@ -47,6 +49,7 @@ typedef struct
     //int drive;
     int altfunc;
 } GPIO_init_t;
+
 
 int GPIO_init();
 int GPIO_initPin(int pin, const GPIO_init_t* initStruct);
