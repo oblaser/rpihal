@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            11.05.2022
+date            12.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -21,16 +21,8 @@ Since the OS uses the BCM registers, we use the OS' library instead of registers
 #include <termios.h>
 #include <unistd.h>
 
-
-
-// hack, if using VS or VS Code during development
-#warning "TEST" // test
-#ifdef _MSC_VER
-#warning "_MSC_VER defined" // test
-#ifndef RSIZE_MAX
-#warning "RSIZE_MAX defined by rpihal"
+#ifndef RSIZE_MAX // https://stackoverflow.com/a/33604977/16658255
 #define RSIZE_MAX (SIZE_MAX >> 1)
-#endif
 #endif
 
 
@@ -58,6 +50,8 @@ int UART_open(UART_port_t* port, const char* name, int baud)
     if(port)
     {
         r = OPEN_E_OK;
+
+        port->name[0] = 0;
 
         if(name)
         {
@@ -166,7 +160,7 @@ int UART_close(UART_port_t* port)
     return r;
 }
 
-int UART_read2(const UART_port_t* port, uint8_t* buffer, size_t bufferSize, size_t* nBytesRead)
+int UART_read(const UART_port_t* port, uint8_t* buffer, size_t bufferSize, size_t* nBytesRead)
 {
     int r = -1;
     

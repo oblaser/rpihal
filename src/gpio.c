@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            11.05.2022
+date            12.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -12,6 +12,7 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <unistd.h>     // usleep()
 
 
 
@@ -167,7 +168,7 @@ int GPIO_initPin(int pin, const GPIO_init_t* initStruct)
 }
 
 //! @param pin BCM GPIO pin number
-//! @return __0__ on success
+//! @return __0__ LOW / __1__ HIGH / __-1__ error
 int GPIO_readPin(int pin)
 {
     int r = 0;
