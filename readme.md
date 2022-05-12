@@ -1,22 +1,26 @@
-# Raspberry Pi Hardware Abstraction Layer
+# raspihal
 
-Not completed. Grows as I need it.
+A Raspberry Pi Hardware Abstraction Layer for C/C++ projects.
+
+> Not completed. Grows as I need it.
 
 
 
-# GPIO Module
+## GPIO Module
 
-> __CAUTION!__ Currently only supports models with the _~~BCM283x~~_ BCM2836 and BCM2837. Be aware of the different header pinouts on the various boards!
+> __CAUTION!__ Currently only supports models with the BCM2836, BCM2837 and BCM2837B0. _~~BCM283x. Be aware of the different header pinouts on the various boards!~~_
+>
+> Search for _DEVSPEC_ comments in code to find the critical portions.
 
-> __CAUTION!__ look for _DEVICE SPECIFIC_ or _DEVSPEC_ comments in code.
+### Supported Models:
+`2B`
+`3A+`
+`3B`
+`3B+`
 
-Supported Models:
-- 2B
-- 3A+
-- 3B
-- 3B+
+These all have the 40 pin header, which has the same pinout on all models listed above.
 
-## Links
+### Links
 
 - https://elinux.org/RPi_GPIO_Code_Samples
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#general-purpose-io-gpio
