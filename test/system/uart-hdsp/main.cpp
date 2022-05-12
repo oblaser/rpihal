@@ -4,7 +4,7 @@ date            12.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
-// using the HDSP Display project (>= v1.0) for testing UART
+// using the HDSP Display project (v1.x) for testing UART
 // https://github.com/oblaser/HDSP-21xx-driver
 
 
