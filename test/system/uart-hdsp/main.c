@@ -9,10 +9,11 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 
 
 // std includes
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <iostream>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
 
 // prj includes
 //...
@@ -29,16 +30,13 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 
 #define HDSP_RXDATALEN  ((size_t)(rxBuffer[1] + 3))
 
-using std::cout;
-using std::endl;
-
 
 
 UART_port_t uartObj;
-constexpr size_t rxBufferSize = 10;
-uint8_t txBuffer[rxBufferSize * 2]; // huge size because sprintf is used
+#define rxBufferSize ((size_t)(10))
+uint8_t txBuffer[rxBufferSize * 2]; // let's reserve enough memory, because sprintf is used
 uint8_t rxBuffer[rxBufferSize];
-bool rxReady = false;
+int rxReady = 0;
 
 
 static int initGpio();
@@ -53,6 +51,7 @@ static void hdspGenCheckSum(uint8_t* data);
 int main(int argc, char** argv)
 {
     int r = -1;
+    const char* serialPortDevName;
     UART_port_t* const port = &uartObj;
     time_t tOld = 0;
     uint32_t inp, inp_old, inp_pos, inp_neg;
@@ -60,16 +59,14 @@ int main(int argc, char** argv)
 
     if(initGpio() != 0) return 1;
 
-    if(argc == 1) r = UART_open(port, "/dev/ttyUSB0", UART_BAUD_19200);
-    else
-    {
-        std::string argDevName(std::string(argv[1]), 0, UART_NAME_SIZE - 1);
-        r = UART_open(port, argDevName.c_str(), UART_BAUD_19200);
-    }
+    if(argc == 1) serialPortDevName = "/dev/ttyUSB0";
+    else serialPortDevName = argv[1];
+
+    r = UART_open(port, serialPortDevName, UART_BAUD_19200);
 
     if(r)
     {
-        cout << "could not open port \"" << port->name << "\"" << endl;
+        printf("could not open port \"%s\"\n", port->name);
         return 1;
     }
 
@@ -87,15 +84,15 @@ int main(int argc, char** argv)
         if(rxReady)
         {
             procHdspAns();
-            rxReady = false;
+            rxReady = 0;
 
-            time_t tNow = time(nullptr);
+            time_t tNow = time(NULL);
 
             if(tNow != tOld)
             {
                 tOld = tNow;
 
-                const tm ltm = *localtime(&tNow);
+                const struct tm ltm = *localtime(&tNow);
 
                 sprintf((char*)(txBuffer + 2), "%02i:%02i:%02i        ", ltm.tm_hour, ltm.tm_min, ltm.tm_sec);
                 txBuffer[0] = 0x0A; // get I/O
@@ -142,7 +139,7 @@ int initGpio()
 {
     if(GPIO_init() != 0)
     {
-        cout << "GPIO init failed!" << endl;
+        printf("GPIO init failed!\n");
         return 1;
     }
 
@@ -174,7 +171,7 @@ void procHdspAns()
 {
     if(hdspCalcCheckSum(rxBuffer, HDSP_RXDATALEN) != 0)
     {
-        cout << "wrong checksum" << endl;
+        printf("wrong checksum");
         printHdspAns();
     }
     else if(rxBuffer[2] != 0)
@@ -186,7 +183,7 @@ void procHdspAns()
         switch(rxBuffer[0])
         {
         case 0x01: // get info
-            if(rxBuffer[3] == 0) cout << "connected to HDSP v" << (int)(rxBuffer[4]) << "." << (int)(rxBuffer[5]) << endl;
+            if(rxBuffer[3] == 0) printf("connected to HDSP v%i.%i\n", (int)(rxBuffer[4]), (int)(rxBuffer[5]));
             else printHdspAns();
             break;
 
@@ -202,20 +199,20 @@ void procHdspAns()
 
             if(rxBuffer[3] & 0x20)
             {
-                cout << "HDSP button presed" << endl;
+                printf("HDSP button presed\n");
                 GPIO_writePin(LED_0, 1);
             }
 
             if(rxBuffer[3] & 0x40)
             {
-                cout << "HDSP button released" << endl;
+                printf("HDSP button released\n");
                 GPIO_writePin(LED_0, 0);
             }
 
             break;
 
         default:
-            cout << "unknown CMD" << endl;
+            printf("unknown CMD\n");
             printHdspAns();
             break;
         }
@@ -238,22 +235,22 @@ void rxTask()
     static size_t rxIndex = 0;
     size_t nBytes = 0;
 
-    if(UART_readByte(&uartObj, rxBuffer + rxIndex, &nBytes) != 0) cout << "UART_readByte() failed!" << endl;
+    if(UART_readByte(&uartObj, rxBuffer + rxIndex, &nBytes) != 0) printf("UART_readByte() failed!\n");
 
-    if(rxReady && nBytes) cout << "rxBuffer overwritten!" << endl;
+    if(rxReady && nBytes) printf("rxBuffer overwritten!\n");
 
     rxIndex += nBytes;
 
     // received the needed number of bytes (HDSP specific)
     if((rxIndex > 1) && ((size_t)(rxBuffer[1] + 3) == rxIndex))
     {
-        rxReady = true;
+        rxReady = 1;
         rxIndex = 0;
     }
     // you might want something like this instead:
     //if((rxIndex > 0) && (rxBuffer[rxIndex - 1] == 0x0A))
     //{
-    //    rxReady = true;
+    //    rxReady = 1;
     //    rxIndex = 0;
     //}
 }

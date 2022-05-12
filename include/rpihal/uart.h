@@ -4,6 +4,29 @@ date            12.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
+/*
+
+Copyright (c) 2022 Oliver Blaser
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
 #ifndef IG_RPIHAL_UART_H
 #define IG_RPIHAL_UART_H
 
@@ -47,6 +70,19 @@ extern "C" {
 #define UART_BAUD_3000000    (3000000)
 #define UART_BAUD_3500000    (3500000)
 #define UART_BAUD_4000000    (4000000)
+
+enum UART_OPEN_ERROR
+{
+    UART_OPENE_OK = 0,
+    UART_OPENE_NAME,
+    UART_OPENE_FD,
+    UART_OPENE_BAUD,
+    UART_OPENE_TCGETATTR,
+    UART_OPENE_CFSETISPEED,
+    UART_OPENE_CFSETOSPEED,
+    UART_OPENE_TCSETATTR,
+    UART_OPENE__end_
+};
 
 
 typedef struct

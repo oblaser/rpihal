@@ -4,10 +4,10 @@
 # copyright     MIT - Copyright (c) 2022 Oliver Blaser
 
 
-CC = g++
-LINK = g++
+CC = gcc
+LINK = gcc
 
-CFLAGS = -c -I../../../include --std=c++17 -O3 -Wall -pedantic
+CFLAGS = -c -I../../../include -O3 -Wall -pedantic
 LFLAGS = -O3 -Wall -pedantic
 
 OBJS = main.o gpio.o uart.o
@@ -21,8 +21,8 @@ BUILDDATE = $(shell date +"%Y-%m-%d-%H-%M")
 $(EXE): $(OBJS)
 	$(LINK) $(LFLAGS) -o $(EXE) $(OBJS)
 
-main.o: main.cpp ../../../include/rpihal/gpio.h ../../../include/rpihal/uart.h
-	$(CC) $(CFLAGS) main.cpp
+main.o: main.c ../../../include/rpihal/gpio.h ../../../include/rpihal/uart.h
+	$(CC) $(CFLAGS) main.c
 
 gpio.o: ../../../src/gpio.c ../../../include/rpihal/gpio.h
 	$(CC) $(CFLAGS) ../../../src/gpio.c

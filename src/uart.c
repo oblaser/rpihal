@@ -6,6 +6,29 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 
 /*
 
+Copyright (c) 2022 Oliver Blaser
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
+/*
+
 Since the OS uses the BCM registers, we use the OS' library instead of registers to access the UART interface.
 
 */
@@ -31,25 +54,13 @@ static speed_t getUnixBaud(int baud, int* error);
 
 
 
-enum OPEN_ERROR
-{
-    OPEN_E_OK = 0,
-    OPEN_E_NAME,
-    OPEN_E_FD,
-    OPEN_E_BAUD,
-    OPEN_E_TCGETATTR,
-    OPEN_E_CFSETISPEED,
-    OPEN_E_CFSETOSPEED,
-    OPEN_E_TCSETATTR,
-    OPEN_E__end_
-};
 int UART_open(UART_port_t* port, const char* name, int baud)
 {
     int r = -1;
     
     if(port)
     {
-        r = OPEN_E_OK;
+        r = UART_OPENE_OK;
 
         port->name[0] = 0;
 
@@ -57,7 +68,7 @@ int UART_open(UART_port_t* port, const char* name, int baud)
         {
             const size_t nameLen = strlen(name);
             if(nameLen < RSIZE_MAX && (nameLen + 1) <= UART_NAME_SIZE) strcpy(port->name, name);
-            else r = OPEN_E_NAME;
+            else r = UART_OPENE_NAME;
         }
 
         if(!r)
@@ -106,34 +117,34 @@ int UART_open(UART_port_t* port, const char* name, int baud)
                             {
                                 if(tcsetattr(port->fd, TCSANOW, &tty) != 0)
                                 {
-                                    r = OPEN_E_TCSETATTR;
+                                    r = UART_OPENE_TCSETATTR;
                                 }
                                 // else nop, set to OK above
                             }
                             else
                             {
-                                r = OPEN_E_CFSETOSPEED;
+                                r = UART_OPENE_CFSETOSPEED;
                             }
                         }
                         else
                         {
-                            r = OPEN_E_CFSETISPEED;
+                            r = UART_OPENE_CFSETISPEED;
                         }
                     }
-                    else r = OPEN_E_BAUD;
+                    else r = UART_OPENE_BAUD;
                 }
                 else
                 {
-                    r = OPEN_E_TCGETATTR;
+                    r = UART_OPENE_TCGETATTR;
                 }
             }
             else
             {
-                r = OPEN_E_FD;
+                r = UART_OPENE_FD;
             }
         }
 
-        if(!(r == OPEN_E_OK || r == OPEN_E_FD))
+        if(!(r == UART_OPENE_OK || r == UART_OPENE_FD))
         {
             close(port->fd);
             port->fd = -1;
