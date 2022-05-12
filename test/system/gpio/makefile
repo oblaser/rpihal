@@ -10,8 +10,8 @@ LINK = g++
 CFLAGS = -c -I../../../include --std=c++17 -O3 -Wall -pedantic
 LFLAGS = -O3 -Wall -pedantic
 
-OBJS = main.o gpio.o uart.o
-EXE = rpihal-system-test-uart-hdsp
+OBJS = main.o gpio.o
+EXE = rpihal-system-test-gpio
 
 BUILDDATE = $(shell date +"%Y-%m-%d-%H-%M")
 
@@ -21,14 +21,11 @@ BUILDDATE = $(shell date +"%Y-%m-%d-%H-%M")
 $(EXE): $(OBJS)
 	$(LINK) $(LFLAGS) -o $(EXE) $(OBJS)
 
-main.o: main.cpp ../../../include/rpihal/gpio.h ../../../include/rpihal/uart.h
+main.o: main.cpp ../../../include/rpihal/gpio.h
 	$(CC) $(CFLAGS) main.cpp
 
 gpio.o: ../../../src/gpio.c ../../../include/rpihal/gpio.h
 	$(CC) $(CFLAGS) ../../../src/gpio.c
-
-uart.o: ../../../src/uart.c ../../../include/rpihal/uart.h
-	$(CC) $(CFLAGS) ../../../src/uart.c
 
 all: $(EXE)
 	
