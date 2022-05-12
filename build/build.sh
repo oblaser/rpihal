@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # author        Oliver Blaser
-# date          04.05.2022
+# date          12.05.2022
 # copyright     MIT - Copyright (c) 2022 Oliver Blaser
 
 # Usage:
@@ -12,7 +12,7 @@
 source dep_globals.sh
 
 repoDirName=rpihal
-exeName=rpihal-system-test
+exeName=rpihal-unit-test-static
 echoTitle="build $exeName"
 cmakeDirName=cmake
 
@@ -52,6 +52,12 @@ function cmd_cmake_clean()
     procErrorCode $?
 
     rm -f $cmakeDirName/Makefile
+    procErrorCode $?
+
+    rm -f $cmakeDirName/*.a
+    procErrorCode $?
+
+    rm -f $cmakeDirName/*.so
     procErrorCode $?
 
     rm -f $cmakeDirName/$exeName

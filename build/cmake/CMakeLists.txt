@@ -8,22 +8,33 @@ cmake_minimum_required(VERSION 3.13)
 project(rpihal)
 
 include_directories(../../include/)
+link_directories(./)
 
-# set(SOURCES
-# ../../test/system/main.cpp
-# ../../src/gpio.c
-# )
-# 
-# add_executable(rpihal-system-test-gpio ${SOURCES})
-
+set(SHAREDLIB rpihal-shared)
+set(STATICLIB rpihal-static)
+set(UNIT_TEST_EXE_SHARED rpihal-unit-test-shared)
+set(UNIT_TEST_EXE_STATIC rpihal-unit-test-static)
 
 
-#add_executable(rpihal-system-test-gpio
-#../../test/system/gpio.cpp
-#../../src/gpio.c
+# library
+
+set(SOURCES
+../../src/gpio.c
+../../src/uart.c
+)
+
+add_library(${SHAREDLIB} SHARED ${SOURCES})
+add_library(${STATICLIB} STATIC ${SOURCES})
+
+
+# unit test
+
+#set(SOURCES_UNIT_TEST
+#../../tests/unit/main.cpp
 #)
 #
-#add_executable(rpihal-system-test-uart
-#../../test/system/uart.cpp
-#../../src/uart.c
-#)
+#add_executable(${UNIT_TEST_EXE_SHARED} ${SOURCES_UNIT_TEST})
+#target_link_libraries(${UNIT_TEST_EXE_SHARED} lib${SHAREDLIB}.so)
+#
+#add_executable(${UNIT_TEST_EXE_STATIC} ${SOURCES_UNIT_TEST})
+#target_link_libraries(${UNIT_TEST_EXE_STATIC} lib${STATICLIB}.a)
