@@ -102,15 +102,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define GPPUDCLK1   0x009C
 
 
-#define FSEL_MASK   (0b111)
-#define FSEL_IN     (0b000)
-#define FSEL_OUT    (0b001)
-#define FSEL_AF0    (0b100)
-#define FSEL_AF1    (0b101)
-#define FSEL_AF2    (0b110)
-#define FSEL_AF3    (0b111)
-#define FSEL_AF4    (0b011)
-#define FSEL_AF5    (0b010)
+#define FSEL_MASK   (0x07)
+#define FSEL_IN     (0x00)
+#define FSEL_OUT    (0x01)
+#define FSEL_AF0    (0x04)
+#define FSEL_AF1    (0x05)
+#define FSEL_AF2    (0x06)
+#define FSEL_AF3    (0x07)
+#define FSEL_AF4    (0x03)
+#define FSEL_AF5    (0x02)
 static const uint32_t FSEL_AF_LUT[] = {
     FSEL_AF0, FSEL_AF1, FSEL_AF2, FSEL_AF3, FSEL_AF4, FSEL_AF5 }; // FSEL alternate function look up table
 
@@ -326,7 +326,7 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 
     addr = gpio_base + (GPPUD / 4);
     value = (uint32_t)(initStruct->pull);
-    mask = 0b11;
+    mask = 0x03;
     BCM2835_reg_write_bits(addr, value, mask);
 
     if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2;
@@ -341,7 +341,7 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 
     addr = gpio_base + (GPPUD / 4);
     value = 0;
-    mask = 0b11;
+    mask = 0x03;
     BCM2835_reg_write_bits(addr, value, mask);
 
     if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without

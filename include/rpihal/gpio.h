@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            11.05.2022
+date            12.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -41,9 +41,9 @@ extern "C" {
 #define GPIO_MODE_OUT   1
 #define GPIO_MODE_AF    2
 
-#define GPIO_PULL_NONE  (0b00)
-#define GPIO_PULL_DOWN  (0b01)
-#define GPIO_PULL_UP    (0b10)
+#define GPIO_PULL_NONE  (0x00)
+#define GPIO_PULL_DOWN  (0x01)
+#define GPIO_PULL_UP    (0x02)
 
 //#define GPIO_DRIVE_2mA      0
 //#define GPIO_DRIVE_4mA      1
