@@ -54,6 +54,12 @@ function cmd_cmake_clean()
     rm -f $cmakeDirName/Makefile
     procErrorCode $?
 
+    rm -f $cmakeDirName/*.a
+    procErrorCode $?
+
+    rm -f $cmakeDirName/*.so
+    procErrorCode $?
+
     rm -f $cmakeDirName/$exeName
     procErrorCode $?
 }
