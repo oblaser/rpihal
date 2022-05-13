@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.05.2022
+date            13.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -116,6 +116,11 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 
+// !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
+#define USER_PINS_MASK   (0x0FFFFFFC)
+
+
+
 static RPIHAL_regptr_t gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
 static int sysGpioLocked = 1;
@@ -202,6 +207,19 @@ int GPIO_readPin(int pin)
     return r;
 }
 
+uint32_t GPIO_read()
+{
+    uint32_t value = 0;
+
+    if(gpio_base)
+    {
+        RPIHAL_regptr_t addr = gpio_base + (GPLEV0 / 4);
+        value = BCM2835_reg_read(addr);
+    }
+
+    return value;
+}
+
 //! @param pin BCM GPIO pin number
 //! @param state Boolean value representing the pin states HIGH (`1`) and LOW (`0`)
 //! @return __0__ on success
@@ -210,6 +228,34 @@ int GPIO_writePin(int pin, int state)
     int r = 0;
 
     if (gpio_base && checkPin(pin)) writePin(pin, state);
+    else r = 1;
+
+    return r;
+}
+
+int GPIO_set(uint32_t bits)
+{
+    int r = 0;
+
+    if(gpio_base)
+    {
+        RPIHAL_regptr_t addr = gpio_base + (GPSET0 / 4);
+        BCM2835_reg_write(addr, (bits & USER_PINS_MASK));
+    }
+    else r = 1;
+
+    return r;
+}
+
+int GPIO_clr(uint32_t bits)
+{
+    int r = 0;
+
+    if(gpio_base)
+    {
+        RPIHAL_regptr_t addr = gpio_base + (GPCLR0 / 4);
+        BCM2835_reg_write(addr, (bits & USER_PINS_MASK));
+    }
     else r = 1;
 
     return r;

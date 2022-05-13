@@ -4,7 +4,7 @@ A Raspberry Pi Hardware Abstraction Layer for C/C++ projects.
 
 > Not completed. Grows as I need it.
 
-The system tests can be considered as examples :wink:
+The system tests can also be considered as examples :wink:
 
 
 

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.05.2022
+date            13.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -77,7 +77,10 @@ typedef struct
 int GPIO_init();
 int GPIO_initPin(int pin, const GPIO_init_t* initStruct);
 int GPIO_readPin(int pin);
+uint32_t GPIO_read();
 int GPIO_writePin(int pin, int state);
+int GPIO_set(uint32_t bits);
+int GPIO_clr(uint32_t bits);
 int GPIO_togglePin(int pin);
 int GPIO_defaultInitStruct(GPIO_init_t* initStruct);
 RPIHAL_regptr_t GPIO_getMemBasePtr();
