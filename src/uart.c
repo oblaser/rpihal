@@ -27,12 +27,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-/*
-
-Since the OS uses the BCM registers, we use the OS' library instead of registers to access the UART interface.
-
-*/
-
 #include <errno.h> // RSIZE_MAX
 #include <stddef.h>
 #include <stdint.h>

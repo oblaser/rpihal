@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.05.2022
+date            13.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -22,11 +22,19 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #include "rpihal/gpio.h"
 #include "rpihal/uart.h"
 
-
+#if 0 // using my WP board
 #define BTN_0   4
 #define BTN_1   17
 #define LED_0   22
 #define LED_1   10
+#elif 1 // using the Iono Pi
+#define BTN_0   6   // DI5
+#define BTN_1   5   // DI6
+#define LED_0   7   // L1
+#define LED_1   23  // O4
+#else
+#error "choose board"
+#endif
 
 #define HDSP_RXDATALEN  ((size_t)(rxBuffer[1] + 3))
 

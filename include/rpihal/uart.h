@@ -27,6 +27,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+/*
+
+Since the OS uses the BCM registers, we use the OS' library instead of registers to access the UART interface.
+
+*/
+
 #ifndef IG_RPIHAL_UART_H
 #define IG_RPIHAL_UART_H
 

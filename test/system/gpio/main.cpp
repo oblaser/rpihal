@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            04.05.2022
+date            11.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -10,12 +10,11 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #include <unistd.h>
 
 
+// using my WP board
 #define BTN_0   4
 #define BTN_1   17
-
 #define LED_0   22
 #define LED_1   10
-
 #define RELAY_0 11
 #define RELAY_1 19
 #define RELAY_2 26
@@ -24,7 +23,6 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 
 using std::cout;
 using std::endl;
-
 
 
 int main(int argc, char** argv)

@@ -2,7 +2,7 @@
 
 
 
-### v0.1.0-rc
+### v0.1.0
 
 New
  - init pin as IN, OUT or AF
