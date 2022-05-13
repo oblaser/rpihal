@@ -8,19 +8,14 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 // https://github.com/oblaser/HDSP-21xx-driver
 
 
-// std includes
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 
-// prj includes
-//...
-
-// lib includes
-#include "rpihal/gpio.h"
-#include "rpihal/uart.h"
+#include <rpihal/gpio.h>
+#include <rpihal/uart.h>
 
 #if 0 // using my WP board
 #define BTN_0   4
@@ -28,8 +23,8 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #define LED_0   22
 #define LED_1   10
 #elif 1 // using the Iono Pi
-#define BTN_0   6   // DI5
-#define BTN_1   5   // DI6
+#define BTN_0   12  // DI4
+#define BTN_1   6   // DI5
 #define LED_0   7   // L1
 #define LED_1   23  // O4
 #else

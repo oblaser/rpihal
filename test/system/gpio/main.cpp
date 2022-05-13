@@ -6,7 +6,7 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 
 #include <iostream>
 
-#include "rpihal/gpio.h"
+#include <rpihal/gpio.h>
 #include <unistd.h>
 
 

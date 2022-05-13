@@ -127,6 +127,10 @@ static int sysGpioLocked = 1;
 
 
 
+static uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr);
+static void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value);
+static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask);
+
 static int checkPin(int pin);
 static void initPin(int pin, const GPIO_init_t* initStruct);
 static int readPin(int pin);
