@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            13.05.2022
+date            19.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -118,7 +118,11 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
-#define USER_PINS_MASK   (0x0FFFFFFC)
+#define USER_PINS_MASK      (0x0FFFFFFC)
+#define FIRST_PIN           0
+#define FIRST_USER_PIN      2
+#define LAST_USER_PIN       27
+#define LAST_PIN            53
 
 
 
@@ -278,6 +282,49 @@ int GPIO_togglePin(int pin)
     return r;
 }
 
+//! @return __0__ on success
+//! 
+//! Resets all user pins to their default setups.
+//! 
+int GPIO_reset()
+{
+    int r = 0;
+
+    if (gpio_base)
+    {
+        GPIO_init_t initStruct;
+
+        for(int i_pin = FIRST_USER_PIN; i_pin <= LAST_USER_PIN; ++i_pin)
+        {
+            GPIO_defaultInitStructPin(i_pin, &initStruct);
+            initPin(i_pin, &initStruct);
+        }
+    }
+    else r = 1;
+
+    return r;
+}
+
+//! @param pin BCM GPIO pin number
+//! @return __0__ on success
+//! 
+//! Resets the specified pin to it's default setup.
+//! 
+int GPIO_resetPin(int pin)
+{
+    int r = 0;
+
+    if (gpio_base && checkPin(pin))
+    {
+        GPIO_init_t initStruct;
+        GPIO_defaultInitStructPin(pin, &initStruct);
+        initPin(pin, &initStruct);
+    }
+    else r = 1;
+
+    return r;
+}
+
 //! @param initStruct Pointer to the pin settings which will be set to the default values
 //! @return __0__ on success
 int GPIO_defaultInitStruct(GPIO_init_t* initStruct)
@@ -287,7 +334,36 @@ int GPIO_defaultInitStruct(GPIO_init_t* initStruct)
     if (initStruct)
     {
         initStruct->mode = GPIO_MODE_IN;
-        initStruct->pull = GPIO_PULL_NONE;
+        initStruct->pull = GPIO_PULL_DOWN;
+        initStruct->altfunc = GPIO_AF_0;
+    }
+    else r = 1;
+
+    return r;
+}
+
+int GPIO_defaultInitStructPin(int pin, GPIO_init_t* initStruct)
+{
+    int r = 0;
+
+    if (initStruct)
+    {
+        initStruct->mode = GPIO_MODE_IN;
+        
+        if (((pin >= 0) && (pin <= 8)) ||
+            ((pin >= 34) && (pin <= 36)) ||
+            ((pin >= 46) && (pin <= 53)))
+        {
+            initStruct->pull = GPIO_PULL_UP;
+        }
+        else if (((pin >= 9) && (pin <= 27)) ||
+            ((pin >= 30) && (pin <= 33)) ||
+            ((pin >= 37) && (pin <= 43)))
+        {
+            initStruct->pull = GPIO_PULL_DOWN;
+        }
+        else initStruct->pull = GPIO_PULL_NONE;
+        
         initStruct->altfunc = GPIO_AF_0;
     }
     else r = 1;
@@ -335,17 +411,15 @@ void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask)
 //! @return Boolean value TRUE (`1`) if it's allowed to access the pin, otherwhise FALSE (`0`)
 int checkPin(int pin)
 {
-    // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
-
     int r = 0;
 
     if (sysGpioLocked)
     {
-        if ((pin >= 2) && (pin <= 27)) r = 1;
+        if ((pin >= FIRST_USER_PIN) && (pin <= LAST_USER_PIN)) r = 1;
     }
     else
     {
-        if ((pin >= 0) && (pin <= 53)) r = 1;
+        if ((pin >= FIRST_PIN) && (pin <= LAST_PIN)) r = 1;
     }
 
     return r;

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # author        Oliver Blaser
-# date          17.05.2022
+# date          19.05.2022
 # copyright     MIT - Copyright (c) 2022 Oliver Blaser
 
 # Usage:
@@ -52,6 +52,13 @@ function copy_bin()
 
     cp ./cmake/librpihal-static.a ../lib/lib${prjBinName}.a
     procErrorCode $?
+
+    cd ../lib
+    if [ $? -eq 0 ]
+    then
+        ln -sf lib${prjBinName}.so.$versionstr lib${prjBinName}.so
+        cd ../build
+    fi
 }
 
 function cmd_cmake_clean()

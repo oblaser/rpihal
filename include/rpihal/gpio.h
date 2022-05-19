@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            13.05.2022
+date            19.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -82,7 +82,10 @@ int GPIO_writePin(int pin, int state);
 int GPIO_set(uint32_t bits);
 int GPIO_clr(uint32_t bits);
 int GPIO_togglePin(int pin);
+int GPIO_reset();
+int GPIO_resetPin(int pin);
 int GPIO_defaultInitStruct(GPIO_init_t* initStruct);
+int GPIO_defaultInitStructPin(int pin, GPIO_init_t* initStruct);
 RPIHAL_regptr_t GPIO_getMemBasePtr();
 int GPIO_isUsingGpiomem();
 
