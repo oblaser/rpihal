@@ -38,8 +38,8 @@ extern "C" {
 #define RPIHAL_VERSION_MAJOR            0
 #define RPIHAL_VERSION_MINOR            1
 #define RPIHAL_VERSION_PATCH            0
-#define RPIHAL_VERSION_PRERELEASE       "rc.1"
-#define RPIHAL_VERSION_ISPRERELEASE     1
+#define RPIHAL_VERSION_PRERELEASE       ""
+#define RPIHAL_VERSION_ISPRERELEASE     0
 
 
 #ifdef __cplusplus
