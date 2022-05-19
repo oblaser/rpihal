@@ -31,8 +31,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdint.h>
 #include <string.h>
 
+#include "./__platform_check__.h"
 #include "rpihal/uart.h"
-#include "zPlatformCheck.h"
 
 #include <fcntl.h>
 #include <termios.h>

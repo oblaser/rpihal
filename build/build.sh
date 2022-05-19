@@ -13,7 +13,8 @@ source dep_globals.sh
 
 repoDirName=rpihal
 exeName=rpihal-unit-test-static
-echoTitle="build $exeName"
+#echoTitle="build $exeName"
+echoTitle="build $prjBinName"
 cmakeDirName=cmake
 
 

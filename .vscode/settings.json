@@ -12,6 +12,7 @@
         "glibc-types.h": "c",
         "cdefs.h": "c",
         "ionopi.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "__platform_check__.h": "c"
     }
 }

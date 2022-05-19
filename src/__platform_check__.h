@@ -36,11 +36,11 @@ extern "C" {
 
 
 #ifndef __linux__
-#error "not a Linux platform"
+#error "not a Linux platform - this library is only for the Raspberry Pi!"
 #endif
 
 #ifndef __arm__
-#error "not an ARM platform"
+#error "not an ARM platform - this library is only for the Raspberry Pi!"
 #endif
 
 #ifdef __aarch64__
