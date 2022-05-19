@@ -1,11 +1,15 @@
 #!/bin/bash
 
 # author        Oliver Blaser
-# date          12.05.2022
+# date          17.05.2022
 # copyright     MIT - Copyright (c) 2022 Oliver Blaser
 
+prjName="rpihal"
+prjDisplayName="Raspberry Pi Hardware Abstraction Layer"
+prjBinName=$prjName
+prjDirName=$prjName
+
 versionstr=$(head -n 1 dep_vstr.txt)
-prjDirName="rpihal"
 
 function ptintTitle()
 {
@@ -17,6 +21,7 @@ function ptintTitle()
     fi
 }
 
+# pass output filename as argument
 function writeReadmeFile()
 {
     echo ""                                                                                              > $1

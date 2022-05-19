@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # author        Oliver Blaser
-# date          12.05.2022
+# date          17.05.2022
 # copyright     MIT - Copyright (c) 2022 Oliver Blaser
 
 # Usage:
@@ -38,6 +38,20 @@ function printHelp()
     echo "  make        make"
     echo "  clean       make clean"
     echo "  run         execute"
+}
+
+function copy_bin()
+{
+    mkdir -p ../lib
+    procErrorCode $?
+
+    # the source file to copy is the target file in the CMakeLists.txt
+
+    cp ./cmake/librpihal-shared.so ../lib/lib${prjBinName}.so.$versionstr
+    procErrorCode $?
+
+    cp ./cmake/librpihal-static.a ../lib/lib${prjBinName}.a
+    procErrorCode $?
 }
 
 function cmd_cmake_clean()
@@ -82,10 +96,15 @@ function cmd_make()
     procErrorCode $?
     cd ..
     procErrorCode $?
+
+    if [ $errCnt -eq 0 ]; then copy_bin; fi;
 }
 
 function cmd_clean()
 {
+    rm -rf ../../rpihal/lib
+    procErrorCode $?
+    
     cd ./$cmakeDirName
     procErrorCode $?
     make clean

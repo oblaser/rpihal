@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            13.05.2022
+date            17.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -22,9 +22,9 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #define BTN_BROOM_1_PIN     IONOPI_DI4
 #define BTN_BROOM_2_PIN     IONOPI_DI5
 
-#define BTN_STAIRS_BIT      (1 << IONOPI_DI3)
-#define BTN_BROOM_1_BIT     (1 << IONOPI_DI4)
-#define BTN_BROOM_2_BIT     (1 << IONOPI_DI5)
+#define BTN_STAIRS_BIT      (1 << BTN_STAIRS_PIN)
+#define BTN_BROOM_1_BIT     (1 << BTN_BROOM_1_PIN)
+#define BTN_BROOM_2_BIT     (1 << BTN_BROOM_2_PIN)
 
 #define LIGHT_STAIRS_PIN    IONOPI_O2
 #define LIGHT_BROOM_1_PIN   IONOPI_O3

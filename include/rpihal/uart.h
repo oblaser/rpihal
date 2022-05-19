@@ -106,8 +106,8 @@ typedef struct
 
 //! @brief Opens and inits a serial port.
 //! @param port Pointer to the ports instance
-//! @param name Path of the serial port device
-//! @param baud Baudrate
+//! @param name Path of the serial port device (must not point to `port->name`)
+//! @param baud Baudrate, one of `UART_BAUD_..`
 //! @return __0__ on success
 int UART_open(UART_port_t* port, const char* name, int baud/*, parity, nStop*/);
 

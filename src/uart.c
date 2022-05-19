@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.05.2022
+date            19.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -27,20 +27,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#include <errno.h> // RSIZE_MAX
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "rpihal/uart.h"
+#include "zPlatformCheck.h"
 
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
-
-#ifndef RSIZE_MAX // https://stackoverflow.com/a/33604977/16658255
-#define RSIZE_MAX (SIZE_MAX >> 1)
-#endif
 
 
 
@@ -61,7 +57,7 @@ int UART_open(UART_port_t* port, const char* name, int baud)
         if(name)
         {
             const size_t nameLen = strlen(name);
-            if(nameLen < RSIZE_MAX && (nameLen + 1) <= UART_NAME_SIZE) strcpy(port->name, name);
+            if(nameLen < UART_NAME_SIZE) strcpy(port->name, name);
             else r = UART_OPENE_NAME;
         }
 
@@ -235,133 +231,133 @@ speed_t getUnixBaud(int baud, int* error)
 
     switch (baud)
     {
-        case 0:
-            r = B0;
-            break;
+    case 0:
+        r = B0;
+        break;
 
-        case 50:
-            r = B50;
-            break;
+    case 50:
+        r = B50;
+        break;
 
-        case 75:
-            r = B75;
-            break;
+    case 75:
+        r = B75;
+        break;
 
-        case 110:
-            r = B110;
-            break;
+    case 110:
+        r = B110;
+        break;
 
-        case 134:
-            r = B134;
-            break;
+    case 134:
+        r = B134;
+        break;
 
-        case 150:
-            r = B150;
-            break;
+    case 150:
+        r = B150;
+        break;
 
-        case 200:
-            r = B200;
-            break;
+    case 200:
+        r = B200;
+        break;
 
-        case 300:
-            r = B300;
-            break;
+    case 300:
+        r = B300;
+        break;
 
-        case 600:
-            r = B600;
-            break;
+    case 600:
+        r = B600;
+        break;
 
-        case 1200:
-            r = B1200;
-            break;
+    case 1200:
+        r = B1200;
+        break;
 
-        case 1800:
-            r = B1800;
-            break;
+    case 1800:
+        r = B1800;
+        break;
 
-        case 2400:
-            r = B2400;
-            break;
+    case 2400:
+        r = B2400;
+        break;
 
-        case 4800:
-            r = B4800;
-            break;
+    case 4800:
+        r = B4800;
+        break;
 
-        case 9600:
-            r = B9600;
-            break;
+    case 9600:
+        r = B9600;
+        break;
 
-        case 19200:
-            r = B19200;
-            break;
+    case 19200:
+        r = B19200;
+        break;
 
-        case 38400:
-            r = B38400;
-            break;
+    case 38400:
+        r = B38400;
+        break;
 
-        case 57600:
-            r = B57600;
-            break;
+    case 57600:
+        r = B57600;
+        break;
 
-        case 115200:
-            r = B115200;
-            break;
+    case 115200:
+        r = B115200;
+        break;
 
-        case 230400:
-            r = B230400;
-            break;
+    case 230400:
+        r = B230400;
+        break;
 
-        case 460800:
-            r = B460800;
-            break;
+    case 460800:
+        r = B460800;
+        break;
 
-        case 500000:
-            r = B500000;
-            break;
+    case 500000:
+        r = B500000;
+        break;
 
-        case 576000:
-            r = B576000;
-            break;
+    case 576000:
+        r = B576000;
+        break;
 
-        case 921600:
-            r = B921600;
-            break;
+    case 921600:
+        r = B921600;
+        break;
 
-        case 1000000:
-            r = B1000000;
-            break;
+    case 1000000:
+        r = B1000000;
+        break;
 
-        case 1152000:
-            r = B1152000;
-            break;
+    case 1152000:
+        r = B1152000;
+        break;
 
-        case 1500000:
-            r = B1500000;
-            break;
+    case 1500000:
+        r = B1500000;
+        break;
 
-        case 2000000:
-            r = B2000000;
-            break;
+    case 2000000:
+        r = B2000000;
+        break;
 
-        case 2500000:
-            r = B2500000;
-            break;
+    case 2500000:
+        r = B2500000;
+        break;
 
-        case 3000000:
-            r = B3000000;
-            break;
+    case 3000000:
+        r = B3000000;
+        break;
 
-        case 3500000:
-            r = B3500000;
-            break;
+    case 3500000:
+        r = B3500000;
+        break;
 
-        case 4000000:
-            r = B4000000;
-            break;
+    case 4000000:
+        r = B4000000;
+        break;
 
-        default:
-            e = 1;
-            break;
+    default:
+        e = 1;
+        break;
     };
 
     if(error) *error = e;
