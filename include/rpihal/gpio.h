@@ -37,29 +37,29 @@ extern "C" {
 #include <stdint.h>
 
 
-#define GPIO_MODE_IN    0
-#define GPIO_MODE_OUT   1
-#define GPIO_MODE_AF    2
+#define RPIHAL_GPIO_MODE_IN    0
+#define RPIHAL_GPIO_MODE_OUT   1
+#define RPIHAL_GPIO_MODE_AF    2
 
-#define GPIO_PULL_NONE  (0x00)
-#define GPIO_PULL_DOWN  (0x01)
-#define GPIO_PULL_UP    (0x02)
+#define RPIHAL_GPIO_PULL_NONE  (0x00)
+#define RPIHAL_GPIO_PULL_DOWN  (0x01)
+#define RPIHAL_GPIO_PULL_UP    (0x02)
 
-//#define GPIO_DRIVE_2mA      0
-//#define GPIO_DRIVE_4mA      1
-//#define GPIO_DRIVE_6mA      2
-//#define GPIO_DRIVE_8mA      3
-//#define GPIO_DRIVE_10mA     4
-//#define GPIO_DRIVE_12mA     5
-//#define GPIO_DRIVE_14mA     6
-//#define GPIO_DRIVE_16mA     7
+//#define RPIHAL_GPIO_DRIVE_2mA      0
+//#define RPIHAL_GPIO_DRIVE_4mA      1
+//#define RPIHAL_GPIO_DRIVE_6mA      2
+//#define RPIHAL_GPIO_DRIVE_8mA      3
+//#define RPIHAL_GPIO_DRIVE_10mA     4
+//#define RPIHAL_GPIO_DRIVE_12mA     5
+//#define RPIHAL_GPIO_DRIVE_14mA     6
+//#define RPIHAL_GPIO_DRIVE_16mA     7
 
-#define GPIO_AF_0   0
-#define GPIO_AF_1   1
-#define GPIO_AF_2   2
-#define GPIO_AF_3   3
-#define GPIO_AF_4   4
-#define GPIO_AF_5   5
+#define RPIHAL_GPIO_AF_0   0
+#define RPIHAL_GPIO_AF_1   1
+#define RPIHAL_GPIO_AF_2   2
+#define RPIHAL_GPIO_AF_3   3
+#define RPIHAL_GPIO_AF_4   4
+#define RPIHAL_GPIO_AF_5   5
 
 
 typedef volatile uint32_t RPIHAL_reg_t; // register type
@@ -71,23 +71,23 @@ typedef struct
     int pull;
     //int drive;
     int altfunc;
-} GPIO_init_t;
+} RPIHAL_GPIO_init_t;
 
 
-int GPIO_init();
-int GPIO_initPin(int pin, const GPIO_init_t* initStruct);
-int GPIO_readPin(int pin);
-uint32_t GPIO_read();
-int GPIO_writePin(int pin, int state);
-int GPIO_set(uint32_t bits);
-int GPIO_clr(uint32_t bits);
-int GPIO_togglePin(int pin);
-int GPIO_reset();
-int GPIO_resetPin(int pin);
-int GPIO_defaultInitStruct(GPIO_init_t* initStruct);
-int GPIO_defaultInitStructPin(int pin, GPIO_init_t* initStruct);
-RPIHAL_regptr_t GPIO_getMemBasePtr();
-int GPIO_isUsingGpiomem();
+int RPIHAL_GPIO_init();
+int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
+int RPIHAL_GPIO_readPin(int pin);
+uint32_t RPIHAL_GPIO_read();
+int RPIHAL_GPIO_writePin(int pin, int state);
+int RPIHAL_GPIO_set(uint32_t bits);
+int RPIHAL_GPIO_clr(uint32_t bits);
+int RPIHAL_GPIO_togglePin(int pin);
+int RPIHAL_GPIO_reset();
+int RPIHAL_GPIO_resetPin(int pin);
+int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct);
+int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
+RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr();
+int RPIHAL_GPIO_isUsingGpiomem();
 
 
 #ifdef __cplusplus

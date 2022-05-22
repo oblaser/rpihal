@@ -44,21 +44,21 @@ static speed_t getUnixBaud(int baud, int* error);
 
 
 
-int UART_open(UART_port_t* port, const char* name, int baud)
+int RPIHAL_UART_open(RPIHAL_UART_port_t* port, const char* name, int baud)
 {
     int r = -1;
     
     if(port)
     {
-        r = UART_OPENE_OK;
+        r = RPIHAL_UART_OPENE_OK;
 
         port->name[0] = 0;
 
         if(name)
         {
             const size_t nameLen = strlen(name);
-            if(nameLen < UART_NAME_SIZE) strcpy(port->name, name);
-            else r = UART_OPENE_NAME;
+            if(nameLen < RPIHAL_UART_NAME_SIZE) strcpy(port->name, name);
+            else r = RPIHAL_UART_OPENE_NAME;
         }
 
         if(!r)
@@ -107,34 +107,34 @@ int UART_open(UART_port_t* port, const char* name, int baud)
                             {
                                 if(tcsetattr(port->fd, TCSANOW, &tty) != 0)
                                 {
-                                    r = UART_OPENE_TCSETATTR;
+                                    r = RPIHAL_UART_OPENE_TCSETATTR;
                                 }
                                 // else nop, set to OK above
                             }
                             else
                             {
-                                r = UART_OPENE_CFSETOSPEED;
+                                r = RPIHAL_UART_OPENE_CFSETOSPEED;
                             }
                         }
                         else
                         {
-                            r = UART_OPENE_CFSETISPEED;
+                            r = RPIHAL_UART_OPENE_CFSETISPEED;
                         }
                     }
-                    else r = UART_OPENE_BAUD;
+                    else r = RPIHAL_UART_OPENE_BAUD;
                 }
                 else
                 {
-                    r = UART_OPENE_TCGETATTR;
+                    r = RPIHAL_UART_OPENE_TCGETATTR;
                 }
             }
             else
             {
-                r = UART_OPENE_FD;
+                r = RPIHAL_UART_OPENE_FD;
             }
         }
 
-        if(!(r == UART_OPENE_OK || r == UART_OPENE_FD))
+        if(!(r == RPIHAL_UART_OPENE_OK || r == RPIHAL_UART_OPENE_FD))
         {
             close(port->fd);
             port->fd = -1;
@@ -144,7 +144,7 @@ int UART_open(UART_port_t* port, const char* name, int baud)
     return r;
 }
 
-int UART_close(UART_port_t* port)
+int RPIHAL_UART_close(RPIHAL_UART_port_t* port)
 {
     int r = -1;
     
@@ -161,7 +161,7 @@ int UART_close(UART_port_t* port)
     return r;
 }
 
-int UART_read(const UART_port_t* port, uint8_t* buffer, size_t bufferSize, size_t* nBytesRead)
+int RPIHAL_UART_read(const RPIHAL_UART_port_t* port, uint8_t* buffer, size_t bufferSize, size_t* nBytesRead)
 {
     int r = -1;
     
@@ -180,7 +180,7 @@ int UART_read(const UART_port_t* port, uint8_t* buffer, size_t bufferSize, size_
     return r;
 }
 
-int UART_write2(const UART_port_t* port, const uint8_t* data, size_t count, size_t* nBytesWritten)
+int RPIHAL_UART_write2(const RPIHAL_UART_port_t* port, const uint8_t* data, size_t count, size_t* nBytesWritten)
 {
     int r = -1;
     
@@ -201,7 +201,7 @@ int UART_write2(const UART_port_t* port, const uint8_t* data, size_t count, size
     return r;
 }
 
-int UART_print2(const UART_port_t* port, const char* str, size_t* nBytesWritten)
+int RPIHAL_UART_print2(const RPIHAL_UART_port_t* port, const char* str, size_t* nBytesWritten)
 {
     int r = -1;
     
@@ -209,13 +209,13 @@ int UART_print2(const UART_port_t* port, const char* str, size_t* nBytesWritten)
     {
         const size_t len = strlen(str);
         
-        r = UART_write2(port, (uint8_t*)str, len, nBytesWritten);
+        r = RPIHAL_UART_write2(port, (uint8_t*)str, len, nBytesWritten);
     }
     
     return r;
 }
 
-int UART_isOpen(const UART_port_t* port)
+int RPIHAL_UART_isOpen(const RPIHAL_UART_port_t* port)
 {
     int r = 0;
     if(port && (port->fd >= 0)) r = 1;

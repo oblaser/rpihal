@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            13.05.2022
+date            19.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -42,6 +42,25 @@ extern "C" {
 #define IONOPI_OC1  (18)
 #define IONOPI_OC2  (25)
 #define IONOPI_OC3  (24)
+
+
+#define IONOPI_O1_BIT   (1 << IONOPI_O1)
+#define IONOPI_O2_BIT   (1 << IONOPI_O2)
+#define IONOPI_O3_BIT   (1 << IONOPI_O3)
+#define IONOPI_O4_BIT   (1 << IONOPI_O4)
+#define IONOPI_TTL1_BIT (1 << IONOPI_TTL1)
+#define IONOPI_TTL2_BIT (1 << IONOPI_TTL2)
+#define IONOPI_TTL3_BIT (1 << IONOPI_TTL3)
+#define IONOPI_TTL4_BIT (1 << IONOPI_TTL4)
+#define IONOPI_DI1_BIT  (1 << IONOPI_DI1)
+#define IONOPI_DI2_BIT  (1 << IONOPI_DI2)
+#define IONOPI_DI3_BIT  (1 << IONOPI_DI3)
+#define IONOPI_DI4_BIT  (1 << IONOPI_DI4)
+#define IONOPI_DI5_BIT  (1 << IONOPI_DI5)
+#define IONOPI_DI6_BIT  (1 << IONOPI_DI6)
+#define IONOPI_OC1_BIT  (1 << IONOPI_OC1)
+#define IONOPI_OC2_BIT  (1 << IONOPI_OC2)
+#define IONOPI_OC3_BIT  (1 << IONOPI_OC3)
 
 
 #ifdef __cplusplus

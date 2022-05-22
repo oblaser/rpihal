@@ -137,7 +137,7 @@ static void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value);
 static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask);
 
 static int checkPin(int pin);
-static void initPin(int pin, const GPIO_init_t* initStruct);
+static void initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
 static int readPin(int pin);
 static void writePin(int pin, int state);
 
@@ -147,7 +147,7 @@ static void writePin(int pin, int state);
 //! 
 //! Needs to be called once at the start of the app.
 //! 
-int GPIO_init()
+int RPIHAL_GPIO_init()
 {
     int r = 0;
 
@@ -191,7 +191,7 @@ int GPIO_init()
 //! @param pin BCM GPIO pin number
 //! @param initStruct Pointer to the pin settings
 //! @return __0__ on success
-int GPIO_initPin(int pin, const GPIO_init_t* initStruct)
+int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
@@ -206,7 +206,7 @@ int GPIO_initPin(int pin, const GPIO_init_t* initStruct)
 
 //! @param pin BCM GPIO pin number
 //! @return __0__ LOW / __1__ HIGH / __-1__ error
-int GPIO_readPin(int pin)
+int RPIHAL_GPIO_readPin(int pin)
 {
     int r = 0;
 
@@ -216,7 +216,7 @@ int GPIO_readPin(int pin)
     return r;
 }
 
-uint32_t GPIO_read()
+uint32_t RPIHAL_GPIO_read()
 {
     uint32_t value = 0;
 
@@ -232,7 +232,7 @@ uint32_t GPIO_read()
 //! @param pin BCM GPIO pin number
 //! @param state Boolean value representing the pin states HIGH (`1`) and LOW (`0`)
 //! @return __0__ on success
-int GPIO_writePin(int pin, int state)
+int RPIHAL_GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
@@ -242,7 +242,7 @@ int GPIO_writePin(int pin, int state)
     return r;
 }
 
-int GPIO_set(uint32_t bits)
+int RPIHAL_GPIO_set(uint32_t bits)
 {
     int r = 0;
 
@@ -256,7 +256,7 @@ int GPIO_set(uint32_t bits)
     return r;
 }
 
-int GPIO_clr(uint32_t bits)
+int RPIHAL_GPIO_clr(uint32_t bits)
 {
     int r = 0;
 
@@ -272,7 +272,7 @@ int GPIO_clr(uint32_t bits)
 
 //! @param pin BCM GPIO pin number
 //! @return __0__ on success
-int GPIO_togglePin(int pin)
+int RPIHAL_GPIO_togglePin(int pin)
 {
     int r = 0;
 
@@ -286,17 +286,17 @@ int GPIO_togglePin(int pin)
 //! 
 //! Resets all user pins to their default setups.
 //! 
-int GPIO_reset()
+int RPIHAL_GPIO_reset()
 {
     int r = 0;
 
     if (gpio_base)
     {
-        GPIO_init_t initStruct;
+        RPIHAL_GPIO_init_t initStruct;
 
         for(int i_pin = FIRST_USER_PIN; i_pin <= LAST_USER_PIN; ++i_pin)
         {
-            GPIO_defaultInitStructPin(i_pin, &initStruct);
+            RPIHAL_GPIO_defaultInitStructPin(i_pin, &initStruct);
             initPin(i_pin, &initStruct);
         }
     }
@@ -310,14 +310,14 @@ int GPIO_reset()
 //! 
 //! Resets the specified pin to it's default setup.
 //! 
-int GPIO_resetPin(int pin)
+int RPIHAL_GPIO_resetPin(int pin)
 {
     int r = 0;
 
     if (gpio_base && checkPin(pin))
     {
-        GPIO_init_t initStruct;
-        GPIO_defaultInitStructPin(pin, &initStruct);
+        RPIHAL_GPIO_init_t initStruct;
+        RPIHAL_GPIO_defaultInitStructPin(pin, &initStruct);
         initPin(pin, &initStruct);
     }
     else r = 1;
@@ -327,57 +327,57 @@ int GPIO_resetPin(int pin)
 
 //! @param initStruct Pointer to the pin settings which will be set to the default values
 //! @return __0__ on success
-int GPIO_defaultInitStruct(GPIO_init_t* initStruct)
+int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
     if (initStruct)
     {
-        initStruct->mode = GPIO_MODE_IN;
-        initStruct->pull = GPIO_PULL_DOWN;
-        initStruct->altfunc = GPIO_AF_0;
+        initStruct->mode = RPIHAL_GPIO_MODE_IN;
+        initStruct->pull = RPIHAL_GPIO_PULL_DOWN;
+        initStruct->altfunc = RPIHAL_GPIO_AF_0;
     }
     else r = 1;
 
     return r;
 }
 
-int GPIO_defaultInitStructPin(int pin, GPIO_init_t* initStruct)
+int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
     if (initStruct)
     {
-        initStruct->mode = GPIO_MODE_IN;
+        initStruct->mode = RPIHAL_GPIO_MODE_IN;
         
         if (((pin >= 0) && (pin <= 8)) ||
             ((pin >= 34) && (pin <= 36)) ||
             ((pin >= 46) && (pin <= 53)))
         {
-            initStruct->pull = GPIO_PULL_UP;
+            initStruct->pull = RPIHAL_GPIO_PULL_UP;
         }
         else if (((pin >= 9) && (pin <= 27)) ||
             ((pin >= 30) && (pin <= 33)) ||
             ((pin >= 37) && (pin <= 43)))
         {
-            initStruct->pull = GPIO_PULL_DOWN;
+            initStruct->pull = RPIHAL_GPIO_PULL_DOWN;
         }
-        else initStruct->pull = GPIO_PULL_NONE;
+        else initStruct->pull = RPIHAL_GPIO_PULL_NONE;
         
-        initStruct->altfunc = GPIO_AF_0;
+        initStruct->altfunc = RPIHAL_GPIO_AF_0;
     }
     else r = 1;
 
     return r;
 }
 
-RPIHAL_regptr_t GPIO_getMemBasePtr()
+RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr()
 {
     return gpio_base;
 }
 
 //! @return TRUE (`1`), FALSE (`0`) or unknown (`-1`)
-int GPIO_isUsingGpiomem()
+int RPIHAL_GPIO_isUsingGpiomem()
 {
     return usingGpiomem;
 }
@@ -425,7 +425,7 @@ int checkPin(int pin)
     return r;
 }
 
-void initPin(int pin, const GPIO_init_t* initStruct)
+void initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     RPIHAL_regptr_t addr;
     int shift;
@@ -438,8 +438,8 @@ void initPin(int pin, const GPIO_init_t* initStruct)
 
     addr = gpio_base + (GPFSEL0 / 4) + (pin / 10);
     shift = 3 * (pin % 10);
-    if (initStruct->mode == GPIO_MODE_OUT) value = FSEL_OUT;
-    else if (initStruct->mode == GPIO_MODE_AF) value = FSEL_AF_LUT[initStruct->altfunc];
+    if (initStruct->mode == RPIHAL_GPIO_MODE_OUT) value = FSEL_OUT;
+    else if (initStruct->mode == RPIHAL_GPIO_MODE_AF) value = FSEL_AF_LUT[initStruct->altfunc];
     else value = FSEL_IN;
     value <<= shift;
     mask = FSEL_MASK << shift;
