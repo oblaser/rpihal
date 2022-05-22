@@ -27,43 +27,43 @@ using std::endl;
 
 int main(int argc, char** argv)
 {
-    cout << "init     " << GPIO_init() << endl;
-    cout << "gpiomem  " << (GPIO_isUsingGpiomem() ? "true" : "false") << endl;
+    cout << "init     " << RPIHAL_GPIO_init() << endl;
+    cout << "gpiomem  " << (RPIHAL_GPIO_isUsingGpiomem() ? "true" : "false") << endl;
 
-    GPIO_init_t initStruct;
-    GPIO_defaultInitStruct(&initStruct);
+    RPIHAL_GPIO_init_t initStruct;
+    RPIHAL_GPIO_defaultInitStruct(&initStruct);
 
-    initStruct.mode = GPIO_MODE_OUT;
-    GPIO_initPin(LED_0, &initStruct);
-    GPIO_initPin(LED_1, &initStruct);
-    GPIO_initPin(RELAY_0, &initStruct);
-    GPIO_initPin(RELAY_1, &initStruct);
-    GPIO_initPin(RELAY_2, &initStruct);
-    GPIO_initPin(RELAY_3, &initStruct);
+    initStruct.mode = RPIHAL_GPIO_MODE_OUT;
+    RPIHAL_GPIO_initPin(LED_0, &initStruct);
+    RPIHAL_GPIO_initPin(LED_1, &initStruct);
+    RPIHAL_GPIO_initPin(RELAY_0, &initStruct);
+    RPIHAL_GPIO_initPin(RELAY_1, &initStruct);
+    RPIHAL_GPIO_initPin(RELAY_2, &initStruct);
+    RPIHAL_GPIO_initPin(RELAY_3, &initStruct);
 
-    initStruct.mode = GPIO_MODE_IN;
-    GPIO_initPin(BTN_0, &initStruct);
-    GPIO_initPin(BTN_1, &initStruct);
+    initStruct.mode = RPIHAL_GPIO_MODE_IN;
+    RPIHAL_GPIO_initPin(BTN_0, &initStruct);
+    RPIHAL_GPIO_initPin(BTN_1, &initStruct);
 
-    if (GPIO_initPin(0, &initStruct)) cout << "init pin 0 failed, which is right" << endl;
+    if (RPIHAL_GPIO_initPin(0, &initStruct)) cout << "init pin 0 failed, which is right" << endl;
     else cout << "init pin 0 should have failed!" << endl;
 
     uint32_t cnt = 0;
 
     while (true)
     {
-        GPIO_togglePin(RELAY_0);
+        RPIHAL_GPIO_togglePin(RELAY_0);
         usleep(50 * 1000);
 
-        if (GPIO_readPin(BTN_0)) GPIO_writePin(LED_0, 1);
-        else GPIO_writePin(LED_0, 0);
+        if (RPIHAL_GPIO_readPin(BTN_0)) RPIHAL_GPIO_writePin(LED_0, 1);
+        else RPIHAL_GPIO_writePin(LED_0, 0);
 
-        GPIO_writePin(LED_1, GPIO_readPin(BTN_1));
+        RPIHAL_GPIO_writePin(LED_1, RPIHAL_GPIO_readPin(BTN_1));
 
         ++cnt;
-        GPIO_writePin(RELAY_1, cnt & 2);
-        GPIO_writePin(RELAY_2, cnt & 4);
-        GPIO_writePin(RELAY_3, cnt & 8);
+        RPIHAL_GPIO_writePin(RELAY_1, cnt & 2);
+        RPIHAL_GPIO_writePin(RELAY_2, cnt & 4);
+        RPIHAL_GPIO_writePin(RELAY_3, cnt & 8);
     }
 
     return 0;

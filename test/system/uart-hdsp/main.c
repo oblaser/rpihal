@@ -35,7 +35,7 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 
 
 
-UART_port_t uartObj;
+RPIHAL_UART_port_t uartObj;
 #define rxBufferSize ((size_t)(10))
 uint8_t txBuffer[rxBufferSize * 2]; // let's reserve enough memory, because sprintf is used
 uint8_t rxBuffer[rxBufferSize];
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 {
     int r = -1;
     const char* serialPortDevName;
-    UART_port_t* const port = &uartObj;
+    RPIHAL_UART_port_t* const port = &uartObj;
     time_t tOld = 0;
     uint32_t inp, inp_old, inp_pos, inp_neg;
     uint8_t hdspOutputs = 0;
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     if(argc == 1) serialPortDevName = "/dev/ttyUSB0";
     else serialPortDevName = argv[1];
 
-    r = UART_open(port, serialPortDevName, UART_BAUD_19200);
+    r = RPIHAL_UART_open(port, serialPortDevName, RPIHAL_UART_BAUD_19200);
 
     if(r)
     {
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     txBuffer[1] = 1;    // data len
     txBuffer[2] = 0x00; // get version
     hdspGenCheckSum(txBuffer);
-    UART_write(port, txBuffer, txBuffer[1] + 3);
+    RPIHAL_UART_write(port, txBuffer, txBuffer[1] + 3);
 
     inp_old = readInp();
 
@@ -98,10 +98,10 @@ int main(int argc, char** argv)
                 const struct tm ltm = *localtime(&tNow);
 
                 sprintf((char*)(txBuffer + 2), "%02i:%02i:%02i        ", ltm.tm_hour, ltm.tm_min, ltm.tm_sec);
-                txBuffer[0] = 0x0A; // get I/O
+                txBuffer[0] = 0x0A; // set display
                 txBuffer[1] = 8;    // data len
                 hdspGenCheckSum(txBuffer);
-                UART_write(port, txBuffer, txBuffer[1] + 3);
+                RPIHAL_UART_write(port, txBuffer, txBuffer[1] + 3);
             }
             else
             {
@@ -119,14 +119,14 @@ int main(int argc, char** argv)
                     txBuffer[1] = 1;    // data len
                     txBuffer[2] = hdspOutputs;
                     hdspGenCheckSum(txBuffer);
-                    UART_write(port, txBuffer, txBuffer[1] + 3);
+                    RPIHAL_UART_write(port, txBuffer, txBuffer[1] + 3);
                 }
                 else
                 {
                     txBuffer[0] = 0x11; // get I/O
                     txBuffer[1] = 0;    // data len
                     hdspGenCheckSum(txBuffer);
-                    UART_write(port, txBuffer, txBuffer[1] + 3);
+                    RPIHAL_UART_write(port, txBuffer, txBuffer[1] + 3);
                 }
             }
         }
@@ -140,22 +140,22 @@ int main(int argc, char** argv)
 
 int initGpio()
 {
-    if(GPIO_init() != 0)
+    if(RPIHAL_GPIO_init() != 0)
     {
         printf("GPIO init failed!\n");
         return 1;
     }
 
-    GPIO_init_t initStruct;
-    GPIO_defaultInitStruct(&initStruct);
+    RPIHAL_GPIO_init_t initStruct;
+    RPIHAL_GPIO_defaultInitStruct(&initStruct);
 
-    initStruct.mode = GPIO_MODE_OUT;
-    GPIO_initPin(LED_0, &initStruct);
-    GPIO_initPin(LED_1, &initStruct);
+    initStruct.mode = RPIHAL_GPIO_MODE_OUT;
+    RPIHAL_GPIO_initPin(LED_0, &initStruct);
+    RPIHAL_GPIO_initPin(LED_1, &initStruct);
 
-    initStruct.mode = GPIO_MODE_IN;
-    GPIO_initPin(BTN_0, &initStruct);
-    GPIO_initPin(BTN_1, &initStruct);
+    initStruct.mode = RPIHAL_GPIO_MODE_IN;
+    RPIHAL_GPIO_initPin(BTN_0, &initStruct);
+    RPIHAL_GPIO_initPin(BTN_1, &initStruct);
 
     return 0;
 }
@@ -164,8 +164,8 @@ uint32_t readInp()
 {
     uint32_t r = 0;
 
-    if(GPIO_readPin(BTN_0)) r |= 0x01;
-    if(GPIO_readPin(BTN_1)) r |= 0x02;
+    if(RPIHAL_GPIO_readPin(BTN_0)) r |= 0x01;
+    if(RPIHAL_GPIO_readPin(BTN_1)) r |= 0x02;
 
     return r;
 }
@@ -203,13 +203,13 @@ void procHdspAns()
             if(rxBuffer[3] & 0x20)
             {
                 printf("HDSP button presed\n");
-                GPIO_writePin(LED_0, 1);
+                RPIHAL_GPIO_writePin(LED_0, 1);
             }
 
             if(rxBuffer[3] & 0x40)
             {
                 printf("HDSP button released\n");
-                GPIO_writePin(LED_0, 0);
+                RPIHAL_GPIO_writePin(LED_0, 0);
             }
 
             break;
@@ -238,7 +238,7 @@ void rxTask()
     static size_t rxIndex = 0;
     size_t nBytes = 0;
 
-    if(UART_readByte(&uartObj, rxBuffer + rxIndex, &nBytes) != 0) printf("UART_readByte() failed!\n");
+    if(RPIHAL_UART_readByte(&uartObj, rxBuffer + rxIndex, &nBytes) != 0) printf("RPIHAL_UART_readByte() failed!\n");
 
     if(rxReady && nBytes) printf("rxBuffer overwritten!\n");
 
