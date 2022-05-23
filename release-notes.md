@@ -2,6 +2,13 @@
 
 
 
+### v0.1.1
+
+New
+ - get CPU temperature
+
+
+
 ### v0.1.0
 
 New
