@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            19.05.2022
+date            23.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -27,29 +27,28 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_ZPLATFORMCHECK_H
-#define IG_RPIHAL_ZPLATFORMCHECK_H
+#ifndef IG_RPIHAL_SYS_H
+#define IG_RPIHAL_SYS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include <stddef.h>
+#include <stdint.h>
 
-#ifndef __linux__
-#error "not a Linux platform - this library is only for the Raspberry Pi!"
-#endif
 
-#ifndef __arm__
-#error "not an ARM platform - this library is only for the Raspberry Pi!"
-#endif
+//! @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
+//! @return __0__ on success
+int RPIHAL_SYS_getCpuTempf(float* temperature);
 
-#ifdef __aarch64__
-#warning "not tested on 64bit ARM (aarch64)"
-#endif
+//! @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
+//! @return __0__ on success
+int RPIHAL_SYS_getCpuTemp(double* temperature);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IG_RPIHAL_ZPLATFORMCHECK_H
+#endif // IG_RPIHAL_SYS_H

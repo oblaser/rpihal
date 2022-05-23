@@ -1,6 +1,6 @@
 
 # author        Oliver Blaser
-# date          12.05.2022
+# date          23.05.2022
 # copyright     MIT - Copyright (c) 2022 Oliver Blaser
 
 cmake_minimum_required(VERSION 3.13)
@@ -19,7 +19,9 @@ set(UNIT_TEST_EXE_STATIC rpihal-unit-test-static)
 # library
 
 set(SOURCES
+../../src/internal/util.c
 ../../src/gpio.c
+../../src/sys.c
 ../../src/uart.c
 )
 

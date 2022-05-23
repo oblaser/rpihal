@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            11.05.2022
+date            23.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -27,23 +27,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_UART_H
-#define IG_RPIHAL_UART_H
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-#define RPIHAL_VERSION_MAJOR            0
-#define RPIHAL_VERSION_MINOR            1
-#define RPIHAL_VERSION_PATCH            1
-#define RPIHAL_VERSION_PRERELEASE       ""
-#define RPIHAL_VERSION_ISPRERELEASE     0
+#include "../internal/platform_check.h"
+#include "../internal/util.h"
 
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif // IG_RPIHAL_UART_H

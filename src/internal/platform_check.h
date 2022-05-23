@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            11.05.2022
+date            19.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -27,23 +27,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_UART_H
-#define IG_RPIHAL_UART_H
+#ifndef IG_RPIHAL_INTERNAL_PLATFORMCHECK_H
+#define IG_RPIHAL_INTERNAL_PLATFORMCHECK_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-#define RPIHAL_VERSION_MAJOR            0
-#define RPIHAL_VERSION_MINOR            1
-#define RPIHAL_VERSION_PATCH            1
-#define RPIHAL_VERSION_PRERELEASE       ""
-#define RPIHAL_VERSION_ISPRERELEASE     0
+#ifndef __linux__
+#error "not a Linux platform - this library is only for the Raspberry Pi!"
+#endif
+
+#ifndef __arm__
+#error "not an ARM platform - this library is only for the Raspberry Pi!"
+#endif
+
+#ifdef __aarch64__
+#warning "not tested on 64bit ARM (aarch64)"
+#endif
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IG_RPIHAL_UART_H
+#endif // IG_RPIHAL_INTERNAL_PLATFORMCHECK_H

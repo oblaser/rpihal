@@ -13,6 +13,7 @@
         "cdefs.h": "c",
         "ionopi.h": "c",
         "time.h": "c",
-        "__platform_check__.h": "c"
+        "string.h": "c",
+        "platform_check.h": "c"
     }
 }

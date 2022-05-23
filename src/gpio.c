@@ -30,7 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
-#include "./__platform_check__.h"
+#include "internal/platform_check.h"
 #include "rpihal/gpio.h"
 
 #include <fcntl.h>
