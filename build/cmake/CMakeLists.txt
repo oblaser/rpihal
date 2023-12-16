@@ -7,16 +7,16 @@ cmake_minimum_required(VERSION 3.13)
 
 project(rpihal)
 
+set(BINNAME rpihal)
+
+
+
+set(BINSHARED ${BINNAME}-shared)
+set(BINSTATIC ${BINNAME}-static)
+set(UNIT_TEST_EXE_SHARED ${BINNAME}-unit-test-shared)
+set(UNIT_TEST_EXE_STATIC ${BINNAME}-unit-test-static)
+
 include_directories(../../include/)
-link_directories(./)
-
-set(SHAREDLIB rpihal-shared)
-set(STATICLIB rpihal-static)
-set(UNIT_TEST_EXE_SHARED rpihal-unit-test-shared)
-set(UNIT_TEST_EXE_STATIC rpihal-unit-test-static)
-
-
-# library
 
 set(SOURCES
 ../../src/internal/util.c
@@ -25,18 +25,20 @@ set(SOURCES
 ../../src/uart.c
 )
 
-add_library(${SHAREDLIB} SHARED ${SOURCES})
-add_library(${STATICLIB} STATIC ${SOURCES})
+add_library(${BINSHARED} SHARED ${SOURCES})
+add_library(${BINSTATIC} STATIC ${SOURCES})
 
 
 # unit test
 
+#link_directories(./)
+#
 #set(SOURCES_UNIT_TEST
 #../../tests/unit/main.cpp
 #)
 #
 #add_executable(${UNIT_TEST_EXE_SHARED} ${SOURCES_UNIT_TEST})
-#target_link_libraries(${UNIT_TEST_EXE_SHARED} lib${SHAREDLIB}.so)
+#target_link_libraries(${UNIT_TEST_EXE_SHARED} lib${BINSHARED}.so)
 #
 #add_executable(${UNIT_TEST_EXE_STATIC} ${SOURCES_UNIT_TEST})
-#target_link_libraries(${UNIT_TEST_EXE_STATIC} lib${STATICLIB}.a)
+#target_link_libraries(${UNIT_TEST_EXE_STATIC} lib${BINSTATIC}.a)

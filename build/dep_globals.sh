@@ -8,6 +8,8 @@ prjName="rpihal"
 prjDisplayName="Raspberry Pi Hardware Abstraction Layer"
 prjBinName=$prjName
 prjDirName=$prjName
+repoDirName=$prjName
+copyrightYear="2022"
 
 versionstr=$(head -n 1 dep_vstr.txt)
 
@@ -39,9 +41,13 @@ function writeReadmeFile()
     echo "\$\$         \$\$  \$\$\$\$   \$\$\$\$ \$\$      \$\$   \$\$\$\$\$ \$\$ \$\$\$\$"              >> $1
     echo "           \$\$"                                                                               >> $1
     echo "           \$\$"                                                                               >> $1
-    echo "           \$\$              v$versionstr"                                                     >> $1
+    echo "           \$\$              v${versionstr}"                                                   >> $1
+    echo ""                                                                                              >> $1
+    echo "${prjDisplayName}"                                                                             >> $1
     echo ""                                                                                              >> $1
     echo ""                                                                                              >> $1
     echo ""                                                                                              >> $1
-    echo "GitHub      https://github.com/oblaser/rpihal/"                                                >> $1
+    echo "MIT - Copyright (c) ${copyrightYear} Oliver Blaser"                                            >> $1
+    echo ""                                                                                              >> $1
+    echo "https://github.com/oblaser/${repoDirName}"                                                     >> $1
 }

@@ -11,9 +11,7 @@
 
 source dep_globals.sh
 
-repoDirName=rpihal
-exeName=rpihal-unit-test-static
-#echoTitle="build $exeName"
+exeName=${prjBinName}-unit-test-static
 echoTitle="build $prjBinName"
 cmakeDirName=cmake
 
@@ -48,10 +46,10 @@ function copy_bin()
 
     # the source file to copy is the target file in the CMakeLists.txt
 
-    cp ./cmake/librpihal-shared.so ../lib/lib${prjBinName}.so.$versionstr
+    cp ./cmake/lib${prjBinName}-shared.so ../lib/lib${prjBinName}.so.$versionstr
     procErrorCode $?
 
-    cp ./cmake/librpihal-static.a ../lib/lib${prjBinName}.a
+    cp ./cmake/lib${prjBinName}-static.a ../lib/lib${prjBinName}.a
     procErrorCode $?
 
     cd ../lib
@@ -110,7 +108,7 @@ function cmd_make()
 
 function cmd_clean()
 {
-    rm -rf ../../rpihal/lib
+    rm -rf ../../${repoDirName}/lib
     procErrorCode $?
     
     cd ./$cmakeDirName
