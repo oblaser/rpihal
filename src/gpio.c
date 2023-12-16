@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            19.05.2022
+date            24.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -298,6 +298,7 @@ int RPIHAL_GPIO_reset()
         {
             RPIHAL_GPIO_defaultInitStructPin(i_pin, &initStruct);
             initPin(i_pin, &initStruct);
+            writePin(i_pin, 0);
         }
     }
     else r = 1;
@@ -319,6 +320,7 @@ int RPIHAL_GPIO_resetPin(int pin)
         RPIHAL_GPIO_init_t initStruct;
         RPIHAL_GPIO_defaultInitStructPin(pin, &initStruct);
         initPin(pin, &initStruct);
+        writePin(pin, 0);
     }
     else r = 1;
 
@@ -384,6 +386,12 @@ int RPIHAL_GPIO_isUsingGpiomem()
 
 
 
+#ifdef __GNUC__
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#else // __GNUC__
+#error "compiler not supported"
+#endif // __GNUC__
 uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr)
 {
     // the last read could potentially go wrong (see chapter 1.3 in BCM2835-ARM-Peripherals.pdf).
@@ -397,6 +405,10 @@ void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value)
     *addr = value;
     *addr = value;
 }
+#ifdef __GNUC__
+#pragma GCC pop_options
+#endif // __GNUC__
+
 void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask)
 {
     uint32_t regval = BCM2835_reg_read(addr);
