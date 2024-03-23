@@ -30,11 +30,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef IG_RPIHAL_GPIO_H
 #define IG_RPIHAL_GPIO_H
 
+#include <stdint.h>
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
 
 
 #define RPIHAL_GPIO_MODE_IN    0

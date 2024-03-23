@@ -30,12 +30,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef IG_RPIHAL_SYS_H
 #define IG_RPIHAL_SYS_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stddef.h>
-#include <stdint.h>
 
 
 //! @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius

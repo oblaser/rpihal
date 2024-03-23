@@ -36,12 +36,13 @@ Since the OS uses the BCM registers, we use the OS' library instead of registers
 #ifndef IG_RPIHAL_UART_H
 #define IG_RPIHAL_UART_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stddef.h>
-#include <stdint.h>
 
 
 #define RPIHAL_UART_NAME_SIZE (300) // a "normal" fs path
