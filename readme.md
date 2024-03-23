@@ -31,3 +31,13 @@ These all have the 40 pin header, which has the same pinout on all models listed
 - https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf + https://elinux.org/BCM2835_datasheet_errata
 - http://www.scribd.com/doc/101830961/GPIO-Pads-Control2
 - https://forums.raspberrypi.com/viewtopic.php?t=243166
+
+
+
+## Emulator
+
+The emulator can be used to run your project on your working machine (Windows or Linux). To build the emulator project
+include all the same files as in the main project, plus the [emu.cpp](src/emu/emu.cpp) file (don't include any other
+rpihal source file to the build).
+
+The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine)
