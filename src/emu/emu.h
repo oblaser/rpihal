@@ -9,15 +9,15 @@ copyright       MIT - Copyright (c) 2024 Oliver Blaser
 
 #include "olcPixelGameEngine.h"
 
-class Emu final : public olc::PixelGameEngine
+class EmuPge final : public olc::PixelGameEngine
 {
 public:
     static const olc::vi2d pgeWindowSize;
     static constexpr int32_t pgePixelSize = 1;
 
 public:
-    Emu();
-    virtual ~Emu() {}
+    EmuPge();
+    virtual ~EmuPge() {}
 
 public:
     bool OnUserCreate() override;
@@ -25,9 +25,9 @@ public:
     bool OnUserDestroy() override;
 
 private:
-    Emu(const Emu& other) = delete;
-    Emu(const Emu&& other) = delete;
-    Emu& operator=(const Emu& b) {}
+    EmuPge(const EmuPge& other) = delete;
+    EmuPge(const EmuPge&& other) = delete;
+    EmuPge& operator=(const EmuPge& b) {}
 };
 
 #endif // IG_RPIHAL_EMU_H

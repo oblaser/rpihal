@@ -39,6 +39,11 @@ extern "C" {
 
 
 int RPIHAL_init();
+
+//! @brief Cleans up resources used by the emulator
+//!
+//! Only needed if the enulator is used, but can be called from PI code. So no compile switch is needed.
+//!
 void RPIHAL_cleanup_emu();
 
 

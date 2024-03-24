@@ -118,6 +118,7 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
+// https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header
 #define USER_PINS_MASK      (0x0FFFFFFC)
 #define FIRST_PIN           0
 #define FIRST_USER_PIN      2
