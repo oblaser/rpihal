@@ -183,6 +183,13 @@ size_t gpioPin_to_pinIdx(int pin)
     return idx - 1;
 }
 
+int pinIdx_to_gpioPin(size_t idx)
+{
+    // TODO
+    LOG_ERR("TODO pinIdx_to_gpioPin()");
+    throw std::runtime_error("TODO pinIdx_to_gpioPin()");
+}
+
 } // namespace emu
 
 
@@ -249,6 +256,10 @@ public:
 
             r = 0;
         }
+        catch (const std::exception& ex)
+        {
+            LOG_ERR("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
+        }
         catch (...)
         {
             LOG_ERR("failed to convert pin number of GPIO " << pin);
@@ -257,6 +268,7 @@ public:
         return r;
     }
 
+    //! @return (0 | 1) or negative if failed
     int getGpioState(int pin) const
     {
         lock_guard lg(m_mtxPins);
@@ -268,6 +280,10 @@ public:
             const bool state = m_pins[emu::gpioPin_to_pinIdx(pin)].getState();
 
             r = (state ? 1 : 0);
+        }
+        catch (const std::exception& ex)
+        {
+            LOG_ERR("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
         }
         catch (...)
         {
@@ -284,6 +300,10 @@ public:
         try
         {
             setPinState(emu::gpioPin_to_pinIdx(pin), state);
+        }
+        catch (const std::exception& ex)
+        {
+            LOG_ERR("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
         }
         catch (...)
         {
@@ -373,8 +393,8 @@ bool EmuPge::OnUserUpdate(float tElapsed)
         {
             const auto& gpio = pin.gpio();
 
-            if (gpio.isInput()) pixel = (gpio.read() ? CYAN : CYAN - 50);
-            else if (gpio.isOutput()) pixel = (gpio.read() ? GREEN : GREEN - 50);
+            if (gpio.isInput()) pixel = (gpio.read() ? CYAN : CYAN / 2.5);
+            else if (gpio.isOutput()) pixel = (gpio.read() ? GREEN : GREEN / 2.5);
             else if (gpio.isAltFunc()) pixel = Pixel(94, 0, 181);
         }
         else pixel = Pixel(50, 50, 50);
@@ -465,24 +485,7 @@ int RPIHAL_GPIO_readPin(int pin)
 {
     int r = 0;
 
-    if (checkPin(pin))
-    {
-        try
-        {
-            auto pins = thread_pge_sd.getGpioPins();
-
-            pins = thread_pge_sd.getGpioPins();
-
-            r = (pins[emu::gpioPin_to_pinIdx(pin)].read() ? 1 : 0);
-
-            thread_pge_sd.setGpioPins(pins);
-        }
-        catch (...)
-        {
-            LOG_ERR("failed to convert pin number of GPIO " << pin);
-            r = -1;
-        }
-    }
+    if (checkPin(pin)) { r = thread_pge_sd.getGpioState(pin); }
     else r = -1;
 
     return r;
@@ -492,19 +495,24 @@ uint32_t RPIHAL_GPIO_read()
 {
     uint32_t value = 0;
 
-    auto pins = thread_pge_sd.getGpioPins();
+    auto pins = thread_pge_sd.getPins();
 
     for (size_t i = 0; i < pins.size(); ++i)
     {
         const auto& pin = pins[i];
 
-        if (pin.isGpio())
+        if (pin.isGpio() && pin.getState())
         {
-            if (pin.read()) value |= (1u << i);
+            try
+            {
+                value |= (1u << emu::pinIdx_to_gpioPin(i));
+            }
+            catch (...)
+            {
+                // nop
+            }
         }
     }
-
-    thread_pge_sd.setGpioPins(pins);
 
     return value;
 }
@@ -513,24 +521,7 @@ int RPIHAL_GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
-    if (checkPin(pin))
-    {
-        try
-        {
-            auto pins = thread_pge_sd.getGpioPins();
-
-            pins = thread_pge_sd.getGpioPins();
-
-            pins[emu::gpioPin_to_pinIdx(pin)].write(state != 0);
-
-            thread_pge_sd.setGpioPins(pins);
-        }
-        catch (...)
-        {
-            LOG_ERR("failed to convert pin number of GPIO " << pin);
-            r = -1;
-        }
-    }
+    if (checkPin(pin)) { thread_pge_sd.setGpioState(pin, state != 0); }
     else r = 1;
 
     return r;
