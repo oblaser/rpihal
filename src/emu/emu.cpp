@@ -141,53 +141,88 @@ private:
     Gpio m_gpio;
 };
 
-size_t gpioPin_to_pinIdx(int pin)
+struct PinMap
 {
-    size_t idx = 0;
+    PinMap() = delete;
+    constexpr PinMap(int p, size_t i)
+        : pin(p), idx(i)
+    {}
 
+    int pin;
+    size_t idx;
+};
+
+// clang-format off
+constexpr std::array<PinMap, 28> pinmap = {
+    
     // https://pinout.xyz/
     // https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header
 
-    // convert GPIO pin number to GPIO pinheader pin number
-    if (pin == 0) idx = 27;
-    else if (pin == 1) idx = 28;
-    else if (pin == 2) idx = 3;
-    else if (pin == 3) idx = 5;
-    else if (pin == 4) idx = 7;
-    else if (pin == 5) idx = 29;
-    else if (pin == 6) idx = 31;
-    else if (pin == 7) idx = 26;
-    else if (pin == 8) idx = 24;
-    else if (pin == 9) idx = 21;
-    else if (pin == 10) idx = 19;
-    else if (pin == 11) idx = 23;
-    else if (pin == 12) idx = 32;
-    else if (pin == 13) idx = 33;
-    else if (pin == 14) idx = 8;
-    else if (pin == 15) idx = 10;
-    else if (pin == 16) idx = 36;
-    else if (pin == 17) idx = 11;
-    else if (pin == 18) idx = 12;
-    else if (pin == 19) idx = 35;
-    else if (pin == 20) idx = 38;
-    else if (pin == 21) idx = 40;
-    else if (pin == 22) idx = 15;
-    else if (pin == 23) idx = 16;
-    else if (pin == 24) idx = 18;
-    else if (pin == 25) idx = 22;
-    else if (pin == 26) idx = 37;
-    else if (pin == 27) idx = 13;
-    else { throw std::runtime_error("GPIO " + std::to_string(pin) + " is not a user pin"); }
+    PinMap( 0, 27 - 1),
+    PinMap( 1, 28 - 1),
+    PinMap( 2,  3 - 1),
+    PinMap( 3,  5 - 1),
+    PinMap( 4,  7 - 1),
+    PinMap( 5, 29 - 1),
+    PinMap( 6, 31 - 1),
+    PinMap( 7, 26 - 1),
+    PinMap( 8, 24 - 1),
+    PinMap( 9, 21 - 1),
+    PinMap(10, 19 - 1),
+    PinMap(11, 23 - 1),
+    PinMap(12, 32 - 1),
+    PinMap(13, 33 - 1),
+    PinMap(14,  8 - 1),
+    PinMap(15, 10 - 1),
+    PinMap(16, 36 - 1),
+    PinMap(17, 11 - 1),
+    PinMap(18, 12 - 1),
+    PinMap(19, 35 - 1),
+    PinMap(20, 38 - 1),
+    PinMap(21, 40 - 1),
+    PinMap(22, 15 - 1),
+    PinMap(23, 16 - 1),
+    PinMap(24, 18 - 1),
+    PinMap(25, 22 - 1),
+    PinMap(26, 37 - 1),
+    PinMap(27, 13 - 1)
+};
+// clang-format on
 
-    // convert GPIO pinheader pin number to array index
-    return idx - 1;
+size_t gpioPin_to_pinIdx(int pin)
+{
+    size_t idx = -1;
+
+    for (const auto& pm : emu::pinmap)
+    {
+        if (pm.pin == pin)
+        {
+            idx = pm.idx;
+            break;
+        }
+    }
+
+    if (idx >= Pin::nPins) { throw std::runtime_error("GPIO " + std::to_string(pin) + " is not a user pin"); }
+
+    return idx;
 }
 
 int pinIdx_to_gpioPin(size_t idx)
 {
-    // TODO
-    LOG_ERR("TODO pinIdx_to_gpioPin()");
-    throw std::runtime_error("TODO pinIdx_to_gpioPin()");
+    int pin = -1;
+
+    for (const auto& pm : emu::pinmap)
+    {
+        if (pm.idx == idx)
+        {
+            pin = pm.pin;
+            break;
+        }
+    }
+
+    if (pin < 0) { throw std::runtime_error("pin index " + std::to_string(idx) + " is not a user GPIO pin"); }
+
+    return pin;
 }
 
 } // namespace emu
@@ -239,9 +274,9 @@ public:
     void terminate(bool state = true) { lock_guard lg(m_mtxThCtrl); m_terminate = state; }
     bool testTerminate() const { lock_guard lg(m_mtxThCtrl); return m_terminate; }
 
-    GpioPins getPins() const { lock_guard lg(m_mtxPins); return m_pins; }
+    GpioPins getPins() const { lock_guard lg(m_mtxPins); const auto r = m_pins; return r; }
     void setPin(size_t idx, const emu::Pin& pin) { lock_guard lg(m_mtxPins); m_pins[idx] = pin; }
-    void setPinState(size_t idx, bool state) { lock_guard lg(m_mtxPins); m_pins[idx].setState(state); }
+    void setPinState(size_t idx, bool state) { lock_guard lg(m_mtxPins); m_setPinState(idx, state); }
     // clang-format on
 
     int setGpioConfig(int pin, const emu::Gpio& gpio)
@@ -299,7 +334,7 @@ public:
 
         try
         {
-            setPinState(emu::gpioPin_to_pinIdx(pin), state);
+            m_setPinState(emu::gpioPin_to_pinIdx(pin), state);
         }
         catch (const std::exception& ex)
         {
@@ -318,6 +353,8 @@ protected:
 
     mutable std::mutex m_mtxPins;
     GpioPins m_pins;
+
+    void m_setPinState(size_t idx, bool state) { m_pins[idx].setState(state); }
 };
 
 
@@ -331,7 +368,7 @@ static std::thread thread_pge;
 
 using namespace olc;
 
-
+const olc::vi2d EmuPge::pgeWindowSize = vi2d(1120, 700);
 
 EmuPge::EmuPge() { sAppName = "rpihal emu"; }
 
@@ -366,6 +403,8 @@ bool EmuPge::OnUserUpdate(float tElapsed)
     auto pins = thread_pge_sd.getPins();
 
     const auto mousePos = GetMousePos();
+    const auto mouseR = GetMouse(olc::Mouse::RIGHT);
+    const auto mouseL = GetMouse(olc::Mouse::LEFT);
 
     Clear(VERY_DARK_BLUE);
 
@@ -376,8 +415,13 @@ bool EmuPge::OnUserUpdate(float tElapsed)
 
     FillRect(headerPos - vi2d(size, size) / 2, vi2d(2 * size, 20 * size), Pixel(10, 10, 10));
 
+    int mousePin = -1;
+    size_t mousePinIdx = -1;
+
     for (size_t i = 0; i < pins.size(); ++i)
     {
+        constexpr double radius = (size / 2.0) * 0.7;
+
         auto pos = headerPos + vi2d(0, (i / 2) * size);
         const auto& pin = pins[i];
 
@@ -388,21 +432,56 @@ bool EmuPge::OnUserUpdate(float tElapsed)
         if (pin.is5V()) pixel = Pixel(150, 33, 30);
         else if (pin.is3V3()) pixel = Pixel(130, 100, 6);
         else if (pin.isGnd()) pixel = Pixel(0, 0, 0);
-        else if (pin.isId()) pixel = Pixel(160, 160, 160);
+        // else if (pin.isId()) pixel = Pixel(160, 160, 160);
         else if (pin.isGpio())
         {
             const auto& gpio = pin.gpio();
 
-            if (gpio.isInput()) pixel = (gpio.read() ? CYAN : CYAN / 2.5);
-            else if (gpio.isOutput()) pixel = (gpio.read() ? GREEN : GREEN / 2.5);
+            if (gpio.isInput()) pixel = (gpio.read() ? CYAN : CYAN / 3);
+            else if (gpio.isOutput()) pixel = (gpio.read() ? GREEN : GREEN / 3);
             else if (gpio.isAltFunc()) pixel = Pixel(94, 0, 181);
         }
         else pixel = Pixel(50, 50, 50);
 
-        FillCircle(pos, (size / 2.0) * 0.7, pixel);
+        FillCircle(pos, radius + 0.5, pixel);
 
         // const auto pinRectSize = vi2d(5, 5);
         // FillRect(pos - pinRectSize / 2, pinRectSize, Pixel(255, 215, 0));
+
+        // mouse is on pin
+        if ((pos - mousePos).mag2() <= (radius * radius))
+        {
+            auto mouseColor = RED;
+
+            try
+            {
+                mousePin = emu::pinIdx_to_gpioPin(i);
+                mousePinIdx = i;
+
+                if (pins[i].isGpio() && pins[i].gpio().isInput())
+                {
+                    if (mouseL.bPressed) { thread_pge_sd.setGpioState(mousePin, true); }
+                    if (mouseL.bReleased) { thread_pge_sd.setGpioState(mousePin, false); }
+
+                    if (mouseR.bReleased)
+                    {
+                        const auto state = pins[mousePinIdx].getState();
+                        thread_pge_sd.setGpioState(mousePin, !state);
+                    }
+
+                    mouseColor = WHITE;
+                }
+                else mouseColor = MAGENTA;
+
+                if (pins[i].isId()) mouseColor = RED;
+            }
+            catch (...)
+            {
+                mouseColor = RED;
+            }
+
+            DrawCircle(pos, radius + 0.5, mouseColor);
+        }
     }
 
     return !thread_pge_sd.testTerminate();
@@ -420,9 +499,11 @@ bool EmuPge::OnUserDestroy() { return true; }
 #include "../../include/rpihal/rpihal.h"
 #include "../../include/rpihal/sys.h"
 #include "../../include/rpihal/uart.h"
+#include "../internal/gpio.h"
 
 
 static const int sysGpioLocked = 1;
+static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy
 
 
 static int checkPin(int pin);
@@ -432,12 +513,12 @@ static void emuMain()
     EmuPge emu_pge;
 
 #ifdef _DEBUG
-    constexpr bool vSync = false;
+    constexpr bool vSync = true;
 #else
     constexpr bool vSync = true;
 #endif
 
-    if (emu_pge.Construct(1120, 700, 1, 1, false, vSync)) { emu_pge.Start(); }
+    if (emu_pge.Construct(EmuPge::pgeWindowSize.x, EmuPge::pgeWindowSize.y, EmuPge::pgePixelSize, EmuPge::pgePixelSize, false, vSync)) { emu_pge.Start(); }
 }
 
 int RPIHAL_init()
@@ -475,7 +556,7 @@ int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
-    if (initStruct && checkPin(pin)) { thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct)); }
+    if (gpio_base && initStruct && checkPin(pin)) thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct));
     else r = 1;
 
     return r;
@@ -485,7 +566,7 @@ int RPIHAL_GPIO_readPin(int pin)
 {
     int r = 0;
 
-    if (checkPin(pin)) { r = thread_pge_sd.getGpioState(pin); }
+    if (gpio_base && checkPin(pin)) r = thread_pge_sd.getGpioState(pin);
     else r = -1;
 
     return r;
@@ -521,7 +602,7 @@ int RPIHAL_GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
-    if (checkPin(pin)) { thread_pge_sd.setGpioState(pin, state != 0); }
+    if (gpio_base && checkPin(pin)) thread_pge_sd.setGpioState(pin, state != 0);
     else r = 1;
 
     return r;
@@ -541,8 +622,12 @@ int RPIHAL_GPIO_clr(uint32_t bits)
 
 int RPIHAL_GPIO_togglePin(int pin)
 {
-    /* TODO */
-    return 0;
+    int r = 0;
+
+    if (gpio_base && checkPin(pin)) thread_pge_sd.setGpioState(pin, !thread_pge_sd.getGpioState(pin));
+    else r = -1;
+
+    return r;
 }
 
 int RPIHAL_GPIO_reset()
@@ -575,14 +660,6 @@ int checkPin(int pin)
 {
     int r = 0;
 
-    // defines from gpio.c
-    // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
-#define USER_PINS_MASK (0x0FFFFFFC)
-#define FIRST_PIN      0
-#define FIRST_USER_PIN 2
-#define LAST_USER_PIN  27
-#define LAST_PIN       53
-
     if (sysGpioLocked)
     {
         if ((pin >= FIRST_USER_PIN) && (pin <= LAST_USER_PIN)) r = 1;
@@ -591,12 +668,6 @@ int checkPin(int pin)
     {
         if ((pin >= FIRST_PIN) && (pin <= LAST_PIN)) r = 1;
     }
-
-#undef USER_PINS_MASK
-#undef FIRST_PIN
-#undef FIRST_USER_PIN
-#undef LAST_USER_PIN
-#undef LAST_PIN
 
     return r;
 }
