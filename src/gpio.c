@@ -30,6 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
+#include "internal/gpio.h"
 #include "internal/platform_check.h"
 #include "rpihal/gpio.h"
 
@@ -117,16 +118,6 @@ static const uint32_t FSEL_AF_LUT[] = {
 
 
 
-// !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
-// https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header
-#define USER_PINS_MASK      (0x0FFFFFFC)
-#define FIRST_PIN           0
-#define FIRST_USER_PIN      2
-#define LAST_USER_PIN       27
-#define LAST_PIN            53
-
-
-
 static RPIHAL_regptr_t gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
 static int sysGpioLocked = 1;
@@ -144,10 +135,6 @@ static void writePin(int pin, int state);
 
 
 
-//! @return __0__ on success
-//! 
-//! Needs to be called once at the start of the app.
-//! 
 int RPIHAL_GPIO_init()
 {
     int r = 0;
@@ -171,16 +158,16 @@ int RPIHAL_GPIO_init()
 
             fd = open("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC); // root access needed
 
-            if (fd < 0) r = 1;
+            if (fd < 0) r = -1;
         }
 
-        if (!r)
+        if (r == 0)
         {
             gpio_base = (RPIHAL_regptr_t)mmap(0, BCM_BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mmapoffs);
 
             if (gpio_base == MAP_FAILED)
             {
-                r = 2;
+                r = -2;
                 gpio_base = NULL;
             }
         }
@@ -189,9 +176,6 @@ int RPIHAL_GPIO_init()
     return r;
 }
 
-//! @param pin BCM GPIO pin number
-//! @param initStruct Pointer to the pin settings
-//! @return __0__ on success
 int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
@@ -200,13 +184,11 @@ int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
     {
         initPin(pin, initStruct);
     }
-    else r = 1;
+    else r = -1;
 
     return r;
 }
 
-//! @param pin BCM GPIO pin number
-//! @return __0__ LOW / __1__ HIGH / __-1__ error
 int RPIHAL_GPIO_readPin(int pin)
 {
     int r = 0;
@@ -230,15 +212,12 @@ uint32_t RPIHAL_GPIO_read()
     return value;
 }
 
-//! @param pin BCM GPIO pin number
-//! @param state Boolean value representing the pin states HIGH (`1`) and LOW (`0`)
-//! @return __0__ on success
 int RPIHAL_GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
     if (gpio_base && checkPin(pin)) writePin(pin, state);
-    else r = 1;
+    else r = -1;
 
     return r;
 }
@@ -252,7 +231,7 @@ int RPIHAL_GPIO_set(uint32_t bits)
         RPIHAL_regptr_t addr = gpio_base + (GPSET0 / 4);
         BCM2835_reg_write(addr, (bits & USER_PINS_MASK));
     }
-    else r = 1;
+    else r = -1;
 
     return r;
 }
@@ -266,27 +245,21 @@ int RPIHAL_GPIO_clr(uint32_t bits)
         RPIHAL_regptr_t addr = gpio_base + (GPCLR0 / 4);
         BCM2835_reg_write(addr, (bits & USER_PINS_MASK));
     }
-    else r = 1;
+    else r = -1;
 
     return r;
 }
 
-//! @param pin BCM GPIO pin number
-//! @return __0__ on success
 int RPIHAL_GPIO_togglePin(int pin)
 {
     int r = 0;
 
     if (gpio_base && checkPin(pin)) writePin(pin, !readPin(pin));
-    else r = 1;
+    else r = -1;
 
     return r;
 }
 
-//! @return __0__ on success
-//! 
-//! Resets all user pins to their default setups.
-//! 
 int RPIHAL_GPIO_reset()
 {
     int r = 0;
@@ -302,16 +275,11 @@ int RPIHAL_GPIO_reset()
             writePin(i_pin, 0);
         }
     }
-    else r = 1;
+    else r = -1;
 
     return r;
 }
 
-//! @param pin BCM GPIO pin number
-//! @return __0__ on success
-//! 
-//! Resets the specified pin to it's default setup.
-//! 
 int RPIHAL_GPIO_resetPin(int pin)
 {
     int r = 0;
@@ -323,13 +291,11 @@ int RPIHAL_GPIO_resetPin(int pin)
         initPin(pin, &initStruct);
         writePin(pin, 0);
     }
-    else r = 1;
+    else r = -1;
 
     return r;
 }
 
-//! @param initStruct Pointer to the pin settings which will be set to the default values
-//! @return __0__ on success
 int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
@@ -340,7 +306,7 @@ int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
         initStruct->pull = RPIHAL_GPIO_PULL_DOWN;
         initStruct->altfunc = RPIHAL_GPIO_AF_0;
     }
-    else r = 1;
+    else r = -1;
 
     return r;
 }
@@ -379,7 +345,6 @@ RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr()
     return gpio_base;
 }
 
-//! @return TRUE (`1`), FALSE (`0`) or unknown (`-1`)
 int RPIHAL_GPIO_isUsingGpiomem()
 {
     return usingGpiomem;

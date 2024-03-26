@@ -75,19 +75,60 @@ typedef struct
 } RPIHAL_GPIO_init_t;
 
 
+//! @return __0__ on success, __negative__ on error
+//! 
+//! Needs to be called once at the start of the app.
+//! 
 int RPIHAL_GPIO_init();
+
+//! @param pin BCM GPIO pin number
+//! @param initStruct Pointer to the pin settings
+//! @return __0__ on success, __negative__ on error
 int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
+
+//! @param pin BCM GPIO pin number
+//! @return __0__ LOW / __1__ HIGH / __negative__ on error
 int RPIHAL_GPIO_readPin(int pin);
+
 uint32_t RPIHAL_GPIO_read();
+
+//! @param pin BCM GPIO pin number
+//! @param state Boolean value representing the pin states HIGH (`1`) and LOW (`0`)
+//! @return __0__ on success, __negative__ on error
 int RPIHAL_GPIO_writePin(int pin, int state);
+
+//! @return __0__ on success, __negative__ on error
 int RPIHAL_GPIO_set(uint32_t bits);
+
+//! @return __0__ on success, __negative__ on error
 int RPIHAL_GPIO_clr(uint32_t bits);
+
+//! @param pin BCM GPIO pin number
+//! @return __0__ on success, __negative__ on error
 int RPIHAL_GPIO_togglePin(int pin);
+
+//! @return __0__ on success, __negative__ on error
+//! 
+//! Resets all user pins to their default setups.
+//! 
 int RPIHAL_GPIO_reset();
+
+//! @param pin BCM GPIO pin number
+//! @return __0__ on success, __negative__ on error
+//! 
+//! Resets the specified pin to it's default setup.
+//! 
 int RPIHAL_GPIO_resetPin(int pin);
+
+//! @param initStruct Pointer to the pin settings which will be set to the default values
+//! @return __0__ on success, __negative__ on error
 int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct);
+
 int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
+
 RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr();
+
+//! @return TRUE (`1`), FALSE (`0`) or unknown (`-1`)
 int RPIHAL_GPIO_isUsingGpiomem();
 
 
