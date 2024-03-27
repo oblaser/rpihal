@@ -41,11 +41,7 @@ extern "C" {
 
 //! @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
 //! @return __0__ on success
-int RPIHAL_SYS_getCpuTempf(float* temperature);
-
-//! @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
-//! @return __0__ on success
-int RPIHAL_SYS_getCpuTemp(double* temperature);
+int RPIHAL_SYS_getCpuTemp(float* temperature);
 
 
 #ifdef __cplusplus

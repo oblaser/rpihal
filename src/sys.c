@@ -36,52 +36,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "rpihal/sys.h"
 
 
-int RPIHAL_SYS_getCpuTempf(float* temperature)
+int RPIHAL_SYS_getCpuTemp(float* temperature)
 {
     int r;
 
-    if(temperature)
+    if (temperature)
     {
         FILE* fp = fopen("/sys/class/thermal/thermal_zone0/temp", "r");
 
-        if(fp)
+        if (fp)
         {
             float temp;
             const int res = fscanf(fp, "%f", &temp);
 
-            if(res == 1)
+            if (res == 1)
             {
                 temp /= 1000.0f;
-                *temperature = temp;
-                r = 0;
-            }
-            else r = res + 1000000;
-
-            fclose(fp);
-        }
-        else r = 2;
-    }
-    else r = 1;
-
-    return r;
-}
-
-int RPIHAL_SYS_getCpuTemp(double* temperature)
-{
-    int r;
-
-    if(temperature)
-    {
-        FILE* fp = fopen("/sys/class/thermal/thermal_zone0/temp", "r");
-
-        if(fp)
-        {
-            double temp;
-            const int res = fscanf(fp, "%lf", &temp);
-
-            if(res == 1)
-            {
-                temp /= 1000.0;
                 *temperature = temp;
                 r = 0;
             }
