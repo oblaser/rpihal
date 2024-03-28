@@ -36,6 +36,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <utility>
 
 #include "emu.h"
 
@@ -51,6 +52,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using std::cout;
 using std::endl;
+
+namespace {
+
+// clamp value y to [a;b]
+template <typename T> void clamp(T& v, const T& a, const T& b) { v = (v < a ? a : (v > b ? b : v)); }
+
+} // namespace
 
 
 
@@ -241,7 +249,7 @@ public:
 
 public:
     SharedData()
-        : m_booted(false), m_terminate(false), m_pins()
+        : m_booted(false), m_terminate(false), m_pins(), m_cpuTemp(42.7)
     {
         using emu::Pin;
 
@@ -277,6 +285,9 @@ public:
     GpioPins getPins() const { lock_guard lg(m_mtxPins); const auto r = m_pins; return r; }
     void setPin(size_t idx, const emu::Pin& pin) { lock_guard lg(m_mtxPins); m_pins[idx] = pin; }
     void setPinState(size_t idx, bool state) { lock_guard lg(m_mtxPins); m_setPinState(idx, state); }
+
+    float getCpuTemp() const { lock_guard lg(m_mtxGeneral); const auto r = m_cpuTemp; return r; }
+    void setCpuTemp(float temp) { lock_guard lg(m_mtxGeneral); m_cpuTemp = temp; }
     // clang-format on
 
     int setGpioConfig(int pin, const emu::Gpio& gpio)
@@ -354,6 +365,9 @@ protected:
     mutable std::mutex m_mtxPins;
     GpioPins m_pins;
 
+    mutable std::mutex m_mtxGeneral;
+    float m_cpuTemp;
+
     void m_setPinState(size_t idx, bool state) { m_pins[idx].setState(state); }
 };
 
@@ -401,10 +415,12 @@ bool EmuPge::OnUserCreate()
 bool EmuPge::OnUserUpdate(float tElapsed)
 {
     auto pins = thread_pge_sd.getPins();
+    const auto cpuTemp = thread_pge_sd.getCpuTemp();
 
     const auto mousePos = GetMousePos();
     const auto mouseR = GetMouse(olc::Mouse::RIGHT);
     const auto mouseL = GetMouse(olc::Mouse::LEFT);
+    const auto mouseWd = GetMouseWheel();
 
     Clear(VERY_DARK_BLUE);
 
@@ -420,7 +436,7 @@ bool EmuPge::OnUserUpdate(float tElapsed)
 
     for (size_t i = 0; i < pins.size(); ++i)
     {
-        constexpr double radius = (size / 2.0) * 0.7;
+        constexpr float radius = (size / 2.0) * 0.7;
 
         auto pos = headerPos + vi2d(0, (i / 2) * size);
         const auto& pin = pins[i];
@@ -443,7 +459,7 @@ bool EmuPge::OnUserUpdate(float tElapsed)
         }
         else pixel = Pixel(50, 50, 50);
 
-        FillCircle(pos, radius + 0.5, pixel);
+        FillCircle(pos, (int32_t)(radius + 0.5), pixel);
 
         // const auto pinRectSize = vi2d(5, 5);
         // FillRect(pos - pinRectSize / 2, pinRectSize, Pixel(255, 215, 0));
@@ -471,7 +487,7 @@ bool EmuPge::OnUserUpdate(float tElapsed)
 
                     mouseColor = WHITE;
                 }
-                else mouseColor = MAGENTA;
+                else mouseColor = GREEN;
 
                 if (pins[i].isId()) mouseColor = RED;
             }
@@ -480,7 +496,67 @@ bool EmuPge::OnUserUpdate(float tElapsed)
                 mouseColor = RED;
             }
 
-            DrawCircle(pos, radius + 0.5, mouseColor);
+            DrawCircle(pos, (int32_t)(radius + 0.5), mouseColor);
+        }
+
+        // CPU temp slider
+        {
+            static bool mouseDownWasOnSlider = false;
+            static int32_t mouseOffset = 0;
+
+            constexpr int32_t radius = 9;
+            constexpr int32_t origX = 100;
+            constexpr int32_t origY = 100;
+            constexpr int32_t len = 200;
+            const auto orig = vi2d(origX, origY);
+            const auto end = orig + vi2d(0, len);
+            const auto boxO = vi2d(origX - radius + 1, origY);
+            const auto boxE = vi2d(origX + radius - 1, origY + len);
+
+            const bool mouseIsInBox = !(mousePos.x < boxO.x || mousePos.x > boxE.x || mousePos.y < boxO.y || mousePos.y > boxE.y);
+
+            constexpr float tempLo = 5;
+            constexpr float tempHi = 90;
+            constexpr float tempSpan = tempHi - tempLo;
+            auto temp_to_normal = [&](const float& temp) { return 1 - ((temp - tempLo) / tempSpan); };
+            auto normal_to_temp = [&](const float& norm) { return tempLo + (1 - norm) * tempSpan; };
+
+            int32_t value = len * temp_to_normal(cpuTemp) + 0.5f;
+
+            if (mouseDownWasOnSlider)
+            {
+                value = (float)(mousePos.y) - origY - mouseOffset;
+                clamp(value, 0, len);
+            }
+            else
+            {
+                if (mouseWd != 0 && mouseIsInBox) { value += (int32_t)round(mouseWd / -120.0f); }
+            }
+
+            const auto handlePos = orig + vi2d(0, value);
+            const bool mouseIsOnHandle = (handlePos - mousePos).mag2() <= (radius * radius);
+
+            if (mouseL.bPressed)
+            {
+                if (mouseIsOnHandle)
+                {
+                    mouseDownWasOnSlider = true;
+                    mouseOffset = mousePos.y - handlePos.y;
+                }
+
+                if (mouseIsInBox)
+                {
+                    mouseDownWasOnSlider = true;
+                    mouseOffset = 0;
+                }
+            }
+            if (mouseL.bReleased) { mouseDownWasOnSlider = false; }
+
+            thread_pge_sd.setCpuTemp(normal_to_temp((float)value / len));
+
+            // DrawRect(boxO, boxE - boxO);
+            DrawLine(orig, end, VERY_DARK_GREY);
+            FillCircle(handlePos, radius, DARK_GREY);
         }
     }
 
@@ -491,8 +567,16 @@ bool EmuPge::OnUserDestroy() { return true; }
 
 
 
-//======================================================================================================================
-// rpihal emu implementation
+// clang-format off
+
+
+
+//######################################################################################################################
+//                                                                                                                     #
+//  rpihal emu implementation                                                                                          #
+//                                                                                                                     #
+//######################################################################################################################
+// clang-format on
 
 #include "../../include/rpihal/defs.h"
 #include "../../include/rpihal/gpio.h"
@@ -501,10 +585,11 @@ bool EmuPge::OnUserDestroy() { return true; }
 #include "../../include/rpihal/uart.h"
 #include "../internal/gpio.h"
 
+//======================================================================================================================
+// gpio
 
 static const int sysGpioLocked = 1;
 static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy
-
 
 static int checkPin(int pin);
 
@@ -535,6 +620,8 @@ int RPIHAL_init()
         cout << "\033[30;41m                                   \033[39;49m" << endl;
         cout << "\033[30;41m  failed to start emulator thread  \033[39;49m" << endl;
         cout << "\033[30;41m                                   \033[39;49m" << endl;
+
+        cout << ex.what() << endl;
     }
 
     return r;
@@ -668,6 +755,23 @@ int checkPin(int pin)
     {
         if ((pin >= FIRST_PIN) && (pin <= LAST_PIN)) r = 1;
     }
+
+    return r;
+}
+
+//======================================================================================================================
+// sys
+
+int RPIHAL_SYS_getCpuTemp(float* temperature)
+{
+    int r;
+
+    if (temperature)
+    {
+        *temperature = thread_pge_sd.getCpuTemp();
+        r = 0;
+    }
+    else r = 1;
 
     return r;
 }
