@@ -249,7 +249,7 @@ public:
 
 public:
     SharedData()
-        : m_booted(false), m_terminate(false), m_pins(), m_cpuTemp(42.7)
+        : m_running(false), m_booted(false), m_terminate(false), m_pins(), m_cpuTemp(42.7)
     {
         using emu::Pin;
 
@@ -276,6 +276,9 @@ public:
     virtual ~SharedData() {}
 
     // clang-format off
+    void setRunning(bool state = true) { lock_guard lg(m_mtxThCtrl); m_running = state; }
+    bool isRunning() const { lock_guard lg(m_mtxThCtrl); return m_running; }
+
     void setBooted(bool state = true) { lock_guard lg(m_mtxThCtrl); m_booted = state; }
     bool hasBooted() const { lock_guard lg(m_mtxThCtrl); return m_booted; }
 
@@ -359,6 +362,7 @@ public:
 
 protected:
     mutable std::mutex m_mtxThCtrl;
+    bool m_running;
     bool m_booted;
     bool m_terminate;
 
@@ -585,17 +589,11 @@ bool EmuPge::OnUserDestroy() { return true; }
 #include "../../include/rpihal/uart.h"
 #include "../internal/gpio.h"
 
-//======================================================================================================================
-// gpio
-
-static const int sysGpioLocked = 1;
-static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy
-
-static int checkPin(int pin);
-
 static void emuMain()
 {
     EmuPge emu_pge;
+
+    thread_pge_sd.setRunning();
 
 #ifdef _DEBUG
     constexpr bool vSync = true;
@@ -604,9 +602,14 @@ static void emuMain()
 #endif
 
     if (emu_pge.Construct(EmuPge::pgeWindowSize.x, EmuPge::pgeWindowSize.y, EmuPge::pgePixelSize, EmuPge::pgePixelSize, false, vSync)) { emu_pge.Start(); }
+
+    thread_pge_sd.setRunning(false);
 }
 
-int RPIHAL_init()
+//======================================================================================================================
+// rpihal.h
+
+int RPIHAL_EMU_init()
 {
     int r = -1;
 
@@ -627,7 +630,7 @@ int RPIHAL_init()
     return r;
 }
 
-void RPIHAL_cleanup_emu()
+void RPIHAL_EMU_cleanup()
 {
     volatile int dummy = 0;
 
@@ -636,6 +639,19 @@ void RPIHAL_cleanup_emu()
     thread_pge_sd.terminate();
     thread_pge.join();
 }
+
+int RPIHAL_EMU_isRunning()
+{
+    return thread_pge_sd.isRunning();
+}
+
+//======================================================================================================================
+// gpio.h
+
+static const int sysGpioLocked = 1;
+static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy
+
+static int checkPin(int pin);
 
 int RPIHAL_GPIO_init() { return 0; } // nop
 

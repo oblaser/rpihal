@@ -35,5 +35,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-int RPIHAL_init() { return 0; }
-void RPIHAL_cleanup_emu() { return; }
+// int RPIHAL_...() { return 0; }
+
+
+
+//======================================================================================================================
+// Emulator
+
+int RPIHAL_EMU_init() { return 0 ; }
+void RPIHAL_EMU_cleanup() { return; }
+int RPIHAL_EMU_isRunning() { return 0; }

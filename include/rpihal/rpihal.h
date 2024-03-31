@@ -38,13 +38,24 @@ extern "C" {
 #endif
 
 
-int RPIHAL_init();
+// int RPIHAL_...();
 
-//! @brief Cleans up resources used by the emulator
+
+
+//======================================================================================================================
+// Emulator
+
+// These functions may be called from tha actual RasPi code, they just return success.
+
+int RPIHAL_EMU_init();
+
+//! @brief Cleans up resources used by the emulator.
 //!
 //! Only needed if the enulator is used, but can be called from PI code. So no compile switch is needed.
 //!
-void RPIHAL_cleanup_emu();
+void RPIHAL_EMU_cleanup();
+
+int RPIHAL_EMU_isRunning();
 
 
 #ifdef __cplusplus
