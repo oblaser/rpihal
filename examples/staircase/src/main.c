@@ -4,18 +4,16 @@ date            17.05.2022
 copyright       MIT - Copyright (c) 2022 Oliver Blaser
 */
 
-// std includes
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 
-// prj includes
 #include "ionoPi.h"
 
-// lib includes
 #include <rpihal/gpio.h>
+#include <rpihal/rpihal.h>
 
 
 #define BTN_STAIRS_PIN      IONOPI_DI3
@@ -30,7 +28,8 @@ copyright       MIT - Copyright (c) 2022 Oliver Blaser
 #define LIGHT_BROOM_1_PIN   IONOPI_O3
 #define LIGHT_BROOM_2_PIN   IONOPI_O4
 
-enum { STAIRS_TIME = 10 };
+
+const static int STAIRS_TIME = 10 ;
 
 
 static int initGpio();
@@ -42,6 +41,8 @@ int main(int argc, char** argv)
     uint32_t inp, inp_old, inp_pos; //, inp_neg;
     time_t tOld = 0, tNow;
     int tmr_stairs = 0;
+
+    RPIHAL_EMU_init();
 
     if(initGpio() != 0) return 1;
 

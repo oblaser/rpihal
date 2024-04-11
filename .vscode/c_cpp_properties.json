@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
-                "${sdk}/OpenWRT-19.07.3/toolchain-mipsel_24kc_gcc-7.5.0_musl/include"
+                "${sdk}/OpenWRT-19.07.3/toolchain-mipsel_24kc_gcc-7.5.0_musl/include", // just a xNIX include path I happen to have on my Windows PC for VS Code IntelliSense
             ],
             "defines": [
                 "__unix__",

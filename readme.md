@@ -34,9 +34,13 @@ These all have the 40 pin header, which has the same pinout on all models listed
 
 ## Emulator
 
-The emulator can be used to run your project on your working machine (Windows or Linux). To build the emulator project
+The emulator can be used to run your project on your working machine. To build the emulator project
 include all the same files as in the main project, plus the [emu.cpp](src/emu/emu.cpp) file (don't include any other
-rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` in the compiler (not anyehere in
-source nor header files).
+rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` on the compiler level (not anyehere in
+source nor header files). See the [staircase example](examples/staircase/emu/cmake/CMakeLists.txt#L19) as a reference.
+To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an empty
+console application. Then add all the needed source files and add the include directories.
+
+The left and right mouse button can be used to click (push a button) or toggle an input pin.
 
 The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine) for the graphics.

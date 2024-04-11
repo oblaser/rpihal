@@ -16,3 +16,9 @@ A push button is used to switch the light on and off.
 |:---:|:---:|:---:|
 | 1 | DI4 | O3 |
 | 2 | DI5 | O4 |
+
+
+
+## Build
+
+To build the project on the RasPi (the actual app) use the [build](build/) directory. To run the project in the emulator on your PC use the [emu](emu/) directory.
