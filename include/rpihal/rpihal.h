@@ -45,14 +45,20 @@ extern "C" {
 //======================================================================================================================
 // Emulator
 
-// These functions may be called from tha actual RasPi code, they just return success.
-
+/**
+ * @brief Initialises the emulator and starts it's thread.
+ *
+ * Only needed if the enulator is used, but can be called from PI code. So no compile switch is needed.
+ *
+ * @retval 0 on success
+ */
 int RPIHAL_EMU_init();
 
-//! @brief Cleans up resources used by the emulator.
-//!
-//! Only needed if the enulator is used, but can be called from PI code. So no compile switch is needed.
-//!
+/**
+ * @brief Cleans up resources used by the emulator.
+ *
+ * Only needed if the enulator is used, but can be called from PI code. So no compile switch is needed.
+ */
 void RPIHAL_EMU_cleanup();
 
 int RPIHAL_EMU_isRunning();

@@ -10,12 +10,13 @@ A push button (or several in parallel) turns on the light and triggers a timer, 
 | DI3 | O2 |
 
 ### Basement Rooms
-A push button is used to switch the light on and off.
+A push button is used to switch the light on and off. Only room 3 uses a swith.
 
 | room | input | output |
 |:---:|:---:|:---:|
 | 1 | DI4 | O3 |
 | 2 | DI5 | O4 |
+| 3 | DI6 | O1 |
 
 
 

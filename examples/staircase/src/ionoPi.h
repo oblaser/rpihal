@@ -16,13 +16,13 @@ extern "C" {
 // https://www.sferalabs.cc/files/ionopi/doc/ionopi-user-guide.pdf
 
 // green LED, visible through the front panel
-#define IONOPI_L1   (7)
+#define IONOPI_L1 (7)
 
 // relay contacts
-#define IONOPI_O1   (17)
-#define IONOPI_O2   (27)
-#define IONOPI_O3   (22)
-#define IONOPI_O4   (23)
+#define IONOPI_O1 (17)
+#define IONOPI_O2 (27)
+#define IONOPI_O3 (22)
+#define IONOPI_O4 (23)
 
 // 5V TTL I/O
 #define IONOPI_TTL1 (4)
@@ -31,17 +31,17 @@ extern "C" {
 #define IONOPI_TTL4 (21)
 
 // digital inputs
-#define IONOPI_DI1  (16)
-#define IONOPI_DI2  (19)
-#define IONOPI_DI3  (13)
-#define IONOPI_DI4  (12)
-#define IONOPI_DI5  (6)
-#define IONOPI_DI6  (5)
+#define IONOPI_DI1 (16)
+#define IONOPI_DI2 (19)
+#define IONOPI_DI3 (13)
+#define IONOPI_DI4 (12)
+#define IONOPI_DI5 (6)
+#define IONOPI_DI6 (5)
 
 // open collector outputs
-#define IONOPI_OC1  (18)
-#define IONOPI_OC2  (25)
-#define IONOPI_OC3  (24)
+#define IONOPI_OC1 (18)
+#define IONOPI_OC2 (25)
+#define IONOPI_OC3 (24)
 
 
 #define IONOPI_O1_BIT   (1 << IONOPI_O1)

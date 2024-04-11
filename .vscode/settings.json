@@ -1,6 +1,6 @@
 {
     "[c][cpp]": {
-        "editor.formatOnSave": false,
+        "editor.formatOnSave": true,
     },
 
     "files.associations": {
