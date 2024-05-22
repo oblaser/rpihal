@@ -23,9 +23,9 @@ if(_DEBUG)
 endif()
 
 set(SOURCES
-../../src/main.cpp
+../../src/main.c
 
-../../sdk/rpihal/src/emu/emu.cpp
+../../../../../rpihal/src/emu/emu.cpp
 )
 
 add_executable(${EXE} ${SOURCES})
