@@ -2,6 +2,10 @@
 /build/cmake/*
 !/build/cmake/CMakeLists.txt
 
+!/build/cmake/librpihal.a
+/build/cmake/librpihal.a/*
+!/build/cmake/librpihal.a/CMakeLists.txt
+
 /build/packed/
 
 /lib32/
