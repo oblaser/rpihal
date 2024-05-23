@@ -2,6 +2,12 @@
 
 
 
+### v0.2.0
+
+- RasPi 4 Support
+
+
+
 ### v0.1.2
 
 Functionality changed

@@ -35,11 +35,11 @@ extern "C" {
 #endif
 
 
-#define RPIHAL_VERSION_MAJOR            0
-#define RPIHAL_VERSION_MINOR            1
-#define RPIHAL_VERSION_PATCH            2
-#define RPIHAL_VERSION_PRERELEASE       "alpha"
-#define RPIHAL_VERSION_ISPRERELEASE     1
+#define RPIHAL_VERSION_MAJOR        0
+#define RPIHAL_VERSION_MINOR        2
+#define RPIHAL_VERSION_PATCH        0
+#define RPIHAL_VERSION_PRERELEASE   "alpha"
+#define RPIHAL_VERSION_ISPRERELEASE 1
 
 
 #ifdef __cplusplus
