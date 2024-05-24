@@ -1,12 +1,11 @@
 /*
 author          Oliver Blaser
-date            19.05.2022
-copyright       MIT - Copyright (c) 2022 Oliver Blaser
+copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
 /*
 
-Copyright (c) 2022 Oliver Blaser
+Copyright (c) 2024 Oliver Blaser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -38,29 +37,41 @@ extern "C" {
 #endif
 
 
-#define RPIHAL_GPIO_MODE_IN  0
-#define RPIHAL_GPIO_MODE_OUT 1
-#define RPIHAL_GPIO_MODE_AF  2
+enum RPIHAL_GPIO_MODE
+{
+    RPIHAL_GPIO_MODE_IN = 0,
+    RPIHAL_GPIO_MODE_OUT,
+    RPIHAL_GPIO_MODE_AF,
+};
 
-#define RPIHAL_GPIO_PULL_NONE (0x00)
-#define RPIHAL_GPIO_PULL_DOWN (0x01)
-#define RPIHAL_GPIO_PULL_UP   (0x02)
+enum RPIHAL_GPIO_PULL
+{
+    RPIHAL_GPIO_PULL_NONE = 0,
+    RPIHAL_GPIO_PULL_UP,
+    RPIHAL_GPIO_PULL_DOWN,
+};
 
-// #define RPIHAL_GPIO_DRIVE_2mA      0
-// #define RPIHAL_GPIO_DRIVE_4mA      1
-// #define RPIHAL_GPIO_DRIVE_6mA      2
-// #define RPIHAL_GPIO_DRIVE_8mA      3
-// #define RPIHAL_GPIO_DRIVE_10mA     4
-// #define RPIHAL_GPIO_DRIVE_12mA     5
-// #define RPIHAL_GPIO_DRIVE_14mA     6
-// #define RPIHAL_GPIO_DRIVE_16mA     7
+enum RPIHAL_GPIO_DRIVE
+{
+    RPIHAL_GPIO_DRIVE_2mA = 0,
+    RPIHAL_GPIO_DRIVE_4mA,
+    RPIHAL_GPIO_DRIVE_6mA,
+    RPIHAL_GPIO_DRIVE_8mA,
+    RPIHAL_GPIO_DRIVE_10mA,
+    RPIHAL_GPIO_DRIVE_12mA,
+    RPIHAL_GPIO_DRIVE_14mA,
+    RPIHAL_GPIO_DRIVE_16mA,
+};
 
-#define RPIHAL_GPIO_AF_0 0
-#define RPIHAL_GPIO_AF_1 1
-#define RPIHAL_GPIO_AF_2 2
-#define RPIHAL_GPIO_AF_3 3
-#define RPIHAL_GPIO_AF_4 4
-#define RPIHAL_GPIO_AF_5 5
+enum RPIHAL_GPIO_AF
+{
+    RPIHAL_GPIO_AF_0 = 0,
+    RPIHAL_GPIO_AF_1,
+    RPIHAL_GPIO_AF_2,
+    RPIHAL_GPIO_AF_3,
+    RPIHAL_GPIO_AF_4,
+    RPIHAL_GPIO_AF_5,
+};
 
 
 typedef volatile uint32_t RPIHAL_reg_t; // register type
@@ -130,12 +141,21 @@ void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct);
 //! @param pin
 //! @param [out] initStruct
 //!
-void RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
+int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
 
 RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr();
 
 //! @return TRUE (`1`), FALSE (`0`) or unknown (`-1`)
 int RPIHAL_GPIO_isUsingGpiomem();
+
+//! @brief Returns the GPIO pin number of the setted bit.
+//!
+//! The index of the first setted bit beginning at the LSB is returned. If <tt>bit</tt> is *0* or the bit is out of
+//! range, `-1` is returned.
+//!
+int RPIHAL_GPIO_bittopin(uint64_t bit);
+
+uint64_t RPIHAL_GPIO_pintobit(int pin);
 
 
 #ifdef __cplusplus

@@ -51,6 +51,11 @@ RPIHAL_model_t RPIHAL_getModel()
 //======================================================================================================================
 // Emulator
 
-int RPIHAL_EMU_init() { return 0; }
+int RPIHAL_EMU_init(RPIHAL_model_t model)
+{
+    (void)model;
+    return 0;
+}
+
 void RPIHAL_EMU_cleanup() { return; }
 int RPIHAL_EMU_isRunning() { return 0; }

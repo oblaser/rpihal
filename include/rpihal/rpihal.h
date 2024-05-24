@@ -66,9 +66,9 @@ typedef enum // see https://www.raspberrypi.com/documentation/computers/processo
 
     // BCM2837B0
     RPIHAL_model_bcm2837b0 = 3500,
-    RPIHAL_model_3Ap = 3510, // `3A+`               Raspberry Pi 3 Models A+
-    RPIHAL_model_3Bp = 3520, // `3B+`               Raspberry Pi 3 Models B+
-    RPIHAL_model_cm3 = 3530, // `CM3+`              Raspberry Pi Compute Module 3+
+    RPIHAL_model_3Ap = 3510,  // `3A+`              Raspberry Pi 3 Models A+
+    RPIHAL_model_3Bp = 3520,  // `3B+`              Raspberry Pi 3 Models B+
+    RPIHAL_model_cm3p = 3530, // `CM3+`             Raspberry Pi Compute Module 3+
 
     // BCM2711
     RPIHAL_model_bcm2711 = 4000,
@@ -99,7 +99,7 @@ static inline int RPIHAL_model_SoC_is_bcm2712(RPIHAL_model_t model) { return ((m
 // clang-format off
 static inline int RPIHAL_model_SoC_peripheral_is_bcm2835(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2835) && (model < RPIHAL_model_bcm2711) ? 1 : 0); }
 static inline int RPIHAL_model_SoC_peripheral_is_bcm2711(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2711) && (model < RPIHAL_model_bcm2712) ? 1 : 0); }
-static inline int RPIHAL_model_SoC_peripheral_is_bcm2712(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2712) ? 1 : 0); }
+//static inline int RPIHAL_model_SoC_peripheral_is_bcm2712(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2712) ? 1 : 0); }
 // clang-format on
 
 static inline int RPIHAL_model_header_is_26pin(RPIHAL_model_t model)
