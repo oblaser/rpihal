@@ -10,7 +10,7 @@ The system tests can also be considered as examples :wink:
 
 ## GPIO Module
 
-> __CAUTION!__ Currently only supports models with the BCM2836, BCM2837 and BCM2837B0. If this software is executed on another hardware it may lead to permanent damage! See the [v0.2 branch](https://github.com/oblaser/rpihal/tree/v0.2) for hardware awareness.
+> __CAUTION!__ Currently only supports models with the BCM2836, BCM2837 and BCM2837B0. If this software is executed on another hardware it may lead to permanent damage! See the [v0.2 branch](https://github.com/oblaser/rpihal/tree/v0.2) for hardware awareness. A [Pre-Release](https://github.com/oblaser/rpihal/releases/tag/v0.2.0-alpha) is available! :blush:
 >
 > Unexpected behaviour may be observed on alternate functions (see https://elinux.org/BCM2835_datasheet_errata#p92_to_95_.26_102_to_103).
 >
@@ -23,14 +23,6 @@ The system tests can also be considered as examples :wink:
 `3B+`
 
 These all have the 40 pin header, which has the same pinout on all models listed above.
-
-### Links
-
-- https://elinux.org/RPi_GPIO_Code_Samples
-- https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#general-purpose-io-gpio
-- https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf + https://elinux.org/BCM2835_datasheet_errata
-- http://www.scribd.com/doc/101830961/GPIO-Pads-Control2
-- https://forums.raspberrypi.com/viewtopic.php?t=243166
 
 
 
