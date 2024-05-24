@@ -10,7 +10,7 @@ The system tests can also be considered as examples :wink:
 
 ## GPIO Module
 
-> __CAUTION!__ Currently only supports models with the BCM2836, BCM2837 and BCM2837B0. _~~BCM283x. Be aware of the different header pinouts on the various boards!~~_
+> __CAUTION!__ Currently only supports models with the BCM2836, BCM2837 and BCM2837B0. If this software is executed on another hardware it may lead to permanent damage! See the [v0.2 branch](https://github.com/oblaser/rpihal/tree/v0.2) for hardware awareness.
 >
 > Search for _DEVSPEC_ comments in code to find the critical portions.
 
