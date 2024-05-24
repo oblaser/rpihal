@@ -10,17 +10,14 @@ The system tests can also be considered as examples :wink:
 
 ## GPIO Module
 
-> __CAUTION!__ Currently only supports models with the BCM2836, BCM2837 and BCM2837B0. _~~BCM283x. Be aware of the different header pinouts on the various boards!~~_
->
+The library is now aware of the hardware it's running on.
+
+> __CAUTION!__ Unexpected behaviour may be observed on alternate functions (see https://elinux.org/BCM2835_datasheet_errata#p92_to_95_.26_102_to_103).
+
+### Supported Models
+`2B` and newer. Zeros, Compute Modules and the `400` could not yet be tested.
+
 > Search for _ADDHW_ comments in code to find sections which are crucial for implementation of more hardware support.
-
-### Supported Models:
-`2B`
-`3A+`
-`3B`
-`3B+`
-
-These all have the 40 pin header, which has the same pinout on all models listed above.
 
 ### Links
 
