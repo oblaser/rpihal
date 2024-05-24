@@ -43,5 +43,5 @@ add_library(${BINNAME} STATIC ${SOURCES})
 set_target_properties(${BINNAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../lib/)
 
 if(RPIHAL_CMAKE_CONFIG_EMU AND UNIX AND NOT APPLE)
-target_link_libraries(${BINNAME} X11 GL pthread png)
+    target_link_libraries(${BINNAME} X11 GL pthread png)
 endif()

@@ -124,6 +124,7 @@ static int sysGpioLocked = 1;
 
 
 
+static inline void BCM2835_delay_cycles(size_t cycleCount) { while (--cycleCount) { asm volatile("nop"); } }
 static uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr);
 static void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value);
 static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask);
@@ -318,7 +319,7 @@ int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
     if (initStruct)
     {
         initStruct->mode = RPIHAL_GPIO_MODE_IN;
-        
+
         if (((pin >= 0) && (pin <= 8)) ||
             ((pin >= 34) && (pin <= 36)) ||
             ((pin >= 46) && (pin <= 53)))
@@ -332,7 +333,7 @@ int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
             initStruct->pull = RPIHAL_GPIO_PULL_DOWN;
         }
         else initStruct->pull = RPIHAL_GPIO_PULL_NONE;
-        
+
         initStruct->altfunc = RPIHAL_GPIO_AF_0;
     }
     else r = 1;
@@ -425,7 +426,7 @@ void initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 
 
 
-    // pud
+    // pud // TODO check procedure: delay, write_bits vs write
 
     addr = gpio_base + (GPPUD / 4);
     value = (uint32_t)(initStruct->pull);
