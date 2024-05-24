@@ -34,13 +34,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+static RPIHAL_model_t ___model = RPIHAL_model_unknown;
+void RPIHAL___setModel___(RPIHAL_model_t model) { ___model = model; }
+
 RPIHAL_model_t RPIHAL_getModel()
 {
     static RPIHAL_model_t model = RPIHAL_model_unknown;
 
-    if (RPIHAL_model_unknown == model)
+    model = ___model;
+
+    while (RPIHAL_model_unknown == model)
     {
+        char cpuInfoTxt[1024 * 3]; // the result of "Raspberry Pi 4 Model B Rev 1.5" needs 918 bytes
+
+        // const int fd = open("/proc/cpuinfo", O_RDONLY);
+        // if (fd < 0) break;
+        //
+        // close(fd);
+
         // TODO detect model
+
+
+
+        break; // exit
     }
 
     return model;

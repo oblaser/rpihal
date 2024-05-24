@@ -87,6 +87,7 @@ typedef enum // see https://www.raspberrypi.com/documentation/computers/processo
 
 
 RPIHAL_model_t RPIHAL_getModel();
+void RPIHAL___setModel___(RPIHAL_model_t model);
 
 static inline int RPIHAL_model_SoC_is_bcm2835(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2835) && (model < RPIHAL_model_bcm2836) ? 1 : 0); }
 static inline int RPIHAL_model_SoC_is_bcm2836(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2836) && (model < RPIHAL_model_bcm2837) ? 1 : 0); }
