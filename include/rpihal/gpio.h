@@ -71,7 +71,7 @@ typedef struct
     int mode;
     int pull;
     //int drive;
-    int altfunc;
+    int altfunc; // unexpected behaviour may be observed (see https://elinux.org/BCM2835_datasheet_errata#p92_to_95_.26_102_to_103)
 } RPIHAL_GPIO_init_t;
 
 

@@ -107,7 +107,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define FSEL_MASK   (0x07)
 #define FSEL_IN     (0x00)
 #define FSEL_OUT    (0x01)
-#define FSEL_AF0    (0x04)
+#define FSEL_AF0    (0x04) // unexpected behaviour may be observed (see https://elinux.org/BCM2835_datasheet_errata#p92_to_95_.26_102_to_103)
 #define FSEL_AF1    (0x05)
 #define FSEL_AF2    (0x06)
 #define FSEL_AF3    (0x07)
