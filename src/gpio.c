@@ -33,101 +33,109 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "internal/gpio.h"
 #include "internal/platform_check.h"
 #include "rpihal/gpio.h"
+#include "rpihal/rpihal.h"
 
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <unistd.h>     // usleep()
+#include <unistd.h> // usleep()
 
 
 
-// 
+//
 // BCM defines
-// 
+//
 
-#define BCM_REGISTER_PASSWORD       0x5A000000
-#define BCM_BLOCK_SIZE              (4*1024)
+#define BCM_REGISTER_PASSWORD (0x5A000000)
+#define BCM_BLOCK_SIZE        (4 * 1024)
+// #define BCM_PAGE_SIZE      (4 * 1024)
 
-#define PERI_ADR_BASE_BCM2835       0x20000000
-#define PERI_ADR_BASE_BCM2836_7     0x3F000000
-#define PERI_ADR_BASE_BCM2836       PERI_ADR_BASE_BCM2836_7
-#define PERI_ADR_BASE_BCM2837       PERI_ADR_BASE_BCM2836_7
-#define PERI_ADR_BASE_BCM2711       0xFE000000
+#define PERI_ADR_BASE_BCM2835   (0x20000000)
+#define PERI_ADR_BASE_BCM2836_7 (0x3F000000)
+#define PERI_ADR_BASE_BCM2836   PERI_ADR_BASE_BCM2836_7
+#define PERI_ADR_BASE_BCM2837   PERI_ADR_BASE_BCM2836_7
+#define PERI_ADR_BASE_BCM2711   (0xFE000000)
 
-#define PERI_ADR_OFFSET_GPIO        0x00200000 // BCM283x and BCM2711
+#define PERI_ADR_OFFSET_GPIO (0x00200000) // BCM283x and BCM2711
 
 
 
-// 
+//
 // GPIO register offsets
-// 
+//
 
-#define GPFSEL0     0x0000
-#define GPFSEL1     0x0004
-#define GPFSEL2     0x0008
-#define GPFSEL3     0x000C
-#define GPFSEL4     0x0010
-#define GPFSEL5     0x0014
+#define GPFSEL0 (0x0000)
+#define GPFSEL1 (0x0004)
+#define GPFSEL2 (0x0008)
+#define GPFSEL3 (0x000C)
+#define GPFSEL4 (0x0010)
+#define GPFSEL5 (0x0014)
 
-#define GPSET0      0x001C
-#define GPSET1      0x0020
+#define GPSET0 (0x001C)
+#define GPSET1 (0x0020)
 
-#define GPCLR0      0x0028
-#define GPCLR1      0x002C
+#define GPCLR0 (0x0028)
+#define GPCLR1 (0x002C)
 
-#define GPLEV0      0x0034
-#define GPLEV1      0x0038
+#define GPLEV0 (0x0034)
+#define GPLEV1 (0x0038)
 
-#define GPEDS0      0x0040
-#define GPEDS1      0x0044
+#define GPEDS0 (0x0040)
+#define GPEDS1 (0x0044)
 
-#define GPREN0      0x004C
-#define GPREN1      0x0050
+#define GPREN0 (0x004C)
+#define GPREN1 (0x0050)
 
-#define GPFEN0      0x0058
-#define GPFEN1      0x005C
+#define GPFEN0 (0x0058)
+#define GPFEN1 (0x005C)
 
-#define GPHEN0      0x0064
-#define GPHEN1      0x0068
+#define GPHEN0 (0x0064)
+#define GPHEN1 (0x0068)
 
-#define GPLEN0      0x0070
-#define GPLEN1      0x0074
+#define GPLEN0 (0x0070)
+#define GPLEN1 (0x0074)
 
-#define GPAREN0     0x007C
-#define GPAREN1     0x0080
+#define GPAREN0 (0x007C)
+#define GPAREN1 (0x0080)
 
-#define GPAFEN0     0x0088
-#define GPAFEN1     0x008C
+#define GPAFEN0 (0x0088)
+#define GPAFEN1 (0x008C)
 
-#define GPPUD       0x0094
-#define GPPUDCLK0   0x0098
-#define GPPUDCLK1   0x009C
+#define GPPUD     (0x0094)
+#define GPPUDCLK0 (0x0098)
+#define GPPUDCLK1 (0x009C)
 
 
-#define FSEL_MASK   (0x07)
-#define FSEL_IN     (0x00)
-#define FSEL_OUT    (0x01)
-#define FSEL_AF0    (0x04)
-#define FSEL_AF1    (0x05)
-#define FSEL_AF2    (0x06)
-#define FSEL_AF3    (0x07)
-#define FSEL_AF4    (0x03)
-#define FSEL_AF5    (0x02)
-static const uint32_t FSEL_AF_LUT[] = {
-    FSEL_AF0, FSEL_AF1, FSEL_AF2, FSEL_AF3, FSEL_AF4, FSEL_AF5 }; // FSEL alternate function look up table
+#define FSEL_MASK (0x07)
+#define FSEL_IN   (0x00)
+#define FSEL_OUT  (0x01)
+#define FSEL_AF0  (0x04)
+#define FSEL_AF1  (0x05)
+#define FSEL_AF2  (0x06)
+#define FSEL_AF3  (0x07)
+#define FSEL_AF4  (0x03)
+#define FSEL_AF5  (0x02)
+static const uint32_t FSEL_AF_LUT[] = { FSEL_AF0, FSEL_AF1, FSEL_AF2, FSEL_AF3, FSEL_AF4, FSEL_AF5 }; // FSEL alternate function look up table
 
 
 
 static RPIHAL_regptr_t gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
-static int sysGpioLocked = 1;
+static int sysGpioLocked = 1; // ADDHW check for const RPIHAL_model_t hwModel = RPIHAL_getModel(); before unlocking!
+                              // may be unlocked on compute modules, illegal to unlock on other models
 
 
 
-static inline void BCM2835_delay_cycles(size_t cycleCount) { while (--cycleCount) { asm volatile("nop"); } }
+#if 0
+// TODO find all BCM2835_.. calls and check for RPIHAL_model_SoC_peripheral_is_..()
+static inline void BCM2835_delay_cycles(size_t cycleCount)
+{
+    while (--cycleCount) { asm volatile("nop"); }
+}
 static uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr);
 static void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value);
 static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask);
+#endif
 
 static int checkPin(int pin);
 static void initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
@@ -138,12 +146,28 @@ static void writePin(int pin, int state);
 
 int RPIHAL_GPIO_init()
 {
-    int r = 0;
+    enum
+    {
+        EC_OK = 0,
+        EC_model, // unknown hardware
+        EC_open,  // open "/dev/*mem" failed
+        EC_mmap,  // memory maping failed
+    };
+
+    int r = EC_OK;
+
+    const RPIHAL_model_t hwModel = RPIHAL_getModel();
+    off_t mmapoffs;
+
+    // ADDHW bcm2835, bcm2712
+    if (RPIHAL_model_SoC_is_bcm2836(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2836 + PERI_ADR_OFFSET_GPIO; }
+    else if (RPIHAL_model_SoC_is_bcm2837_any(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2837 + PERI_ADR_OFFSET_GPIO; }
+    else if (RPIHAL_model_SoC_is_bcm2711(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2711 + PERI_ADR_OFFSET_GPIO; }
+    else { return EC_model; }
 
     if (!gpio_base)
     {
         int fd;
-        off_t mmapoffs;
 
         fd = open("/dev/gpiomem", O_RDWR | O_SYNC | O_CLOEXEC); // no root access needed
 
@@ -154,12 +178,11 @@ int RPIHAL_GPIO_init()
         }
         else
         {
-            mmapoffs = PERI_ADR_BASE_BCM2836_7 + PERI_ADR_OFFSET_GPIO; // !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3) B[+] / 3 A+ / CM 3[+]
             usingGpiomem = 0;
 
             fd = open("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC); // root access needed
 
-            if (fd < 0) r = -1;
+            if (fd < 0) r = EC_open;
         }
 
         if (r == 0)
@@ -168,10 +191,12 @@ int RPIHAL_GPIO_init()
 
             if (gpio_base == MAP_FAILED)
             {
-                r = -2;
+                r = EC_mmap;
                 gpio_base = NULL;
             }
         }
+
+        // TODO can fd be closed after mmap?
     }
 
     return r;
@@ -181,10 +206,7 @@ int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
-    if (gpio_base && initStruct && checkPin(pin))
-    {
-        initPin(pin, initStruct);
-    }
+    if (gpio_base && initStruct && checkPin(pin)) { initPin(pin, initStruct); }
     else r = -1;
 
     return r;
@@ -204,11 +226,35 @@ uint32_t RPIHAL_GPIO_read()
 {
     uint32_t value = 0;
 
-    if(gpio_base)
+    if (gpio_base)
     {
         RPIHAL_regptr_t addr = gpio_base + (GPLEV0 / 4);
         value = BCM2835_reg_read(addr);
     }
+
+    return value;
+}
+
+uint32_t RPIHAL_GPIO_readHi()
+{
+    uint32_t value = 0;
+
+    if (gpio_base)
+    {
+        RPIHAL_regptr_t addr = gpio_base + (GPLEV1 / 4);
+        value = BCM2835_reg_read(addr);
+    }
+
+    return value;
+}
+
+uint64_t RPIHAL_GPIO_read64()
+{
+    uint64_t value;
+
+    value = (uint64_t)RPIHAL_GPIO_readHi();
+    value <<= 32;
+    value |= (uint64_t)RPIHAL_GPIO_read();
 
     return value;
 }
@@ -227,8 +273,10 @@ int RPIHAL_GPIO_set(uint32_t bits)
 {
     int r = 0;
 
-    if(gpio_base)
+    if (gpio_base)
     {
+        // TODO check bits
+
         RPIHAL_regptr_t addr = gpio_base + (GPSET0 / 4);
         BCM2835_reg_write(addr, (bits & USER_PINS_MASK));
     }
@@ -241,8 +289,10 @@ int RPIHAL_GPIO_clr(uint32_t bits)
 {
     int r = 0;
 
-    if(gpio_base)
+    if (gpio_base)
     {
+        // TODO check bits
+
         RPIHAL_regptr_t addr = gpio_base + (GPCLR0 / 4);
         BCM2835_reg_write(addr, (bits & USER_PINS_MASK));
     }
@@ -269,7 +319,7 @@ int RPIHAL_GPIO_reset()
     {
         RPIHAL_GPIO_init_t initStruct;
 
-        for(int i_pin = FIRST_USER_PIN; i_pin <= LAST_USER_PIN; ++i_pin)
+        for (int i_pin = FIRST_USER_PIN; i_pin <= LAST_USER_PIN; ++i_pin)
         {
             RPIHAL_GPIO_defaultInitStructPin(i_pin, &initStruct);
             initPin(i_pin, &initStruct);
@@ -297,7 +347,7 @@ int RPIHAL_GPIO_resetPin(int pin)
     return r;
 }
 
-int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
+void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
@@ -312,26 +362,19 @@ int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
     return r;
 }
 
-int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
+void RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
     if (initStruct)
     {
+        // TODO check if same on all hw
+        const RPIHAL_model_t hwModel = ___RPIHAL_getModel();
+
         initStruct->mode = RPIHAL_GPIO_MODE_IN;
 
-        if (((pin >= 0) && (pin <= 8)) ||
-            ((pin >= 34) && (pin <= 36)) ||
-            ((pin >= 46) && (pin <= 53)))
-        {
-            initStruct->pull = RPIHAL_GPIO_PULL_UP;
-        }
-        else if (((pin >= 9) && (pin <= 27)) ||
-            ((pin >= 30) && (pin <= 33)) ||
-            ((pin >= 37) && (pin <= 43)))
-        {
-            initStruct->pull = RPIHAL_GPIO_PULL_DOWN;
-        }
+        if (((pin >= 0) && (pin <= 8)) || ((pin >= 34) && (pin <= 36)) || ((pin >= 46) && (pin <= 53))) { initStruct->pull = RPIHAL_GPIO_PULL_UP; }
+        else if (((pin >= 9) && (pin <= 27)) || ((pin >= 30) && (pin <= 33)) || ((pin >= 37) && (pin <= 43))) { initStruct->pull = RPIHAL_GPIO_PULL_DOWN; }
         else initStruct->pull = RPIHAL_GPIO_PULL_NONE;
 
         initStruct->altfunc = RPIHAL_GPIO_AF_0;
@@ -341,23 +384,17 @@ int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
     return r;
 }
 
-RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr()
-{
-    return gpio_base;
-}
+RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr() { return gpio_base; }
 
-int RPIHAL_GPIO_isUsingGpiomem()
-{
-    return usingGpiomem;
-}
+int RPIHAL_GPIO_isUsingGpiomem() { return usingGpiomem; }
 
 
 
 #ifdef __GNUC__
 #pragma GCC push_options
-#pragma GCC optimize ("O0")
+#pragma GCC optimize("O0")
 #else // __GNUC__
-#error "compiler not supported"
+#error "compiler yet not supported, please open an issue on GitHub"
 #endif // __GNUC__
 uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr)
 {
@@ -392,13 +429,39 @@ int checkPin(int pin)
 {
     int r = 0;
 
+    const RPIHAL_model_t hwModel = RPIHAL_getModel();
+
+    // bit of the pin
+    uint64_t bit = 0x01;
+    bit <<= pin;
+
     if (sysGpioLocked)
     {
-        if ((pin >= FIRST_USER_PIN) && (pin <= LAST_USER_PIN)) r = 1;
+        if (RPIHAL_model_header_is_26pin(hwModel))
+        {
+#if 0 // ADDHW
+            if (RPIHAL_model_t has to be a bit field, so the rev can be read out of it)
+            {
+                if (USER_PINS_MASK_26pin_rev1 & bit) r = 1;
+            }
+            else if ()
+            {
+                if (USER_PINS_MASK_26pin_rev2 & bit) r = 1;
+            }
+            else { r = 0; }
+#else
+            r = 0;
+#endif
+        }
+        else if (RPIHAL_model_header_is_40pin(hwModel))
+        {
+            if (USER_PINS_MASK_40pin & bit) r = 1;
+        }
+        else { r = 0; }
     }
     else
     {
-        if ((pin >= FIRST_PIN) && (pin <= LAST_PIN)) r = 1;
+        if (BCM_PINS_MASK & bit) r = 1;
     }
 
     return r;
@@ -426,34 +489,45 @@ void initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 
 
 
-    // pud // TODO check procedure: delay, write_bits vs write
+    // pud
 
-    addr = gpio_base + (GPPUD / 4);
-    value = (uint32_t)(initStruct->pull);
-    mask = 0x03;
-    BCM2835_reg_write_bits(addr, value, mask);
+    if (0)
+    {
+        addr = gpio_base + (GPPUD / 4);
+        value = (uint32_t)(initStruct->pull);
+        mask = 0x03;
+        BCM2835_reg_write_bits(addr, value, mask);
 
-    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2;
+        if (!usleep(5))
+            for (int i = 0; i < 200; ++i) shift += 2;
 
-    addr = gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
-    shift = (pin % 32);
-    value = 1 << shift;
-    mask = 1 << shift;
-    BCM2835_reg_write_bits(addr, value, mask);
+        addr = gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
+        shift = (pin % 32);
+        value = 1 << shift;
+        mask = 1 << shift;
+        BCM2835_reg_write_bits(addr, value, mask);
 
-    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2;
+        if (!usleep(5))
+            for (int i = 0; i < 200; ++i) shift += 2;
 
-    addr = gpio_base + (GPPUD / 4);
-    value = 0;
-    mask = 0x03;
-    BCM2835_reg_write_bits(addr, value, mask);
+        addr = gpio_base + (GPPUD / 4);
+        value = 0;
+        mask = 0x03;
+        BCM2835_reg_write_bits(addr, value, mask);
 
-    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
+        if (!usleep(5))
+            for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
 
-    addr = gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
-    BCM2835_reg_write(addr, 0);
+        addr = gpio_base + (GPPUDCLK0 / 4) + (pin / 32);
+        BCM2835_reg_write(addr, 0);
 
-    if (!usleep(5)) for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
+        if (!usleep(5))
+            for (int i = 0; i < 200; ++i) shift += 2; // shouldn't be necesary, to be tested without
+    }
+    else
+    {
+        // TODO PUD is different since pi4!
+    }
 
 
 

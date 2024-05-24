@@ -4,6 +4,7 @@
 
 ### v0.2.0
 
+- Autodetect Model
 - RasPi 4 Support
 
 

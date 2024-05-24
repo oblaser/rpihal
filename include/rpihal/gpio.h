@@ -38,29 +38,29 @@ extern "C" {
 #endif
 
 
-#define RPIHAL_GPIO_MODE_IN    0
-#define RPIHAL_GPIO_MODE_OUT   1
-#define RPIHAL_GPIO_MODE_AF    2
+#define RPIHAL_GPIO_MODE_IN  0
+#define RPIHAL_GPIO_MODE_OUT 1
+#define RPIHAL_GPIO_MODE_AF  2
 
-#define RPIHAL_GPIO_PULL_NONE  (0x00)
-#define RPIHAL_GPIO_PULL_DOWN  (0x01)
-#define RPIHAL_GPIO_PULL_UP    (0x02)
+#define RPIHAL_GPIO_PULL_NONE (0x00)
+#define RPIHAL_GPIO_PULL_DOWN (0x01)
+#define RPIHAL_GPIO_PULL_UP   (0x02)
 
-//#define RPIHAL_GPIO_DRIVE_2mA      0
-//#define RPIHAL_GPIO_DRIVE_4mA      1
-//#define RPIHAL_GPIO_DRIVE_6mA      2
-//#define RPIHAL_GPIO_DRIVE_8mA      3
-//#define RPIHAL_GPIO_DRIVE_10mA     4
-//#define RPIHAL_GPIO_DRIVE_12mA     5
-//#define RPIHAL_GPIO_DRIVE_14mA     6
-//#define RPIHAL_GPIO_DRIVE_16mA     7
+// #define RPIHAL_GPIO_DRIVE_2mA      0
+// #define RPIHAL_GPIO_DRIVE_4mA      1
+// #define RPIHAL_GPIO_DRIVE_6mA      2
+// #define RPIHAL_GPIO_DRIVE_8mA      3
+// #define RPIHAL_GPIO_DRIVE_10mA     4
+// #define RPIHAL_GPIO_DRIVE_12mA     5
+// #define RPIHAL_GPIO_DRIVE_14mA     6
+// #define RPIHAL_GPIO_DRIVE_16mA     7
 
-#define RPIHAL_GPIO_AF_0   0
-#define RPIHAL_GPIO_AF_1   1
-#define RPIHAL_GPIO_AF_2   2
-#define RPIHAL_GPIO_AF_3   3
-#define RPIHAL_GPIO_AF_4   4
-#define RPIHAL_GPIO_AF_5   5
+#define RPIHAL_GPIO_AF_0 0
+#define RPIHAL_GPIO_AF_1 1
+#define RPIHAL_GPIO_AF_2 2
+#define RPIHAL_GPIO_AF_3 3
+#define RPIHAL_GPIO_AF_4 4
+#define RPIHAL_GPIO_AF_5 5
 
 
 typedef volatile uint32_t RPIHAL_reg_t; // register type
@@ -70,15 +70,15 @@ typedef struct
 {
     int mode;
     int pull;
-    //int drive;
+    // int drive;
     int altfunc;
 } RPIHAL_GPIO_init_t;
 
 
 //! @return __0__ on success, __negative__ on error
-//! 
+//!
 //! Needs to be called once at the start of the app.
-//! 
+//!
 int RPIHAL_GPIO_init();
 
 //! @param pin BCM GPIO pin number
@@ -91,6 +91,8 @@ int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
 int RPIHAL_GPIO_readPin(int pin);
 
 uint32_t RPIHAL_GPIO_read();
+uint32_t RPIHAL_GPIO_readHi();
+uint64_t RPIHAL_GPIO_read64();
 
 //! @param pin BCM GPIO pin number
 //! @param state Boolean value representing the pin states HIGH (`1`) and LOW (`0`)
@@ -108,23 +110,27 @@ int RPIHAL_GPIO_clr(uint32_t bits);
 int RPIHAL_GPIO_togglePin(int pin);
 
 //! @return __0__ on success, __negative__ on error
-//! 
+//!
 //! Resets all user pins to their default setups.
-//! 
+//!
 int RPIHAL_GPIO_reset();
 
 //! @param pin BCM GPIO pin number
 //! @return __0__ on success, __negative__ on error
-//! 
+//!
 //! Resets the specified pin to it's default setup.
-//! 
+//!
 int RPIHAL_GPIO_resetPin(int pin);
 
-//! @param initStruct Pointer to the pin settings which will be set to the default values
-//! @return __0__ on success, __negative__ on error
-int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct);
+//! @param [out] initStruct
+void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct);
 
-int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
+//! @brief Get the default configuration (config after reset) for the specified pin.
+//!
+//! @param pin
+//! @param [out] initStruct
+//!
+void RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
 
 RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr();
 

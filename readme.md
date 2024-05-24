@@ -12,7 +12,7 @@ The system tests can also be considered as examples :wink:
 
 > __CAUTION!__ Currently only supports models with the BCM2836, BCM2837 and BCM2837B0. _~~BCM283x. Be aware of the different header pinouts on the various boards!~~_
 >
-> Search for _DEVSPEC_ comments in code to find the critical portions.
+> Search for _ADDHW_ comments in code to find sections which are crucial for implementation of more hardware support.
 
 ### Supported Models:
 `2B`

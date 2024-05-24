@@ -1,6 +1,5 @@
 /*
 author          Oliver Blaser
-date            23.03.2024
 copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -35,13 +34,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-// int RPIHAL_...() { return 0; }
+RPIHAL_model_t RPIHAL_getModel()
+{
+    static RPIHAL_model_t model = RPIHAL_model_unknown;
+
+    if (RPIHAL_model_unknown == model)
+    {
+        // TODO detect model
+    }
+
+    return model;
+}
 
 
 
 //======================================================================================================================
 // Emulator
 
-int RPIHAL_EMU_init() { return 0 ; }
+int RPIHAL_EMU_init() { return 0; }
 void RPIHAL_EMU_cleanup() { return; }
 int RPIHAL_EMU_isRunning() { return 0; }
