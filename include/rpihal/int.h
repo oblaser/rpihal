@@ -1,12 +1,11 @@
 /*
 author          Oliver Blaser
-date            23.05.2022
-copyright       MIT - Copyright (c) 2022 Oliver Blaser
+copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
 /*
 
-Copyright (c) 2022 Oliver Blaser
+Copyright (c) 2024 Oliver Blaser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,32 +26,57 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_INTERNAL_UTIL_H
-#define IG_RPIHAL_INTERNAL_UTIL_H
+#ifndef IG_RPIHAL_INT_H
+#define IG_RPIHAL_INT_H
+
+#include <stddef.h>
+#include <stdint.h>
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-static inline int UTIL_isxdelimiter(int ch)
+#define RPIHAL_8BIT_LSB (0x01)
+#define RPIHAL_8BIT_MSB (0x80)
+#define RPIHAL_8BIT_ALL (0xFF)
+
+#define RPIHAL_16BIT_LSB (0x0001)
+#define RPIHAL_16BIT_MSB (0x8000)
+#define RPIHAL_16BIT_ALL (0xFFFF)
+
+#define RPIHAL_32BIT_LSB (0x00000001)
+#define RPIHAL_32BIT_MSB (0x80000000)
+#define RPIHAL_32BIT_ALL (0xFFFFFFFF)
+
+#define RPIHAL_64BIT_LSB (0x0000000000000001)
+#define RPIHAL_64BIT_MSB (0x8000000000000000)
+#define RPIHAL_64BIT_ALL (0xFFFFFFFFFFFFFFFF)
+
+
+typedef struct
 {
-    int r = 0;
+    uint64_t hi;
+    uint64_t lo;
+} RPIHAL_uint128_t;
 
-    if ((ch == 0x20) || // ' ' space
-        (ch == 0x2d) || // '-' hhyphen, minus
-        (ch == 0x2e) || // '.' full stop
-        (ch == 0x3a))   // ':' colon
-    {
-        r = 1;
-    }
+// clang-format off
+#define RPIHAL_UINT128_NULL ((RPIHAL_uint128_t)({ .hi = 0, .lo = 0 }))
+// clang-format on
 
-    return r;
-}
+/**
+ * @brief Compares two unsigned 128 bit integers.
+ *
+ * - Negative value if `lhs` is less than `rhs`
+ * - Zero if `lhs` and `rhs` compare equal
+ * - Positive value if `lhs` is greater than `rhs`
+ */
+int RPIHAL_ui128_cmp(const RPIHAL_uint128_t* lhs, const RPIHAL_uint128_t* rhs);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IG_RPIHAL_INTERNAL_UTIL_H
+#endif // IG_RPIHAL_INT_H

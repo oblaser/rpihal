@@ -21,6 +21,7 @@ include_directories(../../include/)
 set(SOURCES
 ../../src/internal/util.c
 ../../src/gpio.c
+../../src/int.c
 ../../src/rpihal.c
 ../../src/sys.c
 ../../src/uart.c

@@ -1,12 +1,11 @@
 /*
 author          Oliver Blaser
-date            23.05.2022
-copyright       MIT - Copyright (c) 2022 Oliver Blaser
+copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
 /*
 
-Copyright (c) 2022 Oliver Blaser
+Copyright (c) 2024 Oliver Blaser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -33,15 +32,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
+#include <rpihal/int.h>
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-//! @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
-//! @return __0__ on success
+/**
+ * @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
+ * @return __0__ on success
+ */
 int RPIHAL_SYS_getCpuTemp(float* temperature);
+
+/**
+ * @brief Returns the longest UUID of a mounted disk.
+ *
+ * `errno` is cleared on entering the function. If the function fails, `errno` will be non 0, and the return value is 0.
+ *
+ * @return UUID or __0__ if reading the UUID failed
+ */
+RPIHAL_uint128_t RPIHAL_SYS_getUuid();
 
 
 #ifdef __cplusplus

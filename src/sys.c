@@ -1,12 +1,11 @@
 /*
 author          Oliver Blaser
-date            23.05.2022
-copyright       MIT - Copyright (c) 2022 Oliver Blaser
+copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
 /*
 
-Copyright (c) 2022 Oliver Blaser
+Copyright (c) 2024 Oliver Blaser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,13 +26,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+#include <ctype.h>
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "internal/platform_check.h"
+#include "internal/util.h"
+#include "rpihal/int.h"
 #include "rpihal/sys.h"
+
+#include <dirent.h>
+
+
+static uint8_t getHexDigitValue(char c);
+
 
 
 int RPIHAL_SYS_getCpuTemp(float* temperature)
@@ -64,4 +73,113 @@ int RPIHAL_SYS_getCpuTemp(float* temperature)
     else r = 1;
 
     return r;
+}
+
+RPIHAL_uint128_t RPIHAL_SYS_getUuid()
+{
+    static RPIHAL_uint128_t uuid = RPIHAL_UINT128_NULL;
+
+    errno = 0;
+
+    if ((uuid.hi == 0) && (uuid.lo == 0))
+    {
+        DIR* const d = opendir("/dev/disk/by-uuid");
+
+        if (d)
+        {
+            char uuidStr[33]; // 128bit hex str has 32 chars
+            uuidStr[0] = 0;
+            const size_t uuidStrBufferSize = sizeof(uuidStr);
+            size_t len = 0;
+            const size_t maxLen = uuidStrBufferSize - 1; // null terminator
+
+            // read UUID string
+            while (1)
+            {
+                const struct dirent* const e = readdir(d);
+
+                if (e)
+                {
+                    char tmpStr[sizeof(uuidStr)];
+                    const char* src = e->d_name;
+                    char* dst = tmpStr;
+                    size_t tmpLen = 0;
+
+                    // copy hex string (only hex digits)
+                    while ((*src != 0) && (tmpLen < maxLen))
+                    {
+                        if (isxdigit(*src))
+                        {
+                            *dst = *src;
+                            ++dst;
+                            ++tmpLen;
+                        }
+                        else if (!UTIL_isxdelimiter(*src))
+                        {
+                            tmpLen = 0;
+                            break;
+                        }
+
+                        ++src;
+                    }
+                    tmpStr[tmpLen] = 0; // add null terminator
+
+                    // actual copy, if has more bits than the current
+                    if (tmpLen > len) { strcpy(uuidStr, tmpStr); }
+                }
+                else
+                {
+                    // if (errno) nop, errno is set
+                    // else nop, end of dir entries
+
+                    break;
+                }
+            }
+
+            // convert UUID string
+            if (len > 0)
+            {
+                const char* p = uuidStr + len - 1;
+                size_t cnt = 0;
+
+                while (p > &(uuidStr[0]))
+                {
+                    const uint8_t digitValue = getHexDigitValue(*p);
+
+                    if (cnt < 16)
+                    {
+                        uuid.lo <<= 4;
+                        uuid.lo |= digitValue;
+                    }
+                    else
+                    {
+                        uuid.hi <<= 4;
+                        uuid.hi |= digitValue;
+                    }
+
+                    ++cnt;
+                }
+            }
+        }
+        // else nop, errno is set
+    }
+
+    return uuid;
+}
+
+
+
+uint8_t getHexDigitValue(char c)
+{
+    const char digits[2][17] = { "0123456789abcdef", "0123456789ABCDEF" };
+
+    for (int i = 0; i < 2; ++i)
+    {
+        for (uint8_t value = 0; value < 16; ++value)
+        {
+            if (digits[i][value] == c) { return value; }
+        }
+    }
+
+    return (-1);
 }

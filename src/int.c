@@ -1,12 +1,11 @@
 /*
 author          Oliver Blaser
-date            23.05.2022
-copyright       MIT - Copyright (c) 2022 Oliver Blaser
+copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
 /*
 
-Copyright (c) 2022 Oliver Blaser
+Copyright (c) 2024 Oliver Blaser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,32 +26,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_INTERNAL_UTIL_H
-#define IG_RPIHAL_INTERNAL_UTIL_H
+#include <stddef.h>
+#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "rpihal/int.h"
 
 
-static inline int UTIL_isxdelimiter(int ch)
+int RPIHAL_ui128_cmp(const RPIHAL_uint128_t* lhs, const RPIHAL_uint128_t* rhs)
 {
-    int r = 0;
+    int r;
 
-    if ((ch == 0x20) || // ' ' space
-        (ch == 0x2d) || // '-' hhyphen, minus
-        (ch == 0x2e) || // '.' full stop
-        (ch == 0x3a))   // ':' colon
+    if (lhs->hi < rhs->hi) r = -1;
+    else if (lhs->hi < rhs->hi)
     {
-        r = 1;
+        if (lhs->lo < rhs->lo) r = -1;
+        else if (lhs->lo < rhs->lo) { r = 0; }
+        else r = 1;
     }
+    else r = 1;
 
     return r;
 }
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // IG_RPIHAL_INTERNAL_UTIL_H
