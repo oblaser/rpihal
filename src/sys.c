@@ -89,8 +89,9 @@ RPIHAL_uint128_t RPIHAL_SYS_getUuid()
         {
             char uuidStr[33]; // 128bit hex str has 32 chars
             uuidStr[0] = 0;
-            const size_t uuidStrBufferSize = sizeof(uuidStr);
             size_t len = 0;
+
+            const size_t uuidStrBufferSize = sizeof(uuidStr);
             const size_t maxLen = uuidStrBufferSize - 1; // null terminator
 
             // read UUID string
@@ -110,12 +111,16 @@ RPIHAL_uint128_t RPIHAL_SYS_getUuid()
                     {
                         if (isxdigit(*src))
                         {
+                            // printf("copy UUID character %c\n", *src);
+
                             *dst = *src;
                             ++dst;
                             ++tmpLen;
                         }
                         else if (!UTIL_isxdelimiter(*src))
                         {
+                            // printf("%c is an invalid UUID character\n", *src);
+
                             tmpLen = 0;
                             break;
                         }
@@ -125,7 +130,14 @@ RPIHAL_uint128_t RPIHAL_SYS_getUuid()
                     tmpStr[tmpLen] = 0; // add null terminator
 
                     // actual copy, if has more bits than the current
-                    if (tmpLen > len) { strcpy(uuidStr, tmpStr); }
+                    if (tmpLen > len)
+                    {
+                        strcpy(uuidStr, tmpStr);
+                        len = tmpLen;
+                    }
+
+                    // printf("fetched UUID: %s\n", tmpStr);
+                    // printf("using:        %s\n", uuidStr);
                 }
                 else
                 {
@@ -136,28 +148,27 @@ RPIHAL_uint128_t RPIHAL_SYS_getUuid()
                 }
             }
 
+            // printf("UUID str: %s\n", uuidStr);
+
             // convert UUID string
             if (len > 0)
             {
                 const char* p = uuidStr + len - 1;
                 size_t cnt = 0;
 
-                while (p > &(uuidStr[0]))
+                while (p >= &(uuidStr[0]))
                 {
-                    const uint8_t digitValue = getHexDigitValue(*p);
+                    uint64_t digitValue = getHexDigitValue(*p);
 
-                    if (cnt < 16)
-                    {
-                        uuid.lo <<= 4;
-                        uuid.lo |= digitValue;
-                    }
-                    else
-                    {
-                        uuid.hi <<= 4;
-                        uuid.hi |= digitValue;
-                    }
+                    digitValue <<= ((cnt % 16) * 4);
+
+                    if (cnt < 16) { uuid.lo |= digitValue; }
+                    else { uuid.hi |= digitValue; }
+
+                    // printf("%c => %16llx, cnt: %2u, %16llx %16llx\n", *p, digitValue, cnt, uuid.hi, uuid.lo);
 
                     ++cnt;
+                    --p;
                 }
             }
         }

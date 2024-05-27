@@ -62,7 +62,7 @@ typedef struct
 } RPIHAL_uint128_t;
 
 // clang-format off
-#define RPIHAL_UINT128_NULL ((RPIHAL_uint128_t)({ .hi = 0, .lo = 0 }))
+#define RPIHAL_UINT128_NULL { .hi = 0, .lo = 0 }
 // clang-format on
 
 /**
