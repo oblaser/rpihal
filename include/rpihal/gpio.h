@@ -162,8 +162,10 @@ uint64_t RPIHAL_GPIO_pintobit(int pin);
  * @brief Prints the alternate function registers to stdout.
  *
  * Needed during investigation of ANOM1.
+ *
+ * @param pins **-1** for all pins
  */
-void RPIHAL_GPIO_dumpAltFuncReg();
+void RPIHAL_GPIO_dumpAltFuncReg(uint64_t pins);
 
 
 #ifdef __cplusplus

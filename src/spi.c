@@ -43,8 +43,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <unistd.h>
 
 
-int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint8_t nBits, int lsbFirst, int csHigh,
-                    int bidirectionalHalfDuplex)
+int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint8_t nBits, uint32_t flags)
 {
     int fd;
     inst->fd = -1;
@@ -73,15 +72,15 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
         if ((mode == RPIHAL_SPI_MODE_1) || (mode == RPIHAL_SPI_MODE_3)) { modeFlags |= SPI_CPHA; }
         if ((mode == RPIHAL_SPI_MODE_2) || (mode == RPIHAL_SPI_MODE_3)) { modeFlags |= SPI_CPOL; }
 
-        if (lsbFirst) { modeFlags |= SPI_LSB_FIRST; }
+        if (flags & RPIHAL_SPI_CFG_FLAG_LSB_FIRST) { modeFlags |= SPI_LSB_FIRST; }
 
-        if (csHigh) { modeFlags |= SPI_CS_HIGH; }
-        if (bidirectionalHalfDuplex) { modeFlags |= SPI_3WIRE; }
+        if (flags & RPIHAL_SPI_CFG_FLAG_CS_HIGH) { modeFlags |= SPI_CS_HIGH; }
+        if (flags & RPIHAL_SPI_CFG_FLAG_HALFDUPLEX) { modeFlags |= SPI_3WIRE; }
 
-        // modeFlags |= SPI_NO_CS;
+        if (flags & RPIHAL_SPI_CFG_FLAG_NO_CS) modeFlags |= SPI_NO_CS;
 
         const uint32_t modeFlagsReq = modeFlags;
-        ret = ioctl(fd, SPI_IOC_WR_MODE32, &mode);
+        ret = ioctl(fd, SPI_IOC_WR_MODE32, &modeFlags);
         if (ret < 0)
         {
             LOG_ERR("failed to config mode (%s)", strerror(errno));
@@ -141,14 +140,16 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
 
 int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData, uint8_t* rxBuffer, size_t count)
 {
-    struct spi_ioc_transfer transfer = {
-        .tx_buf = (uintptr_t)txData,
-        .rx_buf = (uintptr_t)rxBuffer,
-        .len = count,
-        .delay_usecs = 0,
-        .speed_hz = inst->speed,
-        .bits_per_word = inst->bits,
-    };
+    struct spi_ioc_transfer transfer;
+
+    memset(&transfer, 0, sizeof(transfer));
+
+    transfer.tx_buf = (uintptr_t)txData;
+    transfer.rx_buf = (uintptr_t)rxBuffer;
+    transfer.len = count;
+    transfer.delay_usecs = 0;
+    transfer.speed_hz = inst->speed;
+    transfer.bits_per_word = inst->bits;
 
     const int ret = ioctl(inst->fd, SPI_IOC_MESSAGE(1), &transfer);
 

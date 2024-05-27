@@ -63,6 +63,14 @@ typedef struct
 } RPIHAL_SPI_instance_t;
 
 
+#define RPIHAL_SPI_CFG_FLAG_MASK       (0x000F)
+#define RPIHAL_SPI_CFG_FLAG_DEFAULT    (0)      // Transfer MSB first, chip select is active low, chip select is handled by driver/hw
+#define RPIHAL_SPI_CFG_FLAG_LSB_FIRST  (0x0001) // Transfer LSB first
+#define RPIHAL_SPI_CFG_FLAG_CS_HIGH    (0x0002) // Chip select is active high
+#define RPIHAL_SPI_CFG_FLAG_HALFDUPLEX (0x0004) // Use bidirectional half duplex mode (MIMO instead of MISO and MOSI)
+#define RPIHAL_SPI_CFG_FLAG_NO_CS      (0x0008) // `SPI_NO_CS` will me set
+
+
 
 /**
  * @brief Configures the specified SPI device and initialises the instance.
@@ -77,13 +85,10 @@ typedef struct
  * @param maxSpeed Max clock speed [Hz]
  * @param mode One of `RPIHAL_SPI_MODE`
  * @param nBits Word size in bits
- * @param lsbFirst Set to transfer LSB first, **0** for MSB first
- * @param csHigh Set if chip select is active high
- * @param bidirectionalHalfDuplex Set if bidirectional mode with MIMO is used instead of MISO and MOSI
+ * @param flags One or more `RPIHAL_SPI_CFG_FLAG_..` ored together
  * @return __0__ on success, negative on failure
  */
-int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint8_t nBits, int lsbFirst, int csHigh,
-                    int bidirectionalHalfDuplex);
+int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint8_t nBits, uint32_t flags);
 
 int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData, uint8_t* rxBuffer, size_t count);
 

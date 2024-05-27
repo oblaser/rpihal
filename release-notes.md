@@ -8,6 +8,7 @@ New
  - Autodetect Model
  - RasPi 4 Support
  - `RPIHAL_SYS_getUuid()`
+ - SPI
 
 
 

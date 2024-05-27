@@ -29,6 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
+#include "internal/log.h"
 #include "internal/platform_check.h"
 #include "rpihal/gpio.h"
 #include "rpihal/rpihal.h"
@@ -217,17 +218,9 @@ static uint64_t getBcmPinsMask();
 
 
 
-int RPIHAL_GPIO_init()
+int RPIHAL_GPIO_init() // TODO make internal (each function has to check gpio_base)
 {
-    enum
-    {
-        EC_OK = 0,
-        EC_model, // unknown hardware
-        EC_open,  // open "/dev/*mem" failed
-        EC_mmap,  // memory maping failed
-    };
-
-    int r = EC_OK;
+    int r = 0;
 
     const RPIHAL_model_t hwModel = RPIHAL_getModel();
     off_t mmapoffs;
@@ -236,7 +229,7 @@ int RPIHAL_GPIO_init()
     if (RPIHAL_model_SoC_is_bcm2836(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2836 + PERI_ADR_OFFSET_GPIO; }
     else if (RPIHAL_model_SoC_is_bcm2837_any(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2837 + PERI_ADR_OFFSET_GPIO; }
     else if (RPIHAL_model_SoC_is_bcm2711(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2711 + PERI_ADR_OFFSET_GPIO; }
-    else { return EC_model; }
+    else { return -(__LINE__); }
 
     if (!gpio_base)
     {
@@ -255,7 +248,7 @@ int RPIHAL_GPIO_init()
 
             fd = open("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC); // root access needed
 
-            if (fd < 0) r = EC_open;
+            if (fd < 0) r = -(__LINE__);
         }
 
         if (r == 0)
@@ -264,7 +257,7 @@ int RPIHAL_GPIO_init()
 
             if (gpio_base == MAP_FAILED)
             {
-                r = EC_mmap;
+                r = -(__LINE__);
                 gpio_base = NULL;
             }
         }
@@ -509,8 +502,10 @@ uint64_t RPIHAL_GPIO_pintobit(int pin) { return (1ull << pin); }
 
 
 #include <stdio.h>
-void RPIHAL_GPIO_dumpAltFuncReg()
+void RPIHAL_GPIO_dumpAltFuncReg(uint64_t pins)
 {
+    if (!gpio_base) RPIHAL_GPIO_init();
+
     const RPIHAL_model_t hwModel = RPIHAL_getModel();
 
     RPIHAL_regptr_t addr;
@@ -519,16 +514,17 @@ void RPIHAL_GPIO_dumpAltFuncReg()
     const uint64_t userPinsMask = getUserPinsMask();
 
     printf("========================================\n");
-    printf("%s\n\n", __func__);
+    printf("%s selected pins: 0x%04x'%04x'%04x'%04x\n", __func__, (int)((pins >> 48) & 0x0FFFFull), (int)((pins >> 32) & 0x0FFFFull),
+           (int)((pins >> 16) & 0x0FFFFull), (int)((pins >> 0) & 0x0FFFFull));
 
     for (int i = 0; i <= 5; ++i)
     {
-        BCM2835_wait_cycles(500);
+        const uint64_t regPinsMask = (0x03FFull << (i * 10)); // 10 pins per register
 
         addr = gpio_base + (GPFSEL0 / 4) + i;
         regValue = BCM2835_reg_read(addr);
 
-        printf("GPFSEL%i: 0x%08x\n", i, regValue);
+        if (pins & regPinsMask) printf("\033[96mGPFSEL%i: 0x%08x\033[39m\n", i, regValue);
 
         int jMax = 9;
         if (i == 5)
@@ -540,6 +536,8 @@ void RPIHAL_GPIO_dumpAltFuncReg()
         for (int j = 0; j <= jMax; ++j)
         {
             const int pin = (i * 10) + j;
+            const uint64_t pinBit = RPIHAL_GPIO_pintobit(pin);
+
             shift = 3 * j; // shift = 3 * (pin % 10);
 
             const uint32_t value = (regValue >> shift) & FSEL_MASK;
@@ -567,23 +565,16 @@ void RPIHAL_GPIO_dumpAltFuncReg()
             }
             // clang-format on
 
-            if (userPinsMask & RPIHAL_GPIO_pintobit(pin)) printf("\033[96m");
+            if (pins & pinBit)
+            {
+                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[90m");
 
-            printf("  %2i: 0b%s %s", pin, binStr, afStr);
+                printf("  %2i: 0b%s %s", pin, binStr, afStr);
 
-            if (userPinsMask & RPIHAL_GPIO_pintobit(pin)) printf("\033[39m");
-            printf("\n");
+                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[39m");
+                printf("\n");
+            }
         }
-
-        // from init:
-        // addr = gpio_base + (GPFSEL0 / 4) + (pin / 10);
-        // shift = 3 * (pin % 10);
-        // if (initStruct->mode == RPIHAL_GPIO_MODE_OUT) value = FSEL_OUT;
-        // else if (initStruct->mode == RPIHAL_GPIO_MODE_AF) value = FSEL_AF_LUT[initStruct->altfunc];
-        // else value = FSEL_IN;
-        // value <<= shift;
-        // mask = FSEL_MASK << shift;
-        // BCM2835_reg_write_bits(addr, value, mask);
     }
 
     printf("end %s\n", __func__);
@@ -608,6 +599,12 @@ int checkPin(int pin)
     else { mask = getBcmPinsMask(); }
 
     if (mask & bit) r = 1;
+
+    if (!r)
+    {
+        if (sysGpioLocked) { LOG_WRN("system GPIOs are locked"); }
+        LOG_ERR("invalid pin: %i", pin);
+    }
 
     return r;
 }
@@ -688,7 +685,11 @@ int initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
         mask = BCM2711_GPIO_PUP_PDN_MASK << shift;
         BCM2835_reg_write_bits(addr, value, mask);
     }
-    else { r = -1; }
+    else
+    {
+        LOG_ERR("unknown SoC peripheral specification");
+        r = -(__LINE__);
+    }
 
 
 
