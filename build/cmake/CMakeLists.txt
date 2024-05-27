@@ -11,6 +11,8 @@ set(BINNAME rpihal)
 
 
 
+add_compile_options(-Wall -Werror=return-type -Werror=discarded-qualifiers -Werror=int-conversion -Werror=implicit-function-declaration)
+
 set(BINSHARED ${BINNAME}-shared)
 set(BINSTATIC ${BINNAME}-static)
 set(UNIT_TEST_EXE_SHARED ${BINNAME}-unit-test-shared)

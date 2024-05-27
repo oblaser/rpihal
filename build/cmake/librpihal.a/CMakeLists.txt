@@ -18,6 +18,8 @@ project(rpihal)
 
 set(BINNAME rpihal)
 
+add_compile_options(-Wall -Werror=return-type -Werror=discarded-qualifiers -Werror=int-conversion -Werror=implicit-function-declaration)
+
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../../include/)
 
 if(RPIHAL_CMAKE_CONFIG_EMU)

@@ -41,7 +41,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-// ######################################################################################################################
+//======================================================================================================================
 //  BCM abstraction
 
 #define BCM_REGISTER_PASSWORD (0x5A000000u)
@@ -175,7 +175,7 @@ static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_
 
 
 // end BCM abstraction
-// ######################################################################################################################
+//======================================================================================================================
 
 
 
@@ -506,6 +506,90 @@ int RPIHAL_GPIO_bittopin(uint64_t bit)
 }
 
 uint64_t RPIHAL_GPIO_pintobit(int pin) { return (1ull << pin); }
+
+
+
+#include <stdio.h>
+void RPIHAL_GPIO_dumpAltFuncReg()
+{
+    const RPIHAL_model_t hwModel = RPIHAL_getModel();
+
+    RPIHAL_regptr_t addr;
+    int shift;
+    uint32_t regValue;
+    const uint64_t userPinsMask = getUserPinsMask();
+
+    printf("========================================\n");
+    printf("%s\n\n", __func__);
+
+    for (int i = 0; i <= 5; ++i)
+    {
+        BCM2835_wait_cycles(500);
+
+        addr = gpio_base + (GPFSEL0 / 4) + i;
+        regValue = BCM2835_reg_read(addr);
+
+        printf("GPFSEL%i: 0x%08x\n", i, regValue);
+
+        int jMax = 9;
+        if (i == 5)
+        {
+            if (hwModel < RPIHAL_model_bcm2711) jMax = 3;
+            else jMax = 7;
+        }
+
+        for (int j = 0; j <= jMax; ++j)
+        {
+            const int pin = (i * 10) + j;
+            shift = 3 * j; // shift = 3 * (pin % 10);
+
+            const uint32_t value = (regValue >> shift) & FSEL_MASK;
+
+            // printf("              %2i %2i     %08x %08x\n", (3 * j), (3 * (pin % 10)), (regValue >> shift), value);
+
+            char binStr[] = "000";
+            if (value & 0x01) binStr[2] = '1';
+            if (value & 0x02) binStr[1] = '1';
+            if (value & 0x04) binStr[0] = '1';
+
+            const char* afStr = "error";
+            // clang-format off
+            switch (value)
+            {
+                case 0x00: afStr = "IN"; break;
+                case 0x01: afStr = "OUT"; break;
+                case 0x04: afStr = "AF0"; break;
+                case 0x05: afStr = "AF1"; break;
+                case 0x06: afStr = "AF2"; break;
+                case 0x07: afStr = "AF3"; break;
+                case 0x03: afStr = "AF4"; break;
+                case 0x02: afStr = "AF5"; break;
+                default: afStr = "unknown"; break;
+            }
+            // clang-format on
+
+            if (userPinsMask & RPIHAL_GPIO_pintobit(pin)) printf("\033[96m");
+
+            printf("  %2i: 0b%s %s", pin, binStr, afStr);
+
+            if (userPinsMask & RPIHAL_GPIO_pintobit(pin)) printf("\033[39m");
+            printf("\n");
+        }
+
+        // from init:
+        // addr = gpio_base + (GPFSEL0 / 4) + (pin / 10);
+        // shift = 3 * (pin % 10);
+        // if (initStruct->mode == RPIHAL_GPIO_MODE_OUT) value = FSEL_OUT;
+        // else if (initStruct->mode == RPIHAL_GPIO_MODE_AF) value = FSEL_AF_LUT[initStruct->altfunc];
+        // else value = FSEL_IN;
+        // value <<= shift;
+        // mask = FSEL_MASK << shift;
+        // BCM2835_reg_write_bits(addr, value, mask);
+    }
+
+    printf("end %s\n", __func__);
+    printf("========================================\n");
+}
 
 
 

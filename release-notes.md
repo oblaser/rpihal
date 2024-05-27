@@ -4,8 +4,10 @@
 
 ### v0.2.0
 
-- Autodetect Model
-- RasPi 4 Support
+New
+ - Autodetect Model
+ - RasPi 4 Support
+ - `RPIHAL_SYS_getUuid()`
 
 
 

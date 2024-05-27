@@ -45,7 +45,7 @@ RPIHAL_model_t RPIHAL_getModel()
 
     while (RPIHAL_model_unknown == model)
     {
-        char cpuInfoTxt[1024 * 3]; // the result of "Raspberry Pi 4 Model B Rev 1.5" needs 918 bytes
+        // char cpuInfoTxt[1024 * 3]; // the result of "Raspberry Pi 4 Model B Rev 1.5" needs 918 bytes
 
         // const int fd = open("/proc/cpuinfo", O_RDONLY);
         // if (fd < 0) break;
