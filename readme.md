@@ -36,6 +36,58 @@ The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLon
 
 
 
+## Build
+
+### Stand Alone, Export Binaries (_lib_ and _include_ directories)
+To build the library stand alone, use the [build.sh](build/build.sh) script, which uses [CMakeLists.txt](build/cmake/CMakeLists.txt). The built libraries (static and shared) are copied to the created _lib_ directory.
+
+The [pack_bin.sh](build/pack_bin.sh) script may then be used to deploy the compiled library.
+
+### Linked to an Application
+Added to another _CMakeLists.txt_, maybe in conjunction with git submodules. The _CMakeLists.txt_ of the application may look like this:
+```cmake
+cmake_minimum_required(VERSION 3.13)
+project(my-app)
+
+# detect if target platform is RasPi (actually any ARM platform, may be improved)
+set(PLAT_IS_RASPI false)
+#message(${CMAKE_SYSTEM_PROCESSOR})
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(armv[6-8]([A-Z]+|[a-z]+)?)" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(PLAT_IS_RASPI true)
+endif()
+
+include_directories(../../sdk/rpihal/include)
+if(NOT PLAT_IS_RASPI)
+    add_definitions(-DRPIHAL_EMU)
+    set(RPIHAL_CMAKE_CONFIG_EMU true)
+endif()
+add_subdirectory(../../sdk/rpihal/build/cmake/librpihal.a/ ../../sdk/rpihal/build/cmake/librpihal.a/)
+
+
+
+set(BINNAME myapp)
+
+include_directories(../../src/)
+
+set(SOURCES
+../../src/middleware/gpio.cpp
+../../src/middleware/util.cpp
+../../src/main.cpp
+)
+
+add_executable(${BINNAME} ${SOURCES})
+target_link_libraries(${BINNAME} rpihal)
+```
+
+### Build Configuration
+#### CMake
+- `RPIHAL_CMAKE_CONFIG_EMU` only used in [librpihal.a/CMakeLists.txt](build/cmake/librpihal.a/CMakeLists.txt) (has to be set to 1 before the `add_subdirectory()` call in the parent CMakeLists if needed)
+
+#### Definitions on Compiler Level
+- `RPIHAL_EMU` has to be defined on compiler level for the linking code (most likely your application) and rpihal. If using _librpihal.a/CMakeLists.txt_, it has to be added before the `add_subdirectory()` call in the parent CMakeLists.
+
+
+
 ---
 
 # TODO

@@ -18,8 +18,6 @@ project(rpihal)
 
 set(BINNAME rpihal)
 
-add_compile_options(-Wall -Werror=return-type -Werror=discarded-qualifiers -Werror=int-conversion -Werror=implicit-function-declaration)
-
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../../include/)
 
 if(RPIHAL_CMAKE_CONFIG_EMU)
@@ -44,6 +42,7 @@ endif() # RPIHAL_CMAKE_CONFIG_EMU
 
 add_library(${BINNAME} STATIC ${SOURCES})
 set_target_properties(${BINNAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../lib/)
+target_compile_options(${BINNAME} PRIVATE -Wall -Werror=return-type -Werror=discarded-qualifiers -Werror=int-conversion -Werror=implicit-function-declaration)
 
 if(RPIHAL_CMAKE_CONFIG_EMU AND UNIX AND NOT APPLE)
     target_link_libraries(${BINNAME} X11 GL pthread png)
