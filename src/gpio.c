@@ -29,7 +29,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
-#include "internal/gpio.h"
 #include "internal/platform_check.h"
 #include "rpihal/gpio.h"
 #include "rpihal/rpihal.h"

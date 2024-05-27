@@ -26,37 +26,42 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_SYS_H
-#define IG_RPIHAL_SYS_H
+#ifndef IG_RPIHAL_INTERNAL_LOG_H
+#define IG_RPIHAL_INTERNAL_LOG_H
 
-#include <stddef.h>
-#include <stdint.h>
-
-#include <rpihal/int.h>
-
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
- * @return __0__ on success
- */
-int RPIHAL_SYS_getCpuTemp(float* temperature);
 
-/**
- * @brief Returns the longest UUID of a mounted disk.
- *
- * `errno` is cleared by this function. If the function fails, `errno` will be non 0, and the return value is 0.
- *
- * @return UUID or __0__ if reading the UUID failed
- */
-RPIHAL_uint128_t RPIHAL_SYS_getUuid();
+#define LOG_LEVEL_OFF (0)
+#define LOG_LEVEL_ERR (1)
+#define LOG_LEVEL_WRN (2)
+#define LOG_LEVEL_INF (3)
+#define LOG_LEVEL_DBG (4)
+
+#ifndef RPIHAL_CONFIG_LOGLEVEL
+#warning "RPIHAL_CONFIG_LOGLEVEL is not defined, defaulting to 2 (warning)"
+#define RPIHAL_CONFIG_LOGLEVEL LOG_LEVEL_WRN
+#endif
+
+// clang-format off
+#define ___LOG_OPT_VA_ARGS(...) , ##__VA_ARGS__ // optional args
+
+// TODO make logging aware of RPIHAL_CONFIG_LOGLEVEL
+// TODO LOG_MODULE_LEVEL and LOG_MODULE_NAME
+
+#define LOG_ERR(msg, ...) printf("\033[91m" "[ERR] " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_WRN(msg, ...) printf("\033[93m" "[WRN] " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_INF(msg, ...) printf(           "[INF] " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_DBG(msg, ...) printf(           "[DBG] " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+// clang-format on
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IG_RPIHAL_SYS_H
+#endif // IG_RPIHAL_INTERNAL_LOG_H

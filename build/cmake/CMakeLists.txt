@@ -23,6 +23,7 @@ set(SOURCES
 ../../src/gpio.c
 ../../src/int.c
 ../../src/rpihal.c
+../../src/spi.c
 ../../src/sys.c
 ../../src/uart.c
 )

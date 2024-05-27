@@ -86,11 +86,18 @@ target_link_libraries(${BINNAME} rpihal)
 #### Definitions on Compiler Level
 - `RPIHAL_EMU` has to be defined on compiler level for the linking code (most likely your application) and rpihal. If using _librpihal.a/CMakeLists.txt_, it has to be added before the `add_subdirectory()` call in the parent CMakeLists.
 
+- `RPIHAL_CONFIG_LOGLEVEL`
+  - **0** OFF, no logging from rpihal
+  - **1** ERROR
+  - **2** WARNING
+  - **3** INFO
+  - **4** DEBUG
+
 
 
 ---
 
-# TODO
+## TODO
 - add more `RPIHAL_ui128_..` functions
 - add to unit test
   - `RPIHAL_GPIO_bittopin`
