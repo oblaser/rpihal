@@ -82,7 +82,7 @@ typedef struct
     int mode;
     int pull;
     // int drive;
-    int altfunc; // unexpected behaviour may be observed (see https://elinux.org/BCM2835_datasheet_errata#p92_to_95_.26_102_to_103)
+    int altfunc; // ANOM1
 } RPIHAL_GPIO_init_t;
 
 
@@ -156,6 +156,14 @@ int RPIHAL_GPIO_isUsingGpiomem();
 int RPIHAL_GPIO_bittopin(uint64_t bit);
 
 uint64_t RPIHAL_GPIO_pintobit(int pin);
+
+
+/**
+ * @brief Prints the alternate function registers to stdout.
+ *
+ * Needed during investigation of ANOM1.
+ */
+void RPIHAL_GPIO_dumpAltFuncReg();
 
 
 #ifdef __cplusplus

@@ -37,13 +37,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <unistd.h> // usleep()
+#include <unistd.h>
 
 
 
-//
-// BCM defines
-//
+// ######################################################################################################################
+//  BCM abstraction
 
 #define BCM_REGISTER_PASSWORD (0x5A000000u)
 #define BCM_BLOCK_SIZE        (4 * 1024)
@@ -59,9 +58,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-//
 // GPIO register offsets
-//
 
 #define GPFSEL0 (0x0000)
 #define GPFSEL1 (0x0004)
@@ -113,7 +110,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define FSEL_MASK (0x07)
 #define FSEL_IN   (0x00)
 #define FSEL_OUT  (0x01)
-#define FSEL_AF0  (0x04) // unexpected behaviour may be observed (see https://elinux.org/BCM2835_datasheet_errata#p92_to_95_.26_102_to_103)
+#define FSEL_AF0  (0x04) // ANOM1
 #define FSEL_AF1  (0x05)
 #define FSEL_AF2  (0x06)
 #define FSEL_AF3  (0x07)
@@ -133,21 +130,84 @@ static const uint32_t FSEL_AF_LUT[] = { FSEL_AF0, FSEL_AF1, FSEL_AF2, FSEL_AF3, 
 
 
 
+// the following functions are the same for bcm2835 and bcm2711
+
+static inline void BCM2835_wait_cycles(size_t cycleCount)
+{
+    while (--cycleCount) { asm volatile("nop"); }
+}
+
+// clang-format off
+#ifdef __GNUC__
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#else // __GNUC__
+#error "compiler yet not supported, please open an issue on GitHub"
+#endif // __GNUC__
+// clang-format on
+
+static uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr)
+{
+    // the last read could potentially go wrong (see chapter 1.3 in BCM2835-ARM-Peripherals.pdf).
+    uint32_t value = *addr;
+    uint32_t garbage __attribute__((unused)) = *addr;
+    return value;
+}
+
+static void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value)
+{
+    // the first write could potentially go wrong (see chapter 1.3 in BCM2835-ARM-Peripherals.pdf).
+    *addr = value;
+    *addr = value;
+}
+
+#ifdef __GNUC__
+#pragma GCC pop_options
+#endif // __GNUC__
+
+static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask)
+{
+    uint32_t regval = BCM2835_reg_read(addr);
+    regval &= ~mask;
+    regval |= (value & mask);
+    BCM2835_reg_write(addr, regval);
+}
+
+
+// end BCM abstraction
+// ######################################################################################################################
+
+
+
+#define BCM2835_PINS_MASK (0x003FFFFFFFFFFFFFull)
+// #define BCM2835_FIRST_PIN (0)
+// #define BCM2835_LAST_PIN  (53)
+
+#define BCM2711_PINS_MASK (0x03FFFFFFFFFFFFFFull)
+// #define BCM2711_FIRST_PIN (0)
+// #define BCM2711_LAST_PIN  (57)
+
+#define USER_PINS_MASK_26pin_rev1    (0x0000000003E6CF93ull)
+#define USER_PINS_MASK_26pin_rev2_P1 (0x000000000BC6CF9Cull) // GPIO pin header P1
+#define USER_PINS_MASK_26pin_rev2_P5 (0x00000000F0000000ull) // addon GPIO pin header P5
+#define USER_PINS_MASK_26pin_rev2    (USER_PINS_MASK_26pin_rev2_P1 | USER_PINS_MASK_26pin_rev2_P5)
+
+// 26pin rev2 and 40pin are pin compatible (on the first 26 pins)
+// https://elinux.org/RPi_Low-level_peripherals#General_Purpose_Input.2FOutput_.28GPIO.29
+// https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header
+
+#define USER_PINS_MASK_40pin (0x000000000FFFFFFFull)
+// #define FIRST_USER_PIN_40pin (0)
+// #define LAST_USER_PIN_40pin  (27)
+
+
+
 static RPIHAL_regptr_t gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
 static int sysGpioLocked = 1; // ADDHW check for const RPIHAL_model_t hwModel = RPIHAL_getModel(); before unlocking!
                               // may be unlocked on compute modules, illegal to unlock on other models
 
 
-
-// same for bcm2711
-static inline void BCM2835_wait_cycles(size_t cycleCount)
-{
-    while (--cycleCount) { asm volatile("nop"); }
-}
-static uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr);
-static void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value);
-static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask);
 
 static int checkPin(int pin);
 static int initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
@@ -446,45 +506,6 @@ int RPIHAL_GPIO_bittopin(uint64_t bit)
 }
 
 uint64_t RPIHAL_GPIO_pintobit(int pin) { return (1ull << pin); }
-
-
-
-#ifdef __GNUC__
-#pragma GCC push_options
-#pragma GCC optimize("O0")
-#else // __GNUC__
-#error "compiler yet not supported, please open an issue on GitHub"
-#endif // __GNUC__
-
-// same for bcm2711
-uint32_t BCM2835_reg_read(RPIHAL_regptr_t addr)
-{
-    // the last read could potentially go wrong (see chapter 1.3 in BCM2835-ARM-Peripherals.pdf).
-    uint32_t value = *addr;
-    uint32_t garbage __attribute__((unused)) = *addr;
-    return value;
-}
-
-// same for bcm2711
-void BCM2835_reg_write(RPIHAL_regptr_t addr, uint32_t value)
-{
-    // the first write could potentially go wrong (see chapter 1.3 in BCM2835-ARM-Peripherals.pdf).
-    *addr = value;
-    *addr = value;
-}
-
-#ifdef __GNUC__
-#pragma GCC pop_options
-#endif // __GNUC__
-
-// same for bcm2711
-void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_t mask)
-{
-    uint32_t regval = BCM2835_reg_read(addr);
-    regval &= ~mask;
-    regval |= (value & mask);
-    BCM2835_reg_write(addr, regval);
-}
 
 
 
