@@ -167,6 +167,15 @@ uint64_t RPIHAL_GPIO_pintobit(int pin);
  */
 void RPIHAL_GPIO_dumpAltFuncReg(uint64_t pins);
 
+/**
+ * @brief Prints the pull up/down config registers to stdout.
+ *
+ * Only avaulable since BCM2711 (Pi4), nop for older models.
+ *
+ * @param pins **-1** for all pins
+ */
+void RPIHAL_GPIO_dumpPullUpDnReg(uint64_t pins);
+
 
 #ifdef __cplusplus
 }

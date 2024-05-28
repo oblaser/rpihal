@@ -1,5 +1,4 @@
-> Just some background info useful during development
-
+#### just some links
 - https://elinux.org/RPi_GPIO_Code_Samples
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#general-purpose-io-gpio
 - https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf + https://elinux.org/BCM2835_datasheet_errata
@@ -7,91 +6,85 @@
 - https://forums.raspberrypi.com/viewtopic.php?t=243166
 
 
+#### Model, SoC, ... detection
+- https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
+- https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/raspberry-pi/revision-codes.adoc
+
+
+---
+
 # SPI, I2C, ...
 
+The documentation can mainly be found at:
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi-overview
 
-reading `/boot/firmware/overlays/README` is very intresting...
-see descriptions for `spiX-Ycs`, X is the index of the SPI module and Y the number of cip select signal (e.g. `spi0-0cs`) and thus the number of SPI devices listed in _/dev_.
+- `/boot/firmware/overlays/README`
 
+## SPI
+See descriptions for `spiX-Ycs`, X is the index of the SPI peripheral and Y the number of chip select signal (e.g. `spi0-0cs`) and thus the number of SPI devices listed in _/dev_.
+
+## I2C
+> `/boot/firmware/overlays/README`
+>
+> Note also that i2c, i2c_arm and i2c_vc are aliases for the physical interfaces i2c0 and i2c1. Use of the numeric
+> variants is still possible but deprecated because the ARM/VC assignments differ between board revisions. The same
+> oard-specific mapping applies to i2c_baudrate, and the other i2c baudrate parameters.
+>
+> See more detail in `i2c0` info.
+
+See descriptions for `i2cX`, X is the index of the I2C (BSC) peripheral.
+
+Use `i2c-gpio` for bit banged I2C.
+
+> from [raspi forum](https://forums.raspberrypi.com/viewtopic.php?t=154623#p1011384)
+>
+> `i2c_arm` is an alias to `i2c1` on the majority of Pi's (very early model B's it aliases to `i2c0`).</br>
+> `dtparam=i2c_vc=on` = `i2c-0`</br>
+> `dtparam=i2c_arm=on` = `i2c-1`</br>
+> `dtparam=i2c2_iknowwhatimdoing=on` = `i2c-2`</br>
+
+## on RasPi4B
 #### no mod to config.txt
-`/dev/` has no SPI devices listed
 ```
-GPFSEL0: 0x00240000
-   0: 0b000 IN
-   1: 0b000 IN
-   2: 0b000 IN
-   3: 0b000 IN
-   4: 0b000 IN
-   5: 0b000 IN
-   6: 0b001 OUT
-   7: 0b001 OUT
+$ ls /dev/ | grep -E "i2c|spi"
+i2c-20
+i2c-21
+```
+
+#### SPI and I2C enabled in config.txt
+At the top of _config.txt_ added:
+```
+dtoverlay=spi0-0cs
+dtoverlay=i2c1
+```
+
+```
+$ ls /dev/ | grep -E "i2c|spi"
+i2c-1
+i2c-20
+i2c-21
+spidev0.0
+```
+
+```
+RPIHAL_GPIO_dumpAltFuncReg selected pins: 0x0000'0000'0000'0f8c
+GPFSEL0: 0x20040900
+   2: 0b100 AF0
+   3: 0b100 AF0
+   7: 0b000 IN
    8: 0b000 IN
-   9: 0b000 IN
-GPFSEL1: 0x08040000
-  10: 0b000 IN
-  11: 0b000 IN
-  12: 0b000 IN
-  13: 0b000 IN
-  14: 0b000 IN
-  15: 0b000 IN
-  16: 0b001 OUT
-  17: 0b000 IN
-  18: 0b000 IN
-  19: 0b001 OUT
-GPFSEL2: 0x12049241
-  20: 0b001 OUT
-  21: 0b000 IN
-  22: 0b001 OUT
-  23: 0b001 OUT
-  24: 0b001 OUT
-  25: 0b001 OUT
-  26: 0b001 OUT
-  27: 0b000 IN
-  28: 0b010 AF5
-  29: 0b010 AF5
-GPFSEL3: 0x3fffffff
-  30: 0b111 AF3
-  31: 0b111 AF3
-  32: 0b111 AF3
-  33: 0b111 AF3
-  34: 0b111 AF3
-  35: 0b111 AF3
-  36: 0b111 AF3
-  37: 0b111 AF3
-  38: 0b111 AF3
-  39: 0b111 AF3
-GPFSEL4: 0x00000064
-  40: 0b100 AF0
-  41: 0b100 AF0
-  42: 0b001 OUT
-  43: 0b000 IN
-  44: 0b000 IN
-  45: 0b000 IN
-  46: 0b000 IN
-  47: 0b000 IN
-  48: 0b000 IN
-  49: 0b000 IN
-GPFSEL5: 0x00000000
-  50: 0b000 IN
-  51: 0b000 IN
-  52: 0b000 IN
-  53: 0b000 IN
-  54: 0b000 IN
-  55: 0b000 IN
-  56: 0b000 IN
-  57: 0b000 IN
-```
-
-#### SPI enabled in config.txt
-Added `dtoverlay=spi0-0cs` at the top of _config.txt_.
-
-`crw-rw----   1 root    spi    153,   0 May 27 13:48 spidev0.0` is now listed in `/dev/`.
-
-```
    9: 0b100 AF0
 GPFSEL1: 0x08040024
   10: 0b100 AF0
   11: 0b100 AF0
+
+RPIHAL_GPIO_dumpPullUpDnReg selected pins: 0x0000'0000'0000'0f8c
+GPIO_PUP_PDN_CNTRL_REG0: 0x4aa94655
+   2: 0b01 UP
+   3: 0b01 UP
+   7: 0b01 UP
+   8: 0b01 UP
+   9: 0b10 DOWN
+  10: 0b10 DOWN
+  11: 0b10 DOWN
 ```
-others same as above.

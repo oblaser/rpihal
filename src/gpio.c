@@ -29,7 +29,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
-#include "internal/log.h"
 #include "internal/platform_check.h"
 #include "rpihal/gpio.h"
 #include "rpihal/rpihal.h"
@@ -38,6 +37,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#define LOG_MODULE_LEVEL LOG_LEVEL_WRN
+#define LOG_MODULE_NAME  GPIO
+#include "internal/log.h"
 
 
 
@@ -577,7 +580,78 @@ void RPIHAL_GPIO_dumpAltFuncReg(uint64_t pins)
         }
     }
 
-    printf("end %s\n", __func__);
+    printf("========================================\n");
+}
+
+void RPIHAL_GPIO_dumpPullUpDnReg(uint64_t pins)
+{
+    const RPIHAL_model_t hwModel = RPIHAL_getModel();
+    if (hwModel < RPIHAL_model_bcm2711)
+    {
+        LOG_ERR("%s not available on model %08x", __func__, hwModel);
+        return;
+    }
+
+    if (!gpio_base) RPIHAL_GPIO_init();
+
+    RPIHAL_regptr_t addr;
+    int shift;
+    uint32_t regValue;
+    const uint64_t userPinsMask = getUserPinsMask();
+
+    printf("========================================\n");
+    printf("%s selected pins: 0x%04x'%04x'%04x'%04x\n", __func__, (int)((pins >> 48) & 0x0FFFFull), (int)((pins >> 32) & 0x0FFFFull),
+           (int)((pins >> 16) & 0x0FFFFull), (int)((pins >> 0) & 0x0FFFFull));
+
+    for (int i = 0; i <= 3; ++i)
+    {
+        const uint64_t regPinsMask = (0x0FFFFull << (i * 16)); // 16 pins per register
+
+        addr = gpio_base + (BCM2711_GPIO_PUP_PDN_CNTRL_REG0 / 4) + i;
+        regValue = BCM2835_reg_read(addr);
+
+        if (pins & regPinsMask) printf("\033[96mGPIO_PUP_PDN_CNTRL_REG%i: 0x%08x\033[39m\n", i, regValue);
+
+        int jMax = 15;
+        if (i == 3) { jMax = 9; }
+
+        for (int j = 0; j <= jMax; ++j)
+        {
+            const int pin = (i * 16) + j;
+            const uint64_t pinBit = RPIHAL_GPIO_pintobit(pin);
+
+            shift = 2 * j; // shift = 2 * (pin % 16);
+
+            const uint32_t value = (regValue >> shift) & BCM2711_GPIO_PUP_PDN_MASK;
+
+            char binStr[] = "00";
+            if (value & 0x01) binStr[1] = '1';
+            if (value & 0x02) binStr[0] = '1';
+
+            const char* pudStr = "error";
+            // clang-format off
+            switch (value)
+            {
+                case 0x00: pudStr = "none"; break;
+                case 0x01: pudStr = "UP"; break;
+                case 0x02: pudStr = "DOWN"; break;
+                case 0x03: pudStr = "\033[91mres\033[39m"; break;
+                default: pudStr = "unknown"; break;
+            }
+            // clang-format on
+
+            if (pins & pinBit)
+            {
+                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[90m");
+
+                printf("  %2i: 0b%s %s", pin, binStr, pudStr);
+
+                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[39m");
+                printf("\n");
+            }
+        }
+    }
+
     printf("========================================\n");
 }
 

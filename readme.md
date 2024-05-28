@@ -103,3 +103,4 @@ target_link_libraries(${BINNAME} rpihal)
   - `RPIHAL_GPIO_bittopin`
   - `RPIHAL_GPIO_pintobit`
   - `RPIHAL_ui128_..`
+- test log module and levels
