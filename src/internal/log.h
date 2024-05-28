@@ -58,8 +58,11 @@ extern "C" {
 
 
 
-// TODO make logging aware of RPIHAL_CONFIG_LOGLEVEL
-// TODO LOG_MODULE_LEVEL
+// config can limit log level
+#if (RPIHAL_CONFIG_LOGLEVEL < LOG_MODULE_LEVEL)
+#undef LOG_MODULE_LEVEL
+#define LOG_MODULE_LEVEL RPIHAL_CONFIG_LOGLEVEL
+#endif
 
 // clang-format off
 #define LOG_ERR(msg, ...) printf("\033[91m" "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <ERR> " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
@@ -67,6 +70,23 @@ extern "C" {
 #define LOG_INF(msg, ...) printf(           "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <INF> " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
 #define LOG_DBG(msg, ...) printf(           "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <DBG> " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
 // clang-format on
+
+#if (LOG_MODULE_LEVEL < LOG_LEVEL_DBG)
+#undef LOG_DBG
+#define LOG_DBG(...) (void)0
+#endif
+#if (LOG_MODULE_LEVEL < LOG_LEVEL_INF)
+#undef LOG_INF
+#define LOG_INF(...) (void)0
+#endif
+#if (LOG_MODULE_LEVEL < LOG_LEVEL_WRN)
+#undef LOG_WRN
+#define LOG_WRN(...) (void)0
+#endif
+#if (LOG_MODULE_LEVEL < LOG_LEVEL_ERR)
+#undef LOG_ERR
+#define LOG_ERR(...) (void)0
+#endif
 
 
 #ifdef __cplusplus

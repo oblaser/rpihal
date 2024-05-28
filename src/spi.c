@@ -41,7 +41,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#define LOG_MODULE_NAME SPI
+#define LOG_MODULE_LEVEL LOG_LEVEL_WRN
+#define LOG_MODULE_NAME  SPI
 #include "internal/log.h"
 
 
