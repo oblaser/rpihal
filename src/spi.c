@@ -50,6 +50,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint32_t flags)
 {
     int fd;
+    inst->dev[0] = 0;
     inst->fd = -1;
 
     errno = 0;
@@ -133,7 +134,7 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
 
 
 
-        LOG_INF("mode: %04x, speed: %uHz, bits: %u", modeFlags, maxSpeed, nBits);
+        LOG_INF("%s mode: %04x, speed: %uHz, bits: %u", dev, modeFlags, maxSpeed, nBits);
 
         inst->speed = maxSpeed;
         inst->bits = nBits;
@@ -146,6 +147,8 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
 
 int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData, uint8_t* rxBuffer, size_t count)
 {
+    errno = 0;
+
     struct spi_ioc_transfer transfer;
 
     memset(&transfer, 0, sizeof(transfer));

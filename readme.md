@@ -6,8 +6,6 @@ A Raspberry Pi Hardware Abstraction Layer for C/C++ projects.
 
 The system tests can also be considered as examples :wink:
 
-
-
 ## GPIO Module
 
 The library is now aware of the hardware it's running on.
@@ -21,20 +19,9 @@ The library is now aware of the hardware it's running on.
 
 
 
-## Emulator
-
-The emulator can be used to run your project on your working machine. To build the emulator project
-include all the same files as in the main project, plus the [emu.cpp](src/emu/emu.cpp) file (don't include any other
-rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` on the compiler level (not anyehere in
-source nor header files). See the [staircase example](examples/staircase/emu/cmake/CMakeLists.txt#L19) as a reference.
-To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an empty
-console application. Then add all the needed source files and add the include directories.
-
-The left and right mouse button can be used to click (push a button) or toggle an input pin.
-
-The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine) for the graphics.
-
-
+## Portability
+The main focus lies on Raspberry Pi OS (Raspbian), but it's attempted to make the code compatible to other distros.
+> In fact _Raspberry Pi OS 32bit_ and _Raspberry Pi OS 64bit_ are different distros: _Raspbian_ and a _Debian arm64 port_. See [this article](https://www.tomshardware.com/news/raspberry-pi-os-no-longer-raspbian) on Tom's Hardware for further information.
 
 ## Build
 
@@ -92,6 +79,21 @@ target_link_libraries(${BINNAME} rpihal)
   - **2** WARNING
   - **3** INFO
   - **4** DEBUG
+
+
+
+## Emulator
+
+The emulator can be used to run your project on your working machine. To build the emulator project
+include all the same files as in the main project, plus the [emu.cpp](src/emu/emu.cpp) file (don't include any other
+rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` on the compiler level (not anyehere in
+source nor header files). See the [staircase example](examples/staircase/emu/cmake/CMakeLists.txt#L19) as a reference.
+To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an empty
+console application. Then add all the needed source files and add the include directories.
+
+The left and right mouse button can be used to click (push a button) or toggle an input pin.
+
+The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine) for the graphics.
 
 
 

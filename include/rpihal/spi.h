@@ -38,6 +38,17 @@ extern "C" {
 #endif
 
 
+#define RPIHAL_SPI_CFG_FLAG_MASK       (0x000F)
+#define RPIHAL_SPI_CFG_FLAG_DEFAULT    (0)      // Transfer MSB first, chip select is active low, chip select is handled by driver/hw
+#define RPIHAL_SPI_CFG_FLAG_LSB_FIRST  (0x0001) // Transfer LSB first
+#define RPIHAL_SPI_CFG_FLAG_CS_HIGH    (0x0002) // Chip select is active high
+#define RPIHAL_SPI_CFG_FLAG_HALFDUPLEX (0x0004) // Use bidirectional half duplex mode (MIMO instead of MISO and MOSI)
+#define RPIHAL_SPI_CFG_FLAG_NO_CS      (0x0008) // `SPI_NO_CS` will me set
+
+
+#define RPIHAL_SPI_INSTANCE_DEV_SIZE (300)
+
+
 enum RPIHAL_SPI_MODE
 {
     RPIHAL_SPI_MODE_0 = 0, // CPOL=0, CPHA=0
@@ -45,9 +56,6 @@ enum RPIHAL_SPI_MODE
     RPIHAL_SPI_MODE_2,     // CPOL=1, CPHA=0
     RPIHAL_SPI_MODE_3,     // CPOL=1, CPHA=1
 };
-
-
-#define RPIHAL_SPI_INSTANCE_DEV_SIZE (300)
 
 /**
  * @brief SPI instance.
@@ -61,14 +69,6 @@ typedef struct
     uint32_t speed;
     uint8_t bits;
 } RPIHAL_SPI_instance_t;
-
-
-#define RPIHAL_SPI_CFG_FLAG_MASK       (0x000F)
-#define RPIHAL_SPI_CFG_FLAG_DEFAULT    (0)      // Transfer MSB first, chip select is active low, chip select is handled by driver/hw
-#define RPIHAL_SPI_CFG_FLAG_LSB_FIRST  (0x0001) // Transfer LSB first
-#define RPIHAL_SPI_CFG_FLAG_CS_HIGH    (0x0002) // Chip select is active high
-#define RPIHAL_SPI_CFG_FLAG_HALFDUPLEX (0x0004) // Use bidirectional half duplex mode (MIMO instead of MISO and MOSI)
-#define RPIHAL_SPI_CFG_FLAG_NO_CS      (0x0008) // `SPI_NO_CS` will me set
 
 
 
@@ -89,8 +89,27 @@ typedef struct
  */
 int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint32_t flags);
 
+/**
+ * @brief
+ *
+ * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
+ *
+ * @param inst
+ * @param txData
+ * @param rxBuffer
+ * @param count
+ * @return __0__ on success, negative on failure
+ */
 int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData, uint8_t* rxBuffer, size_t count);
 
+/**
+ * @brief
+ *
+ * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
+ *
+ * @param inst
+ * @return __0__ on success, negative on failure
+ */
 int RPIHAL_SPI_close(const RPIHAL_SPI_instance_t* inst);
 
 
