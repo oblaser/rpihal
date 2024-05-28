@@ -1,7 +1,7 @@
 
 # author        Oliver Blaser
 # date          22.05.2024
-# copyright     MIT - Copyright (c) 2022 Oliver Blaser
+# copyright     MIT - Copyright (c) 2024 Oliver Blaser
 
 
 ################################################################################
@@ -30,6 +30,7 @@ else() # RPIHAL_CMAKE_CONFIG_EMU
     set(SOURCES
     ../../../src/internal/util.c
     ../../../src/gpio.c
+    ../../../src/i2c.c
     ../../../src/int.c
     ../../../src/rpihal.c
     ../../../src/spi.c
