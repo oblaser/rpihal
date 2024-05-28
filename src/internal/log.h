@@ -47,16 +47,25 @@ extern "C" {
 #define RPIHAL_CONFIG_LOGLEVEL LOG_LEVEL_WRN
 #endif
 
-// clang-format off
-#define ___LOG_OPT_VA_ARGS(...) , ##__VA_ARGS__ // optional args
+
+
+// optional args
+#define ___LOG_OPT_VA_ARGS(...) , ##__VA_ARGS__
+
+// stringify
+#define ___LOG_STR_HELPER(x) #x
+#define ___LOG_STR(x)        ___LOG_STR_HELPER(x)
+
+
 
 // TODO make logging aware of RPIHAL_CONFIG_LOGLEVEL
-// TODO LOG_MODULE_LEVEL and LOG_MODULE_NAME
+// TODO LOG_MODULE_LEVEL
 
-#define LOG_ERR(msg, ...) printf("\033[91m" "[ERR] " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
-#define LOG_WRN(msg, ...) printf("\033[93m" "[WRN] " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
-#define LOG_INF(msg, ...) printf(           "[INF] " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
-#define LOG_DBG(msg, ...) printf(           "[DBG] " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+// clang-format off
+#define LOG_ERR(msg, ...) printf("\033[91m" "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <ERR> " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_WRN(msg, ...) printf("\033[93m" "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <WRN> " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_INF(msg, ...) printf(           "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <INF> " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_DBG(msg, ...) printf(           "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <DBG> " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
 // clang-format on
 
 

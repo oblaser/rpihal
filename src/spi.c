@@ -31,7 +31,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdint.h>
 #include <string.h>
 
-#include "internal/log.h"
 #include "internal/platform_check.h"
 #include "rpihal/rpihal.h"
 #include "rpihal/spi.h"
@@ -42,8 +41,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#define LOG_MODULE_NAME SPI
+#include "internal/log.h"
 
-int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint8_t nBits, uint32_t flags)
+
+
+int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint32_t flags)
 {
     int fd;
     inst->fd = -1;
@@ -92,6 +95,8 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
 
 
         // ioctl SPI bits per word
+
+        uint8_t nBits = 8; // RasPi kernel driver only supports 8bit mode, even on SPI1,2
 
         ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &nBits);
         if (ret < 0)

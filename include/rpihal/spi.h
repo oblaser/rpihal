@@ -84,11 +84,10 @@ typedef struct
  * @param dev Path to the SPI device (e.g. `/dev/spidev0.0`)
  * @param maxSpeed Max clock speed [Hz]
  * @param mode One of `RPIHAL_SPI_MODE`
- * @param nBits Word size in bits
  * @param flags One or more `RPIHAL_SPI_CFG_FLAG_..` ored together
  * @return __0__ on success, negative on failure
  */
-int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint8_t nBits, uint32_t flags);
+int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint32_t flags);
 
 int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData, uint8_t* rxBuffer, size_t count);
 

@@ -12,7 +12,7 @@
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi-overview
 
 reading `/boot/firmware/overlays/README` is very intresting...
-see descriptions for `spiX-Ycs`, X is the index of the SPI module (e.g. `spi0-0cs`).
+see descriptions for `spiX-Ycs`, X is the index of the SPI module and Y the number of cip select signal (e.g. `spi0-0cs`) and thus the number of SPI devices listed in _/dev_.
 
 #### no mod to config.txt
 `/dev/` has no SPI devices listed
