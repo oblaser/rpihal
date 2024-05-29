@@ -42,9 +42,16 @@ extern "C" {
 #define LOG_LEVEL_INF (3)
 #define LOG_LEVEL_DBG (4)
 
-#ifndef RPIHAL_CONFIG_LOGLEVEL
-#warning "RPIHAL_CONFIG_LOGLEVEL is not defined, defaulting to 2 (warning)"
-#define RPIHAL_CONFIG_LOGLEVEL LOG_LEVEL_WRN
+#ifndef RPIHAL_CONFIG_LOG_LEVEL
+#warning "RPIHAL_CONFIG_LOG_LEVEL is not defined, defaulting to 2 (warning)"
+#define RPIHAL_CONFIG_LOG_LEVEL LOG_LEVEL_WRN
+#endif
+
+#ifndef LOG_MODULE_LEVEL
+#error "define LOG_MODULE_LEVEL before including log.h"
+#endif
+#ifndef LOG_MODULE_NAME
+#error "define LOG_MODULE_NAME before including log.h"
 #endif
 
 
@@ -59,9 +66,9 @@ extern "C" {
 
 
 // config can limit log level
-#if (RPIHAL_CONFIG_LOGLEVEL < LOG_MODULE_LEVEL)
+#if (RPIHAL_CONFIG_LOG_LEVEL < LOG_MODULE_LEVEL)
 #undef LOG_MODULE_LEVEL
-#define LOG_MODULE_LEVEL RPIHAL_CONFIG_LOGLEVEL
+#define LOG_MODULE_LEVEL RPIHAL_CONFIG_LOG_LEVEL
 #endif
 
 // clang-format off
