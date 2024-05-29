@@ -41,7 +41,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#define LOG_MODULE_LEVEL LOG_LEVEL_WRN
+#define LOG_MODULE_LEVEL LOG_LEVEL_INF
 #define LOG_MODULE_NAME  SPI
 #include "internal/log.h"
 
@@ -134,7 +134,7 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
 
 
 
-        LOG_INF("%s mode: %04x, speed: %uHz, bits: %u", dev, modeFlags, maxSpeed, nBits);
+        LOG_INF("opened \"%s\" mode: %04x, speed: %uHz", dev, modeFlags, maxSpeed);
 
         inst->speed = maxSpeed;
         inst->bits = nBits;
@@ -171,7 +171,7 @@ int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData
     return 0;
 }
 
-int RPIHAL_SPI_close(const RPIHAL_SPI_instance_t* inst)
+int RPIHAL_SPI_close(RPIHAL_SPI_instance_t* inst)
 {
     errno = 0;
 
@@ -184,6 +184,12 @@ int RPIHAL_SPI_close(const RPIHAL_SPI_instance_t* inst)
         {
             LOG_ERR("failed to close \"%s\" (%s)", inst->dev, strerror(errno));
             return -(__LINE__);
+        }
+        else
+        {
+            LOG_INF("closed \"%s\"", inst->dev);
+            inst->dev[0] = 0;
+            inst->fd = -1;
         }
     }
     else { LOG_WRN("device is not open"); }

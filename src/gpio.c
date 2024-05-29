@@ -38,7 +38,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/types.h>
 #include <unistd.h>
 
-#define LOG_MODULE_LEVEL LOG_LEVEL_WRN
+#define LOG_MODULE_LEVEL LOG_LEVEL_INF
 #define LOG_MODULE_NAME  GPIO
 #include "internal/log.h"
 
@@ -277,6 +277,26 @@ int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 
     if (gpio_base && initStruct && checkPin(pin)) { r = initPin(pin, initStruct); }
     else { r = -(__LINE__); }
+
+    return r;
+}
+
+int RPIHAL_GPIO_initPins(uint64_t bits, const RPIHAL_GPIO_init_t* initStruct)
+{
+    int r = 0;
+
+    uint64_t mask = 0x01ull;
+
+    while (mask)
+    {
+        if (mask & bits)
+        {
+            const int err = RPIHAL_GPIO_initPin(RPIHAL_GPIO_bittopin(mask), initStruct);
+            if (err) { r = -(__LINE__); }
+        }
+
+        mask <<= 1;
+    }
 
     return r;
 }
@@ -770,6 +790,29 @@ int initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
     // drive
 
 
+
+#if (LOG_MODULE_LEVEL >= LOG_LEVEL_INF)
+    if (!r)
+    {
+        char alt[] = "AF?";
+        const char* func = "###";
+        const char* pull = "####";
+
+        if (initStruct->mode == RPIHAL_GPIO_MODE_OUT) func = "OUT";
+        else if (initStruct->mode == RPIHAL_GPIO_MODE_AF)
+        {
+            alt[2] = (char)(0x30 + initStruct->altfunc);
+            func = alt;
+        }
+        else func = "IN";
+
+        if (initStruct->pull == RPIHAL_GPIO_PULL_UP) { pull = "UP"; }
+        else if (initStruct->pull == RPIHAL_GPIO_PULL_DOWN) { pull = "DOWN"; }
+        else { pull = "none"; }
+
+        LOG_INF("init pin %2i to %-3s with pull %-s", pin, func, pull);
+    }
+#endif
 
     return r;
 }

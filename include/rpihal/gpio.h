@@ -93,9 +93,18 @@ typedef struct
 int RPIHAL_GPIO_init();
 
 //! @param pin BCM GPIO pin number
-//! @param initStruct Pointer to the pin settings
+//! @param initStruct Pin configuration
 //! @return __0__ on success, __negative__ on error
 int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
+
+/**
+ * @brief Configures the pins according to `initStruct`.
+ *
+ * @param bits Bits coresponding to the pins to be configured
+ * @param initStruct Pin configuration
+ * @return __0__ on success, __negative__ on error
+ */
+int RPIHAL_GPIO_initPins(uint64_t bits, const RPIHAL_GPIO_init_t* initStruct);
 
 //! @param pin BCM GPIO pin number
 //! @return __0__ LOW / __1__ HIGH / __negative__ on error

@@ -107,10 +107,10 @@ int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData
  *
  * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
  *
- * @param inst
+ * @param [in,out] inst
  * @return __0__ on success, negative on failure
  */
-int RPIHAL_SPI_close(const RPIHAL_SPI_instance_t* inst);
+int RPIHAL_SPI_close(RPIHAL_SPI_instance_t* inst);
 
 
 #ifdef __cplusplus

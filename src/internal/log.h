@@ -74,8 +74,8 @@ extern "C" {
 // clang-format off
 #define LOG_ERR(msg, ...) printf("\033[91m" "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <ERR> " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
 #define LOG_WRN(msg, ...) printf("\033[93m" "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <WRN> " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
-#define LOG_INF(msg, ...) printf(           "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <INF> " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
-#define LOG_DBG(msg, ...) printf(           "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <DBG> " msg            "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_INF(msg, ...) printf("\033[90m" "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <INF> " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
+#define LOG_DBG(msg, ...) printf("\033[90m" "[rpihal] " ___LOG_STR(LOG_MODULE_NAME) " <DBG> " msg "\033[39m" "\n" ___LOG_OPT_VA_ARGS(__VA_ARGS__))
 // clang-format on
 
 #if (LOG_MODULE_LEVEL < LOG_LEVEL_DBG)

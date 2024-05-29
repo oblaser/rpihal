@@ -5,6 +5,9 @@
 - http://www.scribd.com/doc/101830961/GPIO-Pads-Control2
 - https://forums.raspberrypi.com/viewtopic.php?t=243166
 
+- https://www.kernel.org/doc/html/latest/i2c/dev-interface.html
+- https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/plain/tools/i2ctransfer.c
+
 
 #### Model, SoC, ... detection
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
@@ -42,6 +45,8 @@ Use `i2c-gpio` for bit banged I2C.
 > `dtparam=i2c_vc=on` = `i2c-0`</br>
 > `dtparam=i2c_arm=on` = `i2c-1`</br>
 > `dtparam=i2c2_iknowwhatimdoing=on` = `i2c-2`</br>
+
+`$ i2cdetect` might be useful (`-a` for addresses above 0x77).
 
 ## on RasPi4B
 #### no mod to config.txt

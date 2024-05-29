@@ -87,6 +87,7 @@ typedef enum // see https://www.raspberrypi.com/documentation/computers/processo
 
 
 RPIHAL_model_t RPIHAL_getModel();
+const char* RPIHAL_getModelStr(uint64_t modelId);
 
 /**
  * Temporary hack, needed until auto detection in `RPIHAL_getModel()` is implemented.

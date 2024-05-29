@@ -62,6 +62,16 @@ RPIHAL_model_t RPIHAL_getModel()
     return model;
 }
 
+const char* RPIHAL_getModelStr(uint64_t modelId)
+{
+    static char str[] = "RPIHAL_getModelStr() not implemented";
+
+    // TODO implement
+    (void)modelId;
+
+    return str;
+}
+
 
 
 //======================================================================================================================
