@@ -32,6 +32,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
+#include <sys/types.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,7 +78,7 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr);
  * @param count
  * @return __0__ on success, negative on failure
  */
-int RPIHAL_I2C_rawWrite(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count);
+int RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count);
 
 /**
  * @brief
@@ -86,19 +88,19 @@ int RPIHAL_I2C_rawWrite(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, 
  * @param inst
  * @param buffer
  * @param count
- * @return __0__ on success, negative on failure
+ * @return Number of read bytes on success, negative on failure
  */
-int RPIHAL_I2C_rawRead(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count);
+ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count);
 
 /**
  * @brief
  *
  * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
  *
- * @param inst
+ * @param [in,out] inst
  * @return __0__ on success, negative on failure
  */
-int RPIHAL_I2C_close(const RPIHAL_I2C_instance_t* inst);
+int RPIHAL_I2C_close(RPIHAL_I2C_instance_t* inst);
 
 
 #ifdef __cplusplus

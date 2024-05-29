@@ -80,6 +80,7 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr)
     int fd;
     inst->dev[0] = 0;
     inst->fd = -1;
+    inst->addr = -1;
 
     errno = 0;
 
@@ -104,7 +105,7 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr)
 
 
 
-        LOG_INF("%s addr: 0x%02x", dev, addr);
+        LOG_INF("opened \"%s\" addr: 0x%02x", dev, addr);
 
         strcpy(inst->dev, dev);
         inst->fd = fd;
@@ -114,37 +115,29 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr)
     return 0;
 }
 
-int RPIHAL_I2C_rawWrite(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count)
+int RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count)
 {
     errno = 0;
 
-    const ssize_t ret = write(inst->fd, data, count);
+    const int r = write(inst->fd, data, count); // write() to i2c file descriptor does not return number of written bytes (at leas not on the Pi4B)
 
-    if ((ret < 0) || (ret != (ssize_t)count))
-    {
-        LOG_ERR("failed to write %u bytes to \"%s\" 0x%02x (%s, write ret: %i)", count, inst->dev, inst->addr, strerror(errno), ret);
-        return -(__LINE__);
-    }
+    if (r < 0) { LOG_ERR("failed to write %u bytes to \"%s\" 0x%02x (%s, write ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
 
     return 0;
 }
 
-int RPIHAL_I2C_rawRead(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count)
+ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count)
 {
     errno = 0;
 
-    const ssize_t ret = read(inst->fd, buffer, count);
+    const ssize_t r = read(inst->fd, buffer, count);
 
-    if ((ret < 0) || (ret != (ssize_t)count))
-    {
-        LOG_ERR("failed to read %u bytes from \"%s\" 0x%02x (%s, read ret: %i)", count, inst->dev, inst->addr, strerror(errno), ret);
-        return -(__LINE__);
-    }
+    if (r < 0) { LOG_ERR("failed to read %u bytes from \"%s\" 0x%02x (%s, read ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
 
-    return 0;
+    return r;
 }
 
-int RPIHAL_I2C_close(const RPIHAL_I2C_instance_t* inst)
+int RPIHAL_I2C_close(RPIHAL_I2C_instance_t* inst)
 {
     errno = 0;
 
@@ -157,6 +150,13 @@ int RPIHAL_I2C_close(const RPIHAL_I2C_instance_t* inst)
         {
             LOG_ERR("failed to close \"%s\" (%s)", inst->dev, strerror(errno));
             return -(__LINE__);
+        }
+        else
+        {
+            LOG_INF("closed \"%s\" addr: 0x%02x", inst->dev, inst->addr);
+            inst->dev[0] = 0;
+            inst->fd = -1;
+            inst->addr = -1;
         }
     }
     else { LOG_WRN("device is not open"); }
