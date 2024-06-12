@@ -26,6 +26,10 @@ The documentation can mainly be found at:
 ## SPI
 See descriptions for `spiX-Ycs`, X is the index of the SPI peripheral and Y the number of chip select signal (e.g. `spi0-0cs`) and thus the number of SPI devices listed in _/dev_.
 
+#### Clock not as expected?
+- https://github.com/raspberrypi/linux/issues/3381#issuecomment-567536640
+- [seems to be OK on Pi5](https://github.com/raspberrypi/linux/issues/3381#issuecomment-1893699525)
+
 ## I2C
 > `/boot/firmware/overlays/README`
 >
