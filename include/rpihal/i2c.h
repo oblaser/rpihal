@@ -76,9 +76,9 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr);
  * @param inst
  * @param data
  * @param count
- * @return __0__ on success, negative on failure
+ * @return Number of written bytes on success, negative on failure
  */
-int RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count);
+ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count);
 
 /**
  * @brief
