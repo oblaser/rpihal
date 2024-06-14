@@ -123,7 +123,7 @@ int RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, siz
 
     if (r < 0) { LOG_ERR("failed to write %u bytes to \"%s\" 0x%02x (%s, write ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
 
-    return 0;
+    return r;
 }
 
 ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count)
