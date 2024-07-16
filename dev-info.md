@@ -14,6 +14,14 @@
 - https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/raspberry-pi/revision-codes.adoc
 
 
+#### Preprocessor Defines 32bit vs 64bit
+```
+echo | gcc -dM -E - | grep -E "arm|arch|linux"
+echo | gcc -dM -E -x c++ - | grep -E "arm|arch|linux"
+```
+
+
+
 ---
 
 # SPI, I2C, ...
