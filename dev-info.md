@@ -14,9 +14,14 @@
 - https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/raspberry-pi/revision-codes.adoc
 
 
-## Preprocessor Defines 32bit vs 64bit
+## 32bit vs 64bit
+- https://raspberrypi.stackexchange.com/a/143293
 #### 32bit (2024-03-15-raspios-bookworm-armhf)
 ```
+$ dpkg --print-architecture
+...
+$ file $(command -v file)
+...
 $ echo | gcc -dM -E - | grep -E "arm|ARM|arch|linux"
 ...
 $ echo | gcc -dM -E -x c++ - | grep -E "arm|ARM|arch|linux"
@@ -24,6 +29,10 @@ $ echo | gcc -dM -E -x c++ - | grep -E "arm|ARM|arch|linux"
 ```
 #### 64bit (2024-03-15-raspios-bookworm-arm64)
 ```
+$ dpkg --print-architecture
+arm64
+$ file $(command -v file)
+/usr/bin/file: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=d92302f45126662444db75f742f32467503ceefd, for GNU/Linux 3.7.0, stripped
 $ echo | gcc -dM -E - | grep -E "arm|ARM|arch|linux"
 #define __ARM_SIZEOF_WCHAR_T 4
 #define __ARM_FEATURE_IDIV 1
