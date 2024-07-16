@@ -14,10 +14,66 @@
 - https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/raspberry-pi/revision-codes.adoc
 
 
-#### Preprocessor Defines 32bit vs 64bit
+## Preprocessor Defines 32bit vs 64bit
+#### 32bit (2024-03-15-raspios-bookworm-armhf)
 ```
-echo | gcc -dM -E - | grep -E "arm|arch|linux"
-echo | gcc -dM -E -x c++ - | grep -E "arm|arch|linux"
+$ echo | gcc -dM -E - | grep -E "arm|ARM|arch|linux"
+...
+$ echo | gcc -dM -E -x c++ - | grep -E "arm|ARM|arch|linux"
+...
+```
+#### 64bit (2024-03-15-raspios-bookworm-arm64)
+```
+$ echo | gcc -dM -E - | grep -E "arm|ARM|arch|linux"
+#define __ARM_SIZEOF_WCHAR_T 4
+#define __ARM_FEATURE_IDIV 1
+#define __ARM_FP 14
+#define __linux 1
+#define __ARM_SIZEOF_MINIMAL_ENUM 4
+#define __gnu_linux__ 1
+#define __ARM_ALIGN_MAX_PWR 28
+#define __ARM_FP16_FORMAT_IEEE 1
+#define __ARM_FP16_ARGS 1
+#define __ARM_FEATURE_CLZ 1
+#define __aarch64__ 1
+#define __ARM_64BIT_STATE 1
+#define __ARM_FEATURE_FMA 1
+#define __ARM_ARCH_PROFILE 65
+#define __ARM_PCS_AAPCS64 1
+#define __ARM_ARCH 8
+#define linux 1
+#define __ARM_ARCH_8A 1
+#define __ARM_FEATURE_UNALIGNED 1
+#define __ARM_NEON 1
+#define __ARM_ALIGN_MAX_STACK_PWR 16
+#define __ARM_FEATURE_NUMERIC_MAXMIN 1
+#define __ARM_ARCH_ISA_A64 1
+#define __linux__ 1
+$ echo | gcc -dM -E -x c++ - | grep -E "arm|ARM|arch|linux"
+#define __ARM_SIZEOF_WCHAR_T 4
+#define __ARM_FEATURE_IDIV 1
+#define __ARM_FP 14
+#define __linux 1
+#define __ARM_SIZEOF_MINIMAL_ENUM 4
+#define __gnu_linux__ 1
+#define __ARM_ALIGN_MAX_PWR 28
+#define __ARM_FP16_FORMAT_IEEE 1
+#define __ARM_FP16_ARGS 1
+#define __ARM_FEATURE_CLZ 1
+#define __aarch64__ 1
+#define __ARM_64BIT_STATE 1
+#define __ARM_FEATURE_FMA 1
+#define __ARM_ARCH_PROFILE 65
+#define __ARM_PCS_AAPCS64 1
+#define __ARM_ARCH 8
+#define linux 1
+#define __ARM_ARCH_8A 1
+#define __ARM_FEATURE_UNALIGNED 1
+#define __ARM_NEON 1
+#define __ARM_ALIGN_MAX_STACK_PWR 16
+#define __ARM_FEATURE_NUMERIC_MAXMIN 1
+#define __ARM_ARCH_ISA_A64 1
+#define __linux__ 1
 ```
 
 
