@@ -19,13 +19,34 @@
 #### 32bit (2024-03-15-raspios-bookworm-armhf)
 ```
 $ dpkg --print-architecture
-...
+armhf
 $ file $(command -v file)
-...
-$ echo | gcc -dM -E - | grep -E "arm|ARM|arch|linux"
-...
-$ echo | gcc -dM -E -x c++ - | grep -E "arm|ARM|arch|linux"
-...
+/usr/bin/file: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, BuildID[sha1]=6354b71ef1628f57daf8f3326f349e59ccbe65ce, for GNU/Linux 3.2.0, stripped
+$ echo | gcc -dM -E [-x c++] - | grep -E "arm|ARM|arch|linux"
+#define __ARM_SIZEOF_WCHAR_T 4
+#define __ARM_FEATURE_SAT 1
+#define __ARM_ARCH_ISA_ARM 1
+#define __ARMEL__ 1
+#define __ARM_FP 12
+#define __linux 1
+#define __ARM_SIZEOF_MINIMAL_ENUM 4
+#define __gnu_linux__ 1
+#define __ARM_PCS_VFP 1
+#define __ARM_FEATURE_LDREX 4
+#define __ARM_FEATURE_UNALIGNED 1
+#define __ARM_FEATURE_QBIT 1
+#define __ARM_ARCH_6__ 1
+#define __ARM_32BIT_STATE 1
+#define __ARM_FEATURE_CLZ 1
+#define __ARM_ARCH_ISA_THUMB 1
+#define __ARM_ARCH 6
+#define linux 1
+#define __arm__ 1
+#define __ARM_FEATURE_SIMD32 1
+#define __ARM_FEATURE_COPROC 15
+#define __ARM_FEATURE_DSP 1
+#define __ARM_EABI__ 1
+#define __linux__ 1
 ```
 #### 64bit (2024-03-15-raspios-bookworm-arm64)
 ```
@@ -33,32 +54,7 @@ $ dpkg --print-architecture
 arm64
 $ file $(command -v file)
 /usr/bin/file: ELF 64-bit LSB pie executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=d92302f45126662444db75f742f32467503ceefd, for GNU/Linux 3.7.0, stripped
-$ echo | gcc -dM -E - | grep -E "arm|ARM|arch|linux"
-#define __ARM_SIZEOF_WCHAR_T 4
-#define __ARM_FEATURE_IDIV 1
-#define __ARM_FP 14
-#define __linux 1
-#define __ARM_SIZEOF_MINIMAL_ENUM 4
-#define __gnu_linux__ 1
-#define __ARM_ALIGN_MAX_PWR 28
-#define __ARM_FP16_FORMAT_IEEE 1
-#define __ARM_FP16_ARGS 1
-#define __ARM_FEATURE_CLZ 1
-#define __aarch64__ 1
-#define __ARM_64BIT_STATE 1
-#define __ARM_FEATURE_FMA 1
-#define __ARM_ARCH_PROFILE 65
-#define __ARM_PCS_AAPCS64 1
-#define __ARM_ARCH 8
-#define linux 1
-#define __ARM_ARCH_8A 1
-#define __ARM_FEATURE_UNALIGNED 1
-#define __ARM_NEON 1
-#define __ARM_ALIGN_MAX_STACK_PWR 16
-#define __ARM_FEATURE_NUMERIC_MAXMIN 1
-#define __ARM_ARCH_ISA_A64 1
-#define __linux__ 1
-$ echo | gcc -dM -E -x c++ - | grep -E "arm|ARM|arch|linux"
+$ echo | gcc -dM -E [-x c++] - | grep -E "arm|ARM|arch|linux"
 #define __ARM_SIZEOF_WCHAR_T 4
 #define __ARM_FEATURE_IDIV 1
 #define __ARM_FP 14
