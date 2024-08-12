@@ -43,10 +43,6 @@ extern "C" {
 #error "not an ARM platform - this library is only for the Raspberry Pi!"
 #endif
 
-#ifdef __aarch64__
-#warning "not fully tested on 64bit ARM (aarch64)"
-#endif
-
 
 #ifdef __cplusplus
 }
