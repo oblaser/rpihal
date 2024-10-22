@@ -1,5 +1,5 @@
 
 # exclude from GitHub language statistics (https://github.com/github-linguist/linguist/blob/main/docs/overrides.md)
-/examples       linguist-vendored
-/src/emu        linguist-vendored
-/test           linguist-vendored
+/examples/**    linguist-vendored
+/src/emu/**     linguist-vendored
+/test/**        linguist-vendored
