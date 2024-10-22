@@ -72,7 +72,7 @@ typedef struct
  * - Zero if `lhs` and `rhs` compare equal
  * - Positive value if `lhs` is greater than `rhs`
  */
-int RPIHAL_ui128_cmp(const RPIHAL_uint128_t* lhs, const RPIHAL_uint128_t* rhs);
+int RPIHAL_ui128_cmp(const RPIHAL_uint128_t* lhs, const RPIHAL_uint128_t* rhs); // TODO unit test
 
 
 #ifdef __cplusplus

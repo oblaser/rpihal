@@ -36,14 +36,14 @@ int RPIHAL_ui128_cmp(const RPIHAL_uint128_t* lhs, const RPIHAL_uint128_t* rhs)
 {
     int r;
 
-    if (lhs->hi < rhs->hi) r = -1;
-    else if (lhs->hi < rhs->hi)
+    if (lhs->hi < rhs->hi) { r = -1; }
+    else if (lhs->hi == rhs->hi)
     {
-        if (lhs->lo < rhs->lo) r = -1;
-        else if (lhs->lo < rhs->lo) { r = 0; }
-        else r = 1;
+        if (lhs->lo < rhs->lo) { r = -1; }
+        else if (lhs->lo == rhs->lo) { r = 0; }
+        else { r = 1; }
     }
-    else r = 1;
+    else { r = 1; }
 
     return r;
 }
