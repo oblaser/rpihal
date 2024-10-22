@@ -5,10 +5,11 @@
 ### v0.2.0
 
 New
- - Autodetect Model
+ - _WIP_ Autodetect Model
  - RasPi 4 Support
- - `RPIHAL_SYS_getUuid()`
+ - _WIP_ `RPIHAL_SYS_getUuid()`
  - SPI
+ - I2C
 
 
 

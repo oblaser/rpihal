@@ -83,7 +83,7 @@ RPIHAL_uint128_t RPIHAL_SYS_getUuid()
 
     if ((uuid.hi == 0) && (uuid.lo == 0))
     {
-        DIR* const d = opendir("/dev/disk/by-uuid");
+        DIR* const d = opendir("/dev/disk/by-uuid"); // TODO close dir
 
         if (d)
         {
