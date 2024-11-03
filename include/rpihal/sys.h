@@ -46,13 +46,13 @@ extern "C" {
 int RPIHAL_SYS_getCpuTemp(float* temperature);
 
 /**
- * @brief Returns the longest UUID of a mounted disk.
+ * @brief Returns the machine ID.
  *
- * `errno` is cleared by this function. If the function fails, `errno` will be non 0, and the return value is 0.
+ * Reads and parses `/etc/machine-id`.
  *
- * @return UUID or __0__ if reading the UUID failed
+ * @return __0__ if reading failed
  */
-RPIHAL_uint128_t RPIHAL_SYS_getUuid();
+RPIHAL_uint128_t RPIHAL_SYS_getMachineId();
 
 
 #ifdef __cplusplus

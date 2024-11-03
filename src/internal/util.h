@@ -35,20 +35,7 @@ extern "C" {
 #endif
 
 
-static inline int UTIL_isxdelimiter(int ch)
-{
-    int r = 0;
-
-    if ((ch == 0x20) || // ' ' space
-        (ch == 0x2d) || // '-' hhyphen, minus
-        (ch == 0x2e) || // '.' full stop
-        (ch == 0x3a))   // ':' colon
-    {
-        r = 1;
-    }
-
-    return r;
-}
+// voi UTIL_...
 
 
 #ifdef __cplusplus

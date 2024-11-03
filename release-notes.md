@@ -7,7 +7,7 @@
 New
  - _WIP_ Autodetect Model
  - RasPi 4 Support
- - _WIP_ `RPIHAL_SYS_getUuid()`
+ - `RPIHAL_SYS_getMachineId()`
  - SPI
  - I2C
 

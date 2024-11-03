@@ -60,7 +60,7 @@ int RPIHAL_SYS_getCpuTemp(float* temperature)
 
             if (res == 1)
             {
-                temp /= 1000.0f;
+                temp /= 1e3f;
                 *temperature = temp;
                 r = 0;
             }
@@ -75,114 +75,50 @@ int RPIHAL_SYS_getCpuTemp(float* temperature)
     return r;
 }
 
-RPIHAL_uint128_t RPIHAL_SYS_getUuid()
+RPIHAL_uint128_t RPIHAL_SYS_getMachineId()
 {
-    static RPIHAL_uint128_t uuid = RPIHAL_UINT128_NULL;
+    RPIHAL_uint128_t machineId = RPIHAL_UINT128_NULL;
 
-    errno = 0;
+    FILE* fp = fopen("/etc/machine-id", "r");
 
-    if ((uuid.hi == 0) && (uuid.lo == 0))
+    if (fp)
     {
-        DIR* const d = opendir("/dev/disk/by-uuid"); // TODO close dir
+        char machineIdStr[100];
+        const int res = fscanf(fp, "%99s", machineIdStr); // the argument array must have room for at least width+1 characters
 
-        if (d)
+        if (res == 1)
         {
-            char uuidStr[33]; // 128bit hex str has 32 chars
-            uuidStr[0] = 0;
-            size_t len = 0;
+            const size_t len = strlen(machineIdStr);
+            const char* p = machineIdStr + len - 1;
+            size_t cnt = 0;
 
-            const size_t uuidStrBufferSize = sizeof(uuidStr);
-            const size_t maxLen = uuidStrBufferSize - 1; // null terminator
-
-            // read UUID string
-            while (1)
+            while (p >= &(machineIdStr[0]))
             {
-                const struct dirent* const e = readdir(d);
+                uint64_t digitValue = getHexDigitValue(*p);
 
-                if (e)
-                {
-                    char tmpStr[sizeof(uuidStr)];
-                    const char* src = e->d_name;
-                    char* dst = tmpStr;
-                    size_t tmpLen = 0;
+                digitValue <<= ((cnt % 16) * 4);
 
-                    // copy hex string (only hex digits)
-                    while ((*src != 0) && (tmpLen < maxLen))
-                    {
-                        if (isxdigit(*src))
-                        {
-                            // printf("copy UUID character %c\n", *src);
+                if (cnt < 16) { machineId.lo |= digitValue; }
+                else { machineId.hi |= digitValue; }
 
-                            *dst = *src;
-                            ++dst;
-                            ++tmpLen;
-                        }
-                        else if (!UTIL_isxdelimiter(*src))
-                        {
-                            // printf("%c is an invalid UUID character\n", *src);
+                // printf("%c => %16llx, cnt: %2u, %16llx %16llx\n", *p, digitValue, cnt, machineId.hi, machineId.lo);
 
-                            tmpLen = 0;
-                            break;
-                        }
-
-                        ++src;
-                    }
-                    tmpStr[tmpLen] = 0; // add null terminator
-
-                    // actual copy, if has more bits than the current
-                    if (tmpLen > len)
-                    {
-                        strcpy(uuidStr, tmpStr);
-                        len = tmpLen;
-                    }
-
-                    // printf("fetched UUID: %s\n", tmpStr);
-                    // printf("using:        %s\n", uuidStr);
-                }
-                else
-                {
-                    // if (errno) nop, errno is set
-                    // else nop, end of dir entries
-
-                    break;
-                }
-            }
-
-            // printf("UUID str: %s\n", uuidStr);
-
-            // convert UUID string
-            if (len > 0)
-            {
-                const char* p = uuidStr + len - 1;
-                size_t cnt = 0;
-
-                while (p >= &(uuidStr[0]))
-                {
-                    uint64_t digitValue = getHexDigitValue(*p);
-
-                    digitValue <<= ((cnt % 16) * 4);
-
-                    if (cnt < 16) { uuid.lo |= digitValue; }
-                    else { uuid.hi |= digitValue; }
-
-                    // printf("%c => %16llx, cnt: %2u, %16llx %16llx\n", *p, digitValue, cnt, uuid.hi, uuid.lo);
-
-                    ++cnt;
-                    --p;
-                }
+                ++cnt;
+                --p;
             }
         }
-        // else nop, errno is set
+
+        fclose(fp);
     }
 
-    return uuid;
+    return machineId;
 }
 
 
 
 uint8_t getHexDigitValue(char c)
 {
-    const char digits[2][17] = { "0123456789abcdef", "0123456789ABCDEF" };
+    static const char digits[2][17] = { "0123456789abcdef", "0123456789ABCDEF" };
 
     for (int i = 0; i < 2; ++i)
     {
