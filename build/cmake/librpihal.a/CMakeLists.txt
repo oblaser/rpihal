@@ -28,6 +28,7 @@ if(RPIHAL_CMAKE_CONFIG_EMU)
 else() # RPIHAL_CMAKE_CONFIG_EMU
 
     set(SOURCES
+    ../../../src/internal/gpio.c
     ../../../src/internal/util.c
     ../../../src/gpio.c
     ../../../src/i2c.c

@@ -48,7 +48,7 @@ See [build/readme.md](./build/readme.md) for the different build methods.
 
 ### Build
 The emulator can be used to run your project on your working machine. To build the emulator project
-include all the same files as in the main project, plus the [emu.cpp](src/emu/emu.cpp) file (don't include any other
+include all the same files as in the main project, plus the [emu.cpp](./src/emu/emu.cpp) file and the source files in [src/internal](./src/internal/) (don't include any other
 rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` on the compiler level (not anyehere in
 source nor header files).
 

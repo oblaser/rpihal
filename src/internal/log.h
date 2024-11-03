@@ -42,8 +42,22 @@ extern "C" {
 #define LOG_LEVEL_INF (3)
 #define LOG_LEVEL_DBG (4)
 
+
+
+// stringify
+#define ___LOG_STR_HELPER(x) #x
+#define ___LOG_STR(x)        ___LOG_STR_HELPER(x)
+
+
+
 #ifndef RPIHAL_CONFIG_LOG_LEVEL
+#ifdef _MSC_VER // if emu is build with MSVC
+#define __PRAGMA_LOC__ __FILE__ "(" ___LOG_STR(__LINE__) ") "
+__pragma(message(__PRAGMA_LOC__ ": warning: \"RPIHAL_CONFIG_LOG_LEVEL is not defined, defaulting to 2 (warning)\""))
+#undef __PRAGMA_LOC__
+#else //_MSC_VER
 #warning "RPIHAL_CONFIG_LOG_LEVEL is not defined, defaulting to 2 (warning)"
+#endif //_MSC_VER
 #define RPIHAL_CONFIG_LOG_LEVEL LOG_LEVEL_WRN
 #endif
 
@@ -58,10 +72,6 @@ extern "C" {
 
 // optional args
 #define ___LOG_OPT_VA_ARGS(...) , ##__VA_ARGS__
-
-// stringify
-#define ___LOG_STR_HELPER(x) #x
-#define ___LOG_STR(x)        ___LOG_STR_HELPER(x)
 
 
 

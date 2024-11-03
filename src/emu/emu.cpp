@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.03.2024
+date            03.11.2024
 copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -249,7 +249,7 @@ public:
 
 public:
     SharedData()
-        : m_running(false), m_booted(false), m_terminate(false), m_pins(), m_cpuTemp(42.7)
+        : m_running(false), m_booted(false), m_terminate(false), m_pins(), m_cpuTemp(42.7f)
     {
         using emu::Pin;
 
@@ -525,7 +525,7 @@ bool EmuPge::OnUserUpdate(float tElapsed)
             auto temp_to_normal = [&](const float& temp) { return 1 - ((temp - tempLo) / tempSpan); };
             auto normal_to_temp = [&](const float& norm) { return tempLo + (1 - norm) * tempSpan; };
 
-            int32_t value = len * temp_to_normal(cpuTemp) + 0.5f;
+            int32_t value = (int32_t)(len * temp_to_normal(cpuTemp) + 0.5f);
 
             if (mouseDownWasOnSlider)
             {
@@ -609,9 +609,17 @@ static void emuMain()
 //======================================================================================================================
 // rpihal.h
 
-int RPIHAL_EMU_init()
+static RPIHAL_model_t ___model = RPIHAL_model_unknown;
+
+RPIHAL_model_t RPIHAL_getModel() { return ___model; }
+
+void RPIHAL___setModel___(RPIHAL_model_t model) { ___model = model; } // TODO remove this function
+
+int RPIHAL_EMU_init(RPIHAL_model_t model)
 {
     int r = -1;
+
+    ___model = model;
 
     try
     {
@@ -640,10 +648,7 @@ void RPIHAL_EMU_cleanup()
     thread_pge.join();
 }
 
-int RPIHAL_EMU_isRunning()
-{
-    return thread_pge_sd.isRunning();
-}
+int RPIHAL_EMU_isRunning() { return thread_pge_sd.isRunning(); }
 
 //======================================================================================================================
 // gpio.h
@@ -651,16 +656,34 @@ int RPIHAL_EMU_isRunning()
 static const int sysGpioLocked = 1;
 static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy
 
-static int checkPin(int pin);
-
 int RPIHAL_GPIO_init() { return 0; } // nop
 
 int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
-    if (gpio_base && initStruct && checkPin(pin)) thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct));
-    else r = 1;
+    if (gpio_base && initStruct && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct)); }
+    else { r = 1; }
+
+    return r;
+}
+
+int RPIHAL_GPIO_initPins(uint64_t bits, const RPIHAL_GPIO_init_t* initStruct)
+{
+    int r = 0;
+
+    uint64_t mask = 0x01ull;
+
+    while (mask)
+    {
+        if (mask & bits)
+        {
+            const int err = RPIHAL_GPIO_initPin(RPIHAL_GPIO_bittopin(mask), initStruct);
+            if (err) { r = -(__LINE__); }
+        }
+
+        mask <<= 1;
+    }
 
     return r;
 }
@@ -669,8 +692,8 @@ int RPIHAL_GPIO_readPin(int pin)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) r = thread_pge_sd.getGpioState(pin);
-    else r = -1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { r = thread_pge_sd.getGpioState(pin); }
+    else { r = -1; }
 
     return r;
 }
@@ -701,12 +724,32 @@ uint32_t RPIHAL_GPIO_read()
     return value;
 }
 
+uint32_t RPIHAL_GPIO_readHi()
+{
+    uint32_t value = 0;
+
+    // TODO see RPIHAL_GPIO_read()
+
+    return value;
+}
+
+uint64_t RPIHAL_GPIO_read64()
+{
+    uint64_t value;
+
+    value = (uint64_t)RPIHAL_GPIO_readHi();
+    value <<= 32;
+    value |= (uint64_t)RPIHAL_GPIO_read();
+
+    return value;
+}
+
 int RPIHAL_GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) thread_pge_sd.setGpioState(pin, state != 0);
-    else r = 1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, state != 0); }
+    else { r = 1; }
 
     return r;
 }
@@ -727,8 +770,8 @@ int RPIHAL_GPIO_togglePin(int pin)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) thread_pge_sd.setGpioState(pin, !thread_pge_sd.getGpioState(pin));
-    else r = -1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, !thread_pge_sd.getGpioState(pin)); }
+    else { r = -1; }
 
     return r;
 }
@@ -745,35 +788,13 @@ int RPIHAL_GPIO_resetPin(int pin)
     return 0;
 }
 
-int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
-{
-    /* TODO */
-    return 0;
-}
+void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct) { iGPIO_defaultInitStruct(initStruct); }
 
-int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
-{
-    /* TODO */
-    return 0;
-}
+int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct) { return iGPIO_defaultInitStructPin(pin, initStruct); }
 
-//! @param pin BCM GPIO pin number
-//! @return Boolean value TRUE (`1`) if it's allowed to access the pin, otherwhise FALSE (`0`)
-int checkPin(int pin)
-{
-    int r = 0;
+int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
 
-    if (sysGpioLocked)
-    {
-        if ((pin >= FIRST_USER_PIN) && (pin <= LAST_USER_PIN)) r = 1;
-    }
-    else
-    {
-        if ((pin >= FIRST_PIN) && (pin <= LAST_PIN)) r = 1;
-    }
-
-    return r;
-}
+uint64_t RPIHAL_GPIO_pintobit(int pin) { return iGPIO_pintobit(pin); }
 
 //======================================================================================================================
 // sys

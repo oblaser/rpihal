@@ -29,6 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
+#include "internal/gpio.h"
 #include "internal/platform_check.h"
 #include "rpihal/gpio.h"
 #include "rpihal/rpihal.h"
@@ -182,29 +183,6 @@ static void BCM2835_reg_write_bits(RPIHAL_regptr_t addr, uint32_t value, uint32_
 
 
 
-#define BCM2835_PINS_MASK (0x003FFFFFFFFFFFFFull)
-// #define BCM2835_FIRST_PIN (0)
-// #define BCM2835_LAST_PIN  (53)
-
-#define BCM2711_PINS_MASK (0x03FFFFFFFFFFFFFFull)
-// #define BCM2711_FIRST_PIN (0)
-// #define BCM2711_LAST_PIN  (57)
-
-#define USER_PINS_MASK_26pin_rev1    (0x0000000003E6CF93ull)
-#define USER_PINS_MASK_26pin_rev2_P1 (0x000000000BC6CF9Cull) // GPIO pin header P1
-#define USER_PINS_MASK_26pin_rev2_P5 (0x00000000F0000000ull) // addon GPIO pin header P5
-#define USER_PINS_MASK_26pin_rev2    (USER_PINS_MASK_26pin_rev2_P1 | USER_PINS_MASK_26pin_rev2_P5)
-
-// 26pin rev2 and 40pin are pin compatible (on the first 26 pins)
-// https://elinux.org/RPi_Low-level_peripherals#General_Purpose_Input.2FOutput_.28GPIO.29
-// https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header
-
-#define USER_PINS_MASK_40pin (0x000000000FFFFFFFull)
-// #define FIRST_USER_PIN_40pin (0)
-// #define LAST_USER_PIN_40pin  (27)
-
-
-
 static RPIHAL_regptr_t gpio_base = NULL; // = PERI_ADR_BASE_x + PERI_ADR_OFFSET_GPIO
 static int usingGpiomem = -1;
 static int sysGpioLocked = 1; // ADDHW check for const RPIHAL_model_t hwModel = RPIHAL_getModel(); before unlocking!
@@ -212,12 +190,9 @@ static int sysGpioLocked = 1; // ADDHW check for const RPIHAL_model_t hwModel = 
 
 
 
-static int checkPin(int pin);
 static int initPin(int pin, const RPIHAL_GPIO_init_t* initStruct);
 static int readPin(int pin);
 static void writePin(int pin, int state);
-static uint64_t getUserPinsMask();
-static uint64_t getBcmPinsMask();
 
 
 
@@ -275,7 +250,7 @@ int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
-    if (gpio_base && initStruct && checkPin(pin)) { r = initPin(pin, initStruct); }
+    if (gpio_base && initStruct && iGPIO_checkPin(pin, sysGpioLocked)) { r = initPin(pin, initStruct); }
     else { r = -(__LINE__); }
 
     return r;
@@ -305,8 +280,8 @@ int RPIHAL_GPIO_readPin(int pin)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) r = readPin(pin);
-    else r = -1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { r = readPin(pin); }
+    else { r = -1; }
 
     return r;
 }
@@ -352,8 +327,8 @@ int RPIHAL_GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) writePin(pin, state);
-    else r = -1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { writePin(pin, state); }
+    else { r = -1; }
 
     return r;
 }
@@ -368,7 +343,7 @@ int RPIHAL_GPIO_set(uint32_t bits)
 
         RPIHAL_regptr_t addr = gpio_base + (GPSET0 / 4);
 
-        const uint32_t mask = (uint32_t)getUserPinsMask();
+        const uint32_t mask = (uint32_t)iGPIO_getUserPinsMask();
         if (mask == 0) { return -(__LINE__); }
 
         BCM2835_reg_write(addr, (bits & mask));
@@ -388,7 +363,7 @@ int RPIHAL_GPIO_clr(uint32_t bits)
 
         RPIHAL_regptr_t addr = gpio_base + (GPCLR0 / 4);
 
-        const uint32_t mask = (uint32_t)getUserPinsMask();
+        const uint32_t mask = (uint32_t)iGPIO_getUserPinsMask();
         if (mask == 0) { return -(__LINE__); }
 
         BCM2835_reg_write(addr, (bits & mask));
@@ -402,8 +377,8 @@ int RPIHAL_GPIO_togglePin(int pin)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) writePin(pin, !readPin(pin));
-    else r = -1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { writePin(pin, !readPin(pin)); }
+    else { r = -1; }
 
     return r;
 }
@@ -416,8 +391,8 @@ int RPIHAL_GPIO_reset()
     {
         RPIHAL_GPIO_init_t initStruct;
 
-        const uint64_t userPinsMask = getUserPinsMask();
-        const uint64_t bcmPinsMask = getBcmPinsMask();
+        const uint64_t userPinsMask = iGPIO_getUserPinsMask();
+        const uint64_t bcmPinsMask = iGPIO_getBcmPinsMask();
         if ((userPinsMask == 0) || (bcmPinsMask == 0)) { return -(__LINE__); }
 
         uint64_t pinBit = 0x01;
@@ -453,7 +428,7 @@ int RPIHAL_GPIO_resetPin(int pin)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin))
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked))
     {
         RPIHAL_GPIO_init_t initStruct;
 
@@ -470,57 +445,17 @@ int RPIHAL_GPIO_resetPin(int pin)
     return r;
 }
 
-void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
-{
-    initStruct->mode = RPIHAL_GPIO_MODE_IN;
-    initStruct->pull = RPIHAL_GPIO_PULL_DOWN;
-    // initStruct->drive = RPIHAL_GPIO_DRIVE_2mA;
-    initStruct->altfunc = RPIHAL_GPIO_AF_0;
-}
+void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct) { iGPIO_defaultInitStruct(initStruct); }
 
-int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
-{
-    int r = 0;
-
-    const RPIHAL_model_t hwModel = RPIHAL_getModel();
-
-    initStruct->mode = RPIHAL_GPIO_MODE_IN;
-
-    int lastPin;
-    if (RPIHAL_model_SoC_peripheral_is_bcm2835(hwModel)) { lastPin = 53; }
-    else if (RPIHAL_model_SoC_peripheral_is_bcm2711(hwModel)) { lastPin = 57; }
-    else
-    {
-        lastPin = 57;
-        r = 1;
-    }
-
-    if (((pin >= 0) && (pin <= 8)) || ((pin >= 34) && (pin <= 36)) || ((pin >= 46) && (pin <= lastPin))) { initStruct->pull = RPIHAL_GPIO_PULL_UP; }
-    else if (((pin >= 9) && (pin <= 27)) || ((pin >= 30) && (pin <= 33)) || ((pin >= 37) && (pin <= 43))) { initStruct->pull = RPIHAL_GPIO_PULL_DOWN; }
-    else initStruct->pull = RPIHAL_GPIO_PULL_NONE;
-
-    initStruct->altfunc = RPIHAL_GPIO_AF_0;
-
-    return r;
-}
+int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct) { return iGPIO_defaultInitStructPin(pin, initStruct); }
 
 RPIHAL_regptr_t RPIHAL_GPIO_getMemBasePtr() { return gpio_base; }
 
 int RPIHAL_GPIO_isUsingGpiomem() { return usingGpiomem; }
 
-int RPIHAL_GPIO_bittopin(uint64_t bit)
-{
-    const int end = 64; // the bit parameter has a 64bit wide type
+int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
 
-    for (int pin = 0; pin < end; ++pin)
-    {
-        if (bit & (1ull << pin)) { return pin; }
-    }
-
-    return -1;
-}
-
-uint64_t RPIHAL_GPIO_pintobit(int pin) { return (1ull << pin); }
+uint64_t RPIHAL_GPIO_pintobit(int pin) { return iGPIO_pintobit(pin); }
 
 
 
@@ -534,7 +469,7 @@ void RPIHAL_GPIO_dumpAltFuncReg(uint64_t pins)
     RPIHAL_regptr_t addr;
     int shift;
     uint32_t regValue;
-    const uint64_t userPinsMask = getUserPinsMask();
+    const uint64_t userPinsMask = iGPIO_getUserPinsMask();
 
     printf("========================================\n");
     printf("%s selected pins: 0x%04x'%04x'%04x'%04x\n", __func__, (int)((pins >> 48) & 0x0FFFFull), (int)((pins >> 32) & 0x0FFFFull),
@@ -617,7 +552,7 @@ void RPIHAL_GPIO_dumpPullUpDnReg(uint64_t pins)
     RPIHAL_regptr_t addr;
     int shift;
     uint32_t regValue;
-    const uint64_t userPinsMask = getUserPinsMask();
+    const uint64_t userPinsMask = iGPIO_getUserPinsMask();
 
     printf("========================================\n");
     printf("%s selected pins: 0x%04x'%04x'%04x'%04x\n", __func__, (int)((pins >> 48) & 0x0FFFFull), (int)((pins >> 32) & 0x0FFFFull),
@@ -676,32 +611,6 @@ void RPIHAL_GPIO_dumpPullUpDnReg(uint64_t pins)
 }
 
 
-
-//! @param pin BCM GPIO pin number
-//! @return Boolean value TRUE (`1`) if it's allowed to access the pin, otherwhise FALSE (`0`)
-int checkPin(int pin)
-{
-    int r = 0;
-
-    // bit of the pin
-    uint64_t bit = 0x01;
-    bit <<= pin;
-
-    uint64_t mask;
-
-    if (sysGpioLocked) { mask = getUserPinsMask(); }
-    else { mask = getBcmPinsMask(); }
-
-    if (mask & bit) r = 1;
-
-    if (!r)
-    {
-        if (sysGpioLocked) { LOG_WRN("system GPIOs are locked"); }
-        LOG_ERR("invalid pin: %i", pin);
-    }
-
-    return r;
-}
 
 /**
  * @return 0 on success
@@ -838,45 +747,4 @@ void writePin(int pin, int state)
     else addr += (GPCLR0 / 4);
 
     BCM2835_reg_write(addr, bit);
-}
-
-/**
- * @return 0 if the hardware model is not supported, otherwise the USER_PINS_MASK_x
- */
-uint64_t getUserPinsMask()
-{
-    uint64_t mask = 0;
-
-    const RPIHAL_model_t hwModel = RPIHAL_getModel();
-
-    if (RPIHAL_model_header_is_26pin(hwModel))
-    {
-#if 0 // ADDHW
-            if (RPIHAL_model_t has to be a bit field, so the rev can be read out of it) { mask = USER_PINS_MASK_26pin_rev; }
-            else if () { mask = USER_PINS_MASK_26pin_rev; }
-            else { mask = 0; }
-#else
-        mask = 0;
-#endif
-    }
-    else if (RPIHAL_model_header_is_40pin(hwModel)) { mask = USER_PINS_MASK_40pin; }
-    else { mask = 0; }
-
-    return mask;
-}
-
-/**
- * @return 0 if the hardware model is not supported, otherwise the BCMx_PINS_MASK
- */
-uint64_t getBcmPinsMask()
-{
-    uint64_t mask = 0;
-
-    const RPIHAL_model_t hwModel = RPIHAL_getModel();
-
-    if (RPIHAL_model_SoC_peripheral_is_bcm2835(hwModel)) { mask = BCM2835_PINS_MASK; }
-    else if (RPIHAL_model_SoC_peripheral_is_bcm2711(hwModel)) { mask = BCM2711_PINS_MASK; }
-    else { mask = 0; }
-
-    return mask;
 }
