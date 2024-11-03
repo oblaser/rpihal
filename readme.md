@@ -13,7 +13,7 @@ The library is now aware of the hardware it's running on.
 > __CAUTION!__ Unexpected behaviour may be observed on alternate functions (see [ANOM1](anomalies.md#anom1---gpio-alternate-function-registers)).
 
 ### Supported Models
-`2B` and newer. Zeros, Compute Modules and the `400` could not yet be tested.
+`2B` and newer. Zeros, Compute Modules, the `400` and the `5` could not yet be tested.
 
 > Search for _ADDHW_ comments in code to find sections which are crucial for implementation of more hardware support.
 
@@ -23,48 +23,10 @@ The library is now aware of the hardware it's running on.
 The main focus lies on Raspberry Pi OS (Raspbian), but it's attempted to make the code compatible to other distros.
 > In fact _Raspberry Pi OS 32bit_ and _Raspberry Pi OS 64bit_ are different distros: _Raspbian_ and a _Debian arm64 port_. See [this article](https://www.tomshardware.com/news/raspberry-pi-os-no-longer-raspbian) on Tom's Hardware for further information.
 
+
+
 ## Build
-
-### Stand Alone, Export Binaries (_lib_ and _include_ directories)
-To build the library stand alone, use the [build.sh](build/build.sh) script, which uses [CMakeLists.txt](build/cmake/CMakeLists.txt). The built libraries (static and shared) are copied to the created _lib_ directory.
-
-The [pack_bin.sh](build/pack_bin.sh) script may then be used to deploy the compiled library.
-
-### Linked to an Application
-Added to another _CMakeLists.txt_, maybe in conjunction with git submodules. The _CMakeLists.txt_ of the application may look like this:
-```cmake
-cmake_minimum_required(VERSION 3.13)
-project(my-app)
-
-# detect if target platform is RasPi (actually any ARM platform, may be improved)
-set(PLAT_IS_RASPI false)
-#message(${CMAKE_SYSTEM_PROCESSOR})
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "(armv[6-8]([A-Z]+|[a-z]+)?)" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-    set(PLAT_IS_RASPI true)
-endif()
-
-include_directories(../../sdk/rpihal/include)
-if(NOT PLAT_IS_RASPI)
-    add_definitions(-DRPIHAL_EMU)
-    set(RPIHAL_CMAKE_CONFIG_EMU true)
-endif()
-add_subdirectory(../../sdk/rpihal/build/cmake/librpihal.a/ ../../sdk/rpihal/build/cmake/librpihal.a/)
-
-
-
-set(BINNAME myapp)
-
-include_directories(../../src/)
-
-set(SOURCES
-../../src/middleware/gpio.cpp
-../../src/middleware/util.cpp
-../../src/main.cpp
-)
-
-add_executable(${BINNAME} ${SOURCES})
-target_link_libraries(${BINNAME} rpihal)
-```
+See [build/readme.md](./build/readme.md) for the different build methods.
 
 ### Build Configuration
 #### CMake
@@ -84,15 +46,20 @@ target_link_libraries(${BINNAME} rpihal)
 
 ## Emulator
 
+### Build
 The emulator can be used to run your project on your working machine. To build the emulator project
 include all the same files as in the main project, plus the [emu.cpp](src/emu/emu.cpp) file (don't include any other
 rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` on the compiler level (not anyehere in
-source nor header files). See the [staircase example](examples/staircase/emu/cmake/CMakeLists.txt#L19) as a reference.
-To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an empty
-console application. Then add all the needed source files and add the include directories.
+source nor header files).
 
+> To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an empty console application. Then add all the needed source files described above and add the include directories.
+
+See the [staircase example](./examples/staircase/emu/) or [rpihal-system-test](https://github.com/oblaser/rpihal-system-test) for reference.
+
+### Usage
 The left and right mouse button can be used to click (push a button) or toggle an input pin.
 
+### Credits
 The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine) for the graphics.
 
 
