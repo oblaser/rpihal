@@ -59,7 +59,7 @@ typedef enum // see https://www.raspberrypi.com/documentation/computers/processo
 
     // BCM2837
     RPIHAL_model_bcm2837 = 3000,
-    RPIHAL_model_2B_v1_2 = 3010, // `2B v1.2`       Raspberry Pi 2 Model B v1.2
+    RPIHAL_model_2B_v1_2 = 3010, // `2B v1.2`       Raspberry Pi 2 Model B v1.2 ; doesn't matter to the HAL, peripheral base address is the same
     RPIHAL_model_3B = 3020,      // `3B`            Raspberry Pi 3 Model B
     RPIHAL_model_cm3 = 3030,     // `CM3`           Raspberry Pi Compute Module 3
     RPIHAL_model_z2W = 3040,     // `Zero 2 W`      Raspberry Pi Zero 2 W
@@ -87,12 +87,9 @@ typedef enum // see https://www.raspberrypi.com/documentation/computers/processo
 
 
 RPIHAL_model_t RPIHAL_getModel();
-const char* RPIHAL_getModelStr(uint64_t modelId);
 
-/**
- * Temporary hack, needed until auto detection in `RPIHAL_getModel()` is implemented.
- */
-void RPIHAL___setModel___(RPIHAL_model_t model);
+const char* RPIHAL_dt_compatible();
+const char* RPIHAL_dt_model();
 
 static inline int RPIHAL_model_SoC_is_bcm2835(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2835) && (model < RPIHAL_model_bcm2836) ? 1 : 0); }
 static inline int RPIHAL_model_SoC_is_bcm2836(RPIHAL_model_t model) { return ((model >= RPIHAL_model_bcm2836) && (model < RPIHAL_model_bcm2837) ? 1 : 0); }
