@@ -61,8 +61,9 @@ RPIHAL_model_t RPIHAL_getModel()
     if ((model == RPIHAL_model_unknown) && p)
     {
         const char* const boardMake = p;
-        const char* const boardModel = strchr(p, ',') + 1;
-        const char* const cpuMakeModel = strchr(boardModel, ',') + 1;
+        const char* const boardModel = strchr(boardMake, ',') + 1;
+        const char* const cpuMake = strchr(boardModel, ',') + 1;
+        const char* const cpuModel = strchr(cpuMake, ',') + 1;
 
         if (boardModel)
         {
@@ -71,19 +72,30 @@ RPIHAL_model_t RPIHAL_getModel()
             if (strncmp(boardModel, "2-model-b,", 10) == 0)
             {
                 model = RPIHAL_model_2B;
-
-                // TODO check CPU
-                // model = RPIHAL_model_2B_v1_2;
+                if (strncmp(cpuModel, "bcm2837", 8) == 0) { model = RPIHAL_model_2B_v1_2; }
             }
-            else if (strncmp(boardModel, ",", ) == 0) { model = RPIHAL_model_3B; }
-            else if (strncmp(boardModel, ",", ) == 0) { model = RPIHAL_model_cm3; }
-            else if (strncmp(boardModel, ",", ) == 0) { model = RPIHAL_model_z2W; }
-            else if (strncmp(boardModel, ",", ) == 0) { model = RPIHAL_model_3Ap; }
+            else if (strncmp(boardModel, "3-model-b,", 10) == 0) { model = RPIHAL_model_3B; }
+            else if (strncmp(boardModel, "3-compute-module,", 17) == 0) { model = RPIHAL_model_cm3; }
+            else if (strncmp(boardModel, "model-zero-2-w,", 15) == 0) { model = RPIHAL_model_z2W; }
+            else if (strncmp(boardModel, "3-model-a-plus,", 15) == 0) { model = RPIHAL_model_3Ap; }
             else if (strncmp(boardModel, "3-model-b-plus,", 15) == 0) { model = RPIHAL_model_3Bp; }
-            else if (strncmp(boardModel, ",", ) == 0) { model = RPIHAL_model_cm3p; }
-            else if (strncmp(boardModel, ",", ) == 0) { model = RPIHAL_model_4B; }
+            else if (strncmp(boardModel, "3-compute-module-plus,", 22) == 0) { model = RPIHAL_model_cm3p; } // guessed "-plus"
+            else if (strncmp(boardModel, "4-model-b,", 10) == 0) { model = RPIHAL_model_4B; }
             else if (strncmp(boardModel, "400,", 4) == 0) { model = RPIHAL_model_400; }
-            else if (strncmp(boardModel, ",", ) == 0) { model = RPIHAL_model_cm4; }
+            else if (strncmp(boardModel, "4-compute-module,", 17) == 0) { model = RPIHAL_model_cm4; }
+
+
+
+            if ((strncmp(boardMake, "raspberrypi,", 10) != 0) || (strncmp(cpuMake, "brcm,", 5) != 0)) { LOG_WRN("unknown manufacturers: %s", p); }
+
+            if ((RPIHAL_model_SoC_is_bcm2835(model) && (strncmp(cpuModel, "bcm2835", 8) != 0)) ||
+                (RPIHAL_model_SoC_is_bcm2836(model) && (strncmp(cpuModel, "bcm2836", 8) != 0)) ||
+                (RPIHAL_model_SoC_is_bcm2837_any(model) && (strncmp(cpuModel, "bcm2837", 8) != 0)) ||
+                (RPIHAL_model_SoC_is_bcm2711(model) && (strncmp(cpuModel, "bcm2711", 8) != 0)) ||
+                (RPIHAL_model_SoC_is_bcm2712(model) && (strncmp(cpuModel, "bcm2712", 8) != 0)))
+            {
+                LOG_WRN("mismatch: detected board model: %llu 0x%016llx, read CPU model: %s", (uint64_t)model, (uint64_t)model, cpuModel);
+            }
         }
 
         if (model == RPIHAL_model_unknown) { LOG_ERR("unknown board: %s", p); }
@@ -154,8 +166,9 @@ void readDeviceTreeCompatible()
 
     if (sz > 0)
     {
-        // replace null characters with ',', except for the terminating null
-        for (ssize_t i = 0; i < sz; ++i)
+        // replace null characters with ',', except for the terminating null (the last char in the file is null and readAllText appends a null, so the buffer
+        // contains two null chars at the end)
+        for (ssize_t i = 0; i < (sz - 1); ++i)
         {
             if (deviceTreeCompatibleBuffer[i] == '\0') { deviceTreeCompatibleBuffer[i] = ','; }
         }

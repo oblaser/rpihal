@@ -20,7 +20,7 @@ The library is now aware of the hardware it's running on.
 
 
 ## Portability
-The main focus lies on Raspberry Pi OS (Raspbian), but it's attempted to make the code compatible to other distros.
+The main focus lies on Raspberry Pi OS, but it's attempted to make the code compatible to other distros.
 > In fact _Raspberry Pi OS 32bit_ and _Raspberry Pi OS 64bit_ are different distros: _Raspbian_ and a _Debian arm64 port_. See [this article](https://www.tomshardware.com/news/raspberry-pi-os-no-longer-raspbian) on Tom's Hardware for further information.
 
 
