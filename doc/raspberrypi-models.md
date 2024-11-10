@@ -1,3 +1,4 @@
+https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#check-raspberry-pi-model-and-cpu-across-distributions
 
 #### 2024-03-15-raspios-bookworm-armhf
 | Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
@@ -10,11 +11,11 @@
 | CM         |                                                    | `Raspberry Pi Compute Module Rev 1.0` |
 | 2B (pre rev 1.2) |                                              | `Raspberry Pi 2 Model B Rev 1.1`      |
 | 2B rev 1.2 |                                                    | `Raspberry Pi 2 Model B Rev 1.2`      |
-| 3B         |                                                    | `Raspberry Pi 3 Model B Rev 1.2`      |
+| 3B         | `raspberrypi,3-model-b`&#x2400;`brcm,bcm2837`      | `Raspberry Pi 3 Model B Rev 1.2`      |
 | CM3        |                                                    | `Raspberry Pi Compute Module 3 Rev 1.0` |
 | Z2W        | `raspberrypi,model-zero-2-w`&#x2400;`brcm,bcm2837` | `Raspberry Pi Zero 2 W Rev 1.0`       |
-| 3A+        | `raspberrypi,3-model-b-plus`&#x2400;`brcm,bcm2837` | `Raspberry Pi 3 Model A Plus Rev 1.0` |
-| 3B+        |                                                    | `Raspberry Pi 3 Model B Plus Rev 1.3` |
+| 3A+        | `raspberrypi,3-model-b-plus`&#x2400;`brcm,bcm2837` [^1] | `Raspberry Pi 3 Model A Plus Rev 1.0` |
+| 3B+        | `raspberrypi,3-model-b-plus`&#x2400;`brcm,bcm2837` | `Raspberry Pi 3 Model B Plus Rev 1.3` |
 | CM3+       |                                                    | `Raspberry Pi Compute Module 3 Plus Rev 1.0` |
 | 4B         | `raspberrypi,4-model-b`&#x2400;`brcm,bcm2711`      | `Raspberry Pi 4 Model B Rev 1.1`</br>`Raspberry Pi 4 Model B Rev 1.2`</br>`Raspberry Pi 4 Model B Rev 1.4` |
 | 400        | `raspberrypi,400`&#x2400;`brcm,bcm2711`            | `Raspberry Pi 400 Rev 1.0`            |
@@ -63,3 +64,5 @@ cat /proc/device-tree/compatible | tr '\0' '\n' ; echo "##########" ; cat /proc/
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
 - https://github.com/AndrewFromMelbourne/raspberry_pi_revision
 - https://gist.github.com/jperkin/c37a574379ef71e339361954be96be12
+
+[^1]: Some models (3A+, A, A+) will use the "b" equivalents (3B+, B, B+), respectively: https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/configuration/device-tree.adoc#dtbs-overlays-and-configtxt

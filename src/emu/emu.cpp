@@ -463,23 +463,23 @@ bool EmuPge::OnUserUpdate(float tElapsed)
             auto pos = headerPos + vi2d(0, (i / 2) * size);
             const auto& pin = pins[i];
 
-            if (i & 1) pos.x += size;
+            if (i & 1) { pos.x += size; }
 
             auto pixel = RED;
 
-            if (pin.is5V()) pixel = Pixel(150, 33, 30);
-            else if (pin.is3V3()) pixel = Pixel(130, 100, 6);
-            else if (pin.isGnd()) pixel = Pixel(0, 0, 0);
-            // else if (pin.isId()) pixel = Pixel(160, 160, 160);
+            if (pin.is5V()) { pixel = Pixel(150, 33, 30); }
+            else if (pin.is3V3()) { pixel = Pixel(130, 100, 6); }
+            else if (pin.isGnd()) { pixel = Pixel(0, 0, 0); }
+            // else if (pin.isId()) { pixel = Pixel(160, 160, 160); }
             else if (pin.isGpio())
             {
                 const auto& gpio = pin.gpio();
 
-                if (gpio.isInput()) pixel = (gpio.read() ? CYAN : CYAN / 3);
-                else if (gpio.isOutput()) pixel = (gpio.read() ? GREEN : GREEN / 3);
-                else if (gpio.isAltFunc()) pixel = Pixel(94, 0, 181);
+                if (gpio.isInput()) { pixel = (gpio.read() ? CYAN : CYAN / 3); }
+                else if (gpio.isOutput()) { pixel = (gpio.read() ? GREEN : GREEN / 3); }
+                else if (gpio.isAltFunc()) { pixel = Pixel(94, 0, 181); }
             }
-            else pixel = Pixel(50, 50, 50);
+            else { pixel = Pixel(50, 50, 50); }
 
             FillCircle(pos, (int32_t)(radius + 0.5), pixel);
 
@@ -512,9 +512,9 @@ bool EmuPge::OnUserUpdate(float tElapsed)
 
                         mouseColor = WHITE;
                     }
-                    else mouseColor = GREEN;
+                    else { mouseColor = GREEN; }
 
-                    if (pins[i].isId()) mouseColor = RED;
+                    if (pins[i].isId()) { mouseColor = RED; }
                 }
                 catch (...)
                 {
@@ -652,7 +652,6 @@ private:
     std::string m_model;
 };
 
-// https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#check-raspberry-pi-model-and-cpu-across-distributions
 static const std::map<RPIHAL_model_t, RPIHAL_EMU_dt_comp_model> rpihal_emu_dt_comp_model_map = {
     // clang-format off
     { RPIHAL_model_unknown, RPIHAL_EMU_dt_comp_model("raspberrypi,?,brcm,?",                                        "unknown"                                             ) },
@@ -661,7 +660,7 @@ static const std::map<RPIHAL_model_t, RPIHAL_EMU_dt_comp_model> rpihal_emu_dt_co
     { RPIHAL_model_3B,      RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b,brcm,bcm2837",                          "Raspberry Pi 3 Model B Rev 1.2"                      ) },
     { RPIHAL_model_cm3,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-compute-module,brcm,bcm2837",                   "Raspberry Pi Compute Module 3 Rev 1.0"               ) },
     { RPIHAL_model_z2W,     RPIHAL_EMU_dt_comp_model("raspberrypi,model-zero-2-w,brcm,bcm2837",                     "Raspberry Pi Zero 2 W Rev 1.0"                       ) },
-    { RPIHAL_model_3Ap,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-a-plus,brcm,bcm2837",                     ""                                                    ) },
+    { RPIHAL_model_3Ap,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b-plus,brcm,bcm2837",                     "Raspberry Pi 3 Model A Plus Rev 1.0"                 ) }, // yes ..-b-.. is correct, see /doc/raspberrypi-models.md
     { RPIHAL_model_3Bp,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b-plus,brcm,bcm2837",                     "Raspberry Pi 3 Model B Plus Rev 1.3"                 ) },
     { RPIHAL_model_cm3p,    RPIHAL_EMU_dt_comp_model("raspberrypi,3-compute-module-plus,brcm,bcm2837",              "Raspberry Pi Compute Module 3 Plus Rev 1.0"          ) },
     { RPIHAL_model_4B,      RPIHAL_EMU_dt_comp_model("raspberrypi,4-model-b,brcm,bcm2711",                          "Raspberry Pi 4 Model B Rev 1.1"                      ) },
@@ -682,7 +681,7 @@ const char* RPIHAL_dt_compatible()
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %llu 0x%llx", __func__, (uint64_t)rpihal_emu_rpi_model, (uint64_t)rpihal_emu_rpi_model);
+        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_rpi_model, (uint64_t)rpihal_emu_rpi_model);
     }
 
     return r;
@@ -698,7 +697,7 @@ const char* RPIHAL_dt_model()
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %llu 0x%llx", __func__, (uint64_t)rpihal_emu_rpi_model, (uint64_t)rpihal_emu_rpi_model);
+        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_rpi_model, (uint64_t)rpihal_emu_rpi_model);
     }
 
     return r;

@@ -56,37 +56,44 @@ RPIHAL_model_t RPIHAL_getModel()
 {
     static RPIHAL_model_t model = RPIHAL_model_unknown;
 
-    const char* const p = RPIHAL_dt_compatible();
+    const char* const dtModel = RPIHAL_dt_model();
 
-    if ((model == RPIHAL_model_unknown) && p)
+    if ((model == RPIHAL_model_unknown) && dtModel)
     {
-        const char* const boardMake = p;
-        const char* const boardModel = strchr(boardMake, ',') + 1;
-        const char* const cpuMake = strchr(boardModel, ',') + 1;
-        const char* const cpuModel = strchr(cpuMake, ',') + 1;
+        // see /doc/raspberrypi-models.md
 
-        if (boardModel)
+        if (strncmp(dtModel, "Raspberry Pi ", 13) == 0)
         {
-            // https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#check-raspberry-pi-model-and-cpu-across-distributions
+            const char* const modelStr = dtModel + 13;
 
-            if (strncmp(boardModel, "2-model-b,", 10) == 0)
+            if (strncmp(modelStr, "2 Model B Rev ", 14) == 0)
             {
-                model = RPIHAL_model_2B;
-                if (strncmp(cpuModel, "bcm2837", 8) == 0) { model = RPIHAL_model_2B_v1_2; }
-            }
-            else if (strncmp(boardModel, "3-model-b,", 10) == 0) { model = RPIHAL_model_3B; }
-            else if (strncmp(boardModel, "3-compute-module,", 17) == 0) { model = RPIHAL_model_cm3; }
-            else if (strncmp(boardModel, "model-zero-2-w,", 15) == 0) { model = RPIHAL_model_z2W; }
-            else if (strncmp(boardModel, "3-model-a-plus,", 15) == 0) { model = RPIHAL_model_3Ap; }
-            else if (strncmp(boardModel, "3-model-b-plus,", 15) == 0) { model = RPIHAL_model_3Bp; }
-            else if (strncmp(boardModel, "3-compute-module-plus,", 22) == 0) { model = RPIHAL_model_cm3p; } // guessed "-plus"
-            else if (strncmp(boardModel, "4-model-b,", 10) == 0) { model = RPIHAL_model_4B; }
-            else if (strncmp(boardModel, "400,", 4) == 0) { model = RPIHAL_model_400; }
-            else if (strncmp(boardModel, "4-compute-module,", 17) == 0) { model = RPIHAL_model_cm4; }
+                if (strncmp(modelStr + 14, "1.2", 4) == 0) { model = RPIHAL_model_2B_v1_2; }                  // to be tested
+                else { model = RPIHAL_model_2B; }                                                             // to be tested
+            }                                                                                                 //
+            else if (strncmp(modelStr, "3 Model B Rev ", 14) == 0) { model = RPIHAL_model_3B; }               // test OK
+            else if (strncmp(modelStr, "Compute Module 3 Rev ", 21) == 0) { model = RPIHAL_model_cm3; }       // to be tested
+            else if (strncmp(modelStr, "Zero 2 W Rev ", 13) == 0) { model = RPIHAL_model_z2W; }               // test OK
+            else if (strncmp(modelStr, "3 Model A Plus Rev ", 19) == 0) { model = RPIHAL_model_3Ap; }         // test OK
+            else if (strncmp(modelStr, "3 Model B Plus Rev ", 19) == 0) { model = RPIHAL_model_3Bp; }         // test OK
+            else if (strncmp(modelStr, "Compute Module 3 Plus Rev ", 26) == 0) { model = RPIHAL_model_cm3p; } // to be tested
+            else if (strncmp(modelStr, "4 Model B Rev ", 14) == 0) { model = RPIHAL_model_4B; }               // test OK
+            else if (strncmp(modelStr, "400 Rev ", 8) == 0) { model = RPIHAL_model_400; }                     // to be tested
+            else if (strncmp(modelStr, "Compute Module 4 Rev ", 21) == 0) { model = RPIHAL_model_cm4; }       // guessed, to be tested
+        }
 
 
 
-            if ((strncmp(boardMake, "raspberrypi,", 10) != 0) || (strncmp(cpuMake, "brcm,", 5) != 0)) { LOG_WRN("unknown manufacturers: %s", p); }
+        const char* const dtCompatible = RPIHAL_dt_compatible();
+
+        if (dtCompatible)
+        {
+            const char* const boardMake = dtCompatible;
+            const char* const boardModel = strchr(boardMake, ',') + 1;
+            const char* const cpuMake = strchr(boardModel, ',') + 1;
+            const char* const cpuModel = strchr(cpuMake, ',') + 1;
+
+            if ((strncmp(boardMake, "raspberrypi,", 12) != 0) || (strncmp(cpuMake, "brcm,", 5) != 0)) { LOG_WRN("unknown manufacturers: %s", dtCompatible); }
 
             if ((RPIHAL_model_SoC_is_bcm2835(model) && (strncmp(cpuModel, "bcm2835", 8) != 0)) ||
                 (RPIHAL_model_SoC_is_bcm2836(model) && (strncmp(cpuModel, "bcm2836", 8) != 0)) ||
@@ -97,8 +104,14 @@ RPIHAL_model_t RPIHAL_getModel()
                 LOG_WRN("mismatch: detected board model: %llu 0x%016llx, read CPU model: %s", (uint64_t)model, (uint64_t)model, cpuModel);
             }
         }
+    }
 
-        if (model == RPIHAL_model_unknown) { LOG_ERR("unknown board: %s", p); }
+
+
+    if (model == RPIHAL_model_unknown)
+    {
+        const char* const dtCompatible = RPIHAL_dt_compatible();
+        LOG_ERR("unknown board: %s - %s", (dtCompatible ? dtCompatible : "<null>"), (dtModel ? dtModel : "<null>"));
     }
 
     return model;
