@@ -196,17 +196,3 @@ void readDeviceTreeModel()
 
     if (sz > 0) { deviceTreeModelPtr = deviceTreeModelBuffer; }
 }
-
-
-
-//======================================================================================================================
-// Emulator
-
-int RPIHAL_EMU_init(RPIHAL_model_t model)
-{
-    (void)model;
-    return 0;
-}
-
-void RPIHAL_EMU_cleanup() { return; }
-int RPIHAL_EMU_isRunning() { return 0; }

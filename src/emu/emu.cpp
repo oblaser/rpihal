@@ -310,7 +310,10 @@ public:
 
         try
         {
-            m_pins[emu::gpioPin_to_pinIdx(pin)] = gpio;
+            const size_t idx = emu::gpioPin_to_pinIdx(pin);
+            const bool state = m_pins[idx].getState();
+            m_pins[idx] = gpio;
+            m_pins[idx].setState(state);
 
             r = 0;
         }
@@ -635,7 +638,7 @@ static void emuMain()
 //======================================================================================================================
 // rpihal.h
 
-static RPIHAL_model_t rpihal_emu_rpi_model = RPIHAL_model_unknown;
+static RPIHAL_model_t rpihal_emu_model = RPIHAL_model_unknown;
 
 class RPIHAL_EMU_dt_comp_model
 {
@@ -669,7 +672,7 @@ static const std::map<RPIHAL_model_t, RPIHAL_EMU_dt_comp_model> rpihal_emu_dt_co
     // clang-format on
 };
 
-RPIHAL_model_t RPIHAL_getModel() { return rpihal_emu_rpi_model; }
+RPIHAL_model_t RPIHAL_getModel() { return rpihal_emu_model; }
 
 const char* RPIHAL_dt_compatible()
 {
@@ -677,11 +680,11 @@ const char* RPIHAL_dt_compatible()
 
     try
     {
-        r = rpihal_emu_dt_comp_model_map.at(rpihal_emu_rpi_model).compatible().c_str();
+        r = rpihal_emu_dt_comp_model_map.at(rpihal_emu_model).compatible().c_str();
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_rpi_model, (uint64_t)rpihal_emu_rpi_model);
+        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_model, (uint64_t)rpihal_emu_model);
     }
 
     return r;
@@ -693,11 +696,11 @@ const char* RPIHAL_dt_model()
 
     try
     {
-        r = rpihal_emu_dt_comp_model_map.at(rpihal_emu_rpi_model).model().c_str();
+        r = rpihal_emu_dt_comp_model_map.at(rpihal_emu_model).model().c_str();
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_rpi_model, (uint64_t)rpihal_emu_rpi_model);
+        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_model, (uint64_t)rpihal_emu_model);
     }
 
     return r;
@@ -707,7 +710,7 @@ int RPIHAL_EMU_init(RPIHAL_model_t model)
 {
     int r = -1;
 
-    rpihal_emu_rpi_model = model;
+    rpihal_emu_model = model;
     thread_pge_sd.setModelStr(RPIHAL_dt_model());
 
     try
@@ -725,6 +728,19 @@ int RPIHAL_EMU_init(RPIHAL_model_t model)
     }
 
     return r;
+}
+
+void RPIHAL_ENU_setInitialGpioState(uint64_t mask)
+{
+    // const uint64_t pinsMask = iGPIO_getBcmPinsMask();
+    const uint64_t pinsMask = iGPIO_getUserPinsMask();
+
+    for (int pin = 0; pin < 64; ++pin)
+    {
+        const uint64_t m = (1llu << pin);
+
+        if (m & pinsMask) { thread_pge_sd.setGpioState(pin, (mask & m) != 0); }
+    }
 }
 
 void RPIHAL_EMU_cleanup()
