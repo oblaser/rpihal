@@ -41,9 +41,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-#define BCM2835_PINS_MASK (0x003FFFFFFFFFFFFFull)
-// #define BCM2835_FIRST_PIN (0)
-// #define BCM2835_LAST_PIN  (53)
+#define BCM283x_PINS_MASK (0x003FFFFFFFFFFFFFull) // where x = 5, 6, 7
+// #define BCM283x_FIRST_PIN (0)
+// #define BCM283x_LAST_PIN  (53)
 
 #define BCM2711_PINS_MASK (0x03FFFFFFFFFFFFFFull)
 // #define BCM2711_FIRST_PIN (0)
@@ -117,7 +117,7 @@ uint64_t iGPIO_getBcmPinsMask()
 
     const RPIHAL_model_t hwModel = RPIHAL_getModel();
 
-    if (RPIHAL_model_SoC_peripheral_is_bcm2835(hwModel)) { mask = BCM2835_PINS_MASK; }
+    if (RPIHAL_model_SoC_peripheral_is_bcm283x(hwModel)) { mask = BCM283x_PINS_MASK; }
     else if (RPIHAL_model_SoC_peripheral_is_bcm2711(hwModel)) { mask = BCM2711_PINS_MASK; }
     else { mask = 0; }
 
@@ -141,7 +141,7 @@ int iGPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
     initStruct->mode = RPIHAL_GPIO_MODE_IN;
 
     int lastPin;
-    if (RPIHAL_model_SoC_peripheral_is_bcm2835(hwModel)) { lastPin = 53; }
+    if (RPIHAL_model_SoC_peripheral_is_bcm283x(hwModel)) { lastPin = 53; }
     else if (RPIHAL_model_SoC_peripheral_is_bcm2711(hwModel)) { lastPin = 57; }
     else
     {

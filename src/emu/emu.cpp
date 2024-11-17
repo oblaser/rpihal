@@ -558,7 +558,7 @@ bool EmuPge::OnUserUpdate(float tElapsed)
 
             if (mouseDownWasOnSlider)
             {
-                value = (float)(mousePos.y) - origY - mouseOffset;
+                value = mousePos.y - origY - mouseOffset;
                 clamp(value, 0, len);
             }
             else

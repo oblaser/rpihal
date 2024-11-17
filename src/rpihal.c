@@ -78,7 +78,7 @@ RPIHAL_model_t RPIHAL_getModel()
             else if (strncmp(modelStr, "3 Model B Plus Rev ", 19) == 0) { model = RPIHAL_model_3Bp; }         // test OK
             else if (strncmp(modelStr, "Compute Module 3 Plus Rev ", 26) == 0) { model = RPIHAL_model_cm3p; } // to be tested
             else if (strncmp(modelStr, "4 Model B Rev ", 14) == 0) { model = RPIHAL_model_4B; }               // test OK
-            else if (strncmp(modelStr, "400 Rev ", 8) == 0) { model = RPIHAL_model_400; }                     // to be tested
+            else if (strncmp(modelStr, "400 Rev ", 8) == 0) { model = RPIHAL_model_400; }                     // test OK
             else if (strncmp(modelStr, "Compute Module 4 Rev ", 21) == 0) { model = RPIHAL_model_cm4; }       // guessed, to be tested
         }
 

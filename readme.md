@@ -54,7 +54,7 @@ source nor header files).
 
 > To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an empty console application. Then add all the needed source files described above and add the include directories.
 
-See the [staircase example](./examples/staircase/emu/) or [rpihal-system-test](https://github.com/oblaser/rpihal-system-test) for reference.
+See the [rpihal-system-test](https://github.com/oblaser/rpihal-system-test) for reference.
 
 ### Usage
 The left and right mouse button can be used to click (push a button) or toggle an input pin.
