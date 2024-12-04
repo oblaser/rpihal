@@ -23,6 +23,12 @@ https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#check-rasp
 | 5          |                                                    | `Raspberry Pi 5 Model B Rev 1.0`      |
 
 
+#### 2024-03-15-raspios-bookworm-arm64
+| Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
+|:---:|:---|:---|
+| 4B         | `raspberrypi,4-model-b`&#x2400;`brcm,bcm2711`      | `Raspberry Pi 4 Model B Rev 1.5`      |
+
+
 #### 2022-04-04 raspbian lite
 | Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
 |:---:|:---|:---|
