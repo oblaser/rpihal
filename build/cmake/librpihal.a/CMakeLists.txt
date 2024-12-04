@@ -20,16 +20,23 @@ set(BINNAME rpihal)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../../include/)
 
+set(SOURCES_INTERNAL
+../../../src/internal/gpio.c
+../../../src/internal/util.c
+)
+
 if(RPIHAL_CMAKE_CONFIG_EMU)
 
     # note that the RPIHAL_EMU symbol has to be defined on project level
-    set(SOURCES ../../../src/emu/emu.cpp)
+    set(SOURCES 
+    ${SOURCES_INTERNAL}
+    ../../../src/emu/emu.cpp
+    )
 
 else() # RPIHAL_CMAKE_CONFIG_EMU
 
     set(SOURCES
-    ../../../src/internal/gpio.c
-    ../../../src/internal/util.c
+    ${SOURCES_INTERNAL}
     ../../../src/gpio.c
     ../../../src/i2c.c
     ../../../src/int.c
