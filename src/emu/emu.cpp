@@ -42,8 +42,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "emu.h"
 
+
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // still reported
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+
 
 #define LOG_MODULE_LEVEL LOG_LEVEL_INF
 #define LOG_MODULE_NAME  RPIHAL_EMU
@@ -452,8 +466,6 @@ bool EmuPge::OnUserUpdate(float tElapsed)
         const auto headerPos = vi2d(700, 50);
         constexpr int32_t size = 30;
 
-        const auto pcbColor = Pixel(0x5f, 0x86, 0x45);
-
         FillRect(headerPos - vi2d(size, size) / 2, vi2d(2 * size, 20 * size), Pixel(10, 10, 10));
 
         int mousePin = -1;
@@ -684,7 +696,7 @@ const char* RPIHAL_dt_compatible()
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_model, (uint64_t)rpihal_emu_model);
+        LOG_ERR("%s failed for %lli 0x%016llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
     }
 
     return r;
@@ -700,7 +712,7 @@ const char* RPIHAL_dt_model()
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %llu 0x%016llx", __func__, (uint64_t)rpihal_emu_model, (uint64_t)rpihal_emu_model);
+        LOG_ERR("%s failed for %lli 0x%016llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
     }
 
     return r;
