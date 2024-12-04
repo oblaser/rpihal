@@ -101,7 +101,7 @@ RPIHAL_model_t RPIHAL_getModel()
                 (RPIHAL_model_SoC_is_bcm2711(model) && (strncmp(cpuModel, "bcm2711", 8) != 0)) ||
                 (RPIHAL_model_SoC_is_bcm2712(model) && (strncmp(cpuModel, "bcm2712", 8) != 0)))
             {
-                LOG_WRN("mismatch: detected board model: %llu 0x%016llx, read CPU model: %s", (uint64_t)model, (uint64_t)model, cpuModel);
+                LOG_WRN("mismatch: detected board model: %llu 0x%08llx, read CPU model: %s", (long long unsigned)model, (long long)model, cpuModel);
             }
         }
     }

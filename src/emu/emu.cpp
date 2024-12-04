@@ -696,7 +696,7 @@ const char* RPIHAL_dt_compatible()
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %lli 0x%016llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
+        LOG_ERR("%s failed for %lli 0x%08llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
     }
 
     return r;
@@ -712,7 +712,7 @@ const char* RPIHAL_dt_model()
     }
     catch (...)
     {
-        LOG_ERR("%s failed for %lli 0x%016llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
+        LOG_ERR("%s failed for %lli 0x%08llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
     }
 
     return r;

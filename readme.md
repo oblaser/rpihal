@@ -44,6 +44,8 @@ See [build/readme.md](./build/readme.md) for the different build methods.
 
 
 
+---
+
 ## Emulator
 
 ### Build
@@ -72,4 +74,3 @@ The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLon
   - `RPIHAL_GPIO_bittopin`
   - `RPIHAL_GPIO_pintobit`
   - `RPIHAL_ui128_..`
-- test log module and levels
