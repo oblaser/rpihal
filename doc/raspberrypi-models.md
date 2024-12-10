@@ -26,6 +26,7 @@ https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#check-rasp
 #### 2024-03-15-raspios-bookworm-arm64
 | Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
 |:---:|:---|:---|
+| 3B+        | `raspberrypi,3-model-b-plus`&#x2400;`brcm,bcm2837` | `Raspberry Pi 3 Model B Plus Rev 1.4` |
 | 4B         | `raspberrypi,4-model-b`&#x2400;`brcm,bcm2711`      | `Raspberry Pi 4 Model B Rev 1.5`      |
 
 
