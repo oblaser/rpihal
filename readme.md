@@ -1,3 +1,5 @@
+> **The [v0.2](https://github.com/oblaser/rpihal/tree/v0.2) brach has seen nice progress and will soon be merged to mein** 😉
+
 # raspihal
 
 A Raspberry Pi Hardware Abstraction Layer for C/C++ projects.
