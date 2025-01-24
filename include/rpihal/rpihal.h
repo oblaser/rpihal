@@ -64,6 +64,7 @@ typedef enum
     RPIHAL_model_z =            0x00015000, // `Zero`               Raspberry Pi Zero
     RPIHAL_model_zW =           0x00016000, // `Zero W`/`Zero WH`   Raspberry Pi Zero W/WH
     RPIHAL_model_cm1 =          0x00017000, // `CM1`                Raspberry Pi Compute Module 1
+    #error "rev needs to be encoded in the model number"// see "ADDHW" in `iGPIO_getUserPinsMask()`
 #endif
 
     // BCM2836
@@ -91,7 +92,7 @@ typedef enum
 
     // BCM2712
     RPIHAL_model_bcm2712 =      0x00060000,
-#if 0 // ADDHW // peripherals should be the same as BCM2711, to be tested/researched (UART differs)
+#if 0 // ADDHW // peripherals should be the same as BCM2711, but has to be tested/researched (UART differs, but that shouldn't matter since UART is used via OS)
     RPIHAL_model_5 =            0x00061000, // `5`                  Raspberry Pi 5
 #endif
 

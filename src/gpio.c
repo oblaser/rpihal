@@ -643,7 +643,7 @@ int initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 
     // pull up/down
 
-    if (RPIHAL_model_SoC_peripheral_is_bcm2835(hwModel))
+    if (RPIHAL_model_SoC_peripheral_is_bcm283x(hwModel))
     {
         // 1. Write to GPPUD to set the required control signal (i.e. Pull-up or Pull-Down or neither to remove the
         //    current Pull-up/down)
