@@ -1,12 +1,12 @@
 https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#check-raspberry-pi-model-and-cpu-across-distributions
 
 #### 2024-03-15-raspios-bookworm-armhf
-| Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
-|:---:|:---|:---|
+| Model      | `/proc/device-tree/compatible`                     | `/proc/device-tree/model`             |
+|:----------:|:---------------------------------------------------|:--------------------------------------|
 | B rev 1    | `raspberrypi,model-b`&#x2400;`brcm,bcm2835`        | `Raspberry Pi Model B Rev 1`          |
 | B rev 2    | `raspberrypi,model-b`&#x2400;`brcm,bcm2835`        | `Raspberry Pi Model B Rev 2`          |
 | B+ rev 1.2 |                                                    | `Raspberry Pi Model B Plus Rev 1.2`   |
-| Z          |  |  |
+| Z          |                                                    |                                       |
 | ZW         |                                                    | `Raspberry Pi Zero W Rev 1.1`         |
 | CM         |                                                    | `Raspberry Pi Compute Module Rev 1.0` |
 | 2B (pre rev 1.2) |                                              | `Raspberry Pi 2 Model B Rev 1.1`      |
@@ -19,29 +19,29 @@ https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#check-rasp
 | CM3+       |                                                    | `Raspberry Pi Compute Module 3 Plus Rev 1.0` |
 | 4B         | `raspberrypi,4-model-b`&#x2400;`brcm,bcm2711`      | `Raspberry Pi 4 Model B Rev 1.1`</br>`Raspberry Pi 4 Model B Rev 1.2`</br>`Raspberry Pi 4 Model B Rev 1.4` |
 | 400        | `raspberrypi,400`&#x2400;`brcm,bcm2711`            | `Raspberry Pi 400 Rev 1.0`            |
-| CM4        |  |  |
+| CM4        |                                                    |                                       |
 | 5          |                                                    | `Raspberry Pi 5 Model B Rev 1.0`      |
 
 
 #### 2024-03-15-raspios-bookworm-arm64
-| Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
-|:---:|:---|:---|
+| Model      | `/proc/device-tree/compatible`                     | `/proc/device-tree/model`             |
+|:----------:|:---------------------------------------------------|:--------------------------------------|
 | 3B+        | `raspberrypi,3-model-b-plus`&#x2400;`brcm,bcm2837` | `Raspberry Pi 3 Model B Plus Rev 1.4` |
 | 4B         | `raspberrypi,4-model-b`&#x2400;`brcm,bcm2711`      | `Raspberry Pi 4 Model B Rev 1.5`      |
 
 
 #### 2022-04-04 raspbian lite
-| Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
-|:---:|:---|:---|
+| Model      | `/proc/device-tree/compatible`                     | `/proc/device-tree/model`             |
+|:----------:|:---------------------------------------------------|:--------------------------------------|
 | 3B         | `raspberrypi,3-model-b`&#x2400;`brcm,bcm2837`      | `Raspberry Pi 3 Model B Rev 1.2` |
 | 3B+        | `raspberrypi,3-model-b-plus`&#x2400;`brcm,bcm2837` | `Raspberry Pi 3 Model B Plus Rev 1.3` |
 
 
 #### 2015-11-21-raspbian-jessie-lite
-| Model | `/proc/device-tree/compatible` | `/proc/device-tree/model` |
-|:---:|:---|:---|
-| B rev 1    | `brcm,bcm2708` | `Raspberry Pi Model B Rev 1` |
-| B rev 2    | `brcm,bcm2708` | `Raspberry Pi Model B Rev 2` |
+| Model      | `/proc/device-tree/compatible`                     | `/proc/device-tree/model`             |
+|:----------:|:---------------------------------------------------|:--------------------------------------|
+| B rev 1    | `brcm,bcm2708`                                     | `Raspberry Pi Model B Rev 1`          |
+| B rev 2    | `brcm,bcm2708`                                     | `Raspberry Pi Model B Rev 2`          |
 
 
 
