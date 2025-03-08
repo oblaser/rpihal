@@ -94,9 +94,18 @@ RPIHAL_model_t RPIHAL_getModel()
         if (dtCompatible)
         {
             const char* const boardMake = dtCompatible;
-            const char* const boardModel = strchr(boardMake, ',') + 1;
-            const char* const cpuMake = strchr(boardModel, ',') + 1;
-            const char* const cpuModel = strchr(cpuMake, ',') + 1;
+
+            const char* boardModel = strchr(boardMake, ',');
+            if (boardModel) { ++boardModel; }
+            else { boardModel = ""; }
+
+            const char* cpuMake = strchr(boardModel, ',');
+            if (cpuMake) { ++cpuMake; }
+            else { cpuMake = ""; }
+
+            const char* cpuModel = strchr(cpuMake, ',');
+            if (cpuModel) { ++cpuModel; }
+            else { cpuModel = ""; }
 
             if ((strncmp(boardMake, "raspberrypi,", 12) != 0) || (strncmp(cpuMake, "brcm,", 5) != 0)) { LOG_WRN("unknown manufacturers: %s", dtCompatible); }
 
