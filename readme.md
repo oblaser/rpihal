@@ -8,12 +8,12 @@ The system tests can also be considered as examples :wink:
 
 ## GPIO Module
 
-The library is now aware of the hardware it's running on.
+The library automatically detects the Raspberry Pi Model.
 
 > __CAUTION!__ Unexpected behaviour may be observed on alternate functions (see [ANOM1](anomalies.md#anom1---gpio-alternate-function-registers)).
 
 ### Supported Models
-`2B` and newer. Zeros, Compute Modules, the `400` and the `5` could not yet be tested.
+`2B` and newer, except `5` and it's derivates. Zeros, Compute Modules and the `400` could not yet be tested.
 
 > Search for _ADDHW_ comments in code to find sections which are crucial for implementation of more hardware support.
 
