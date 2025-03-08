@@ -23,7 +23,7 @@ if(NOT PLAT_IS_RASPI)
     add_definitions(-DRPIHAL_EMU)
     set(RPIHAL_CMAKE_CONFIG_EMU true)
 endif()
-add_subdirectory(../../sdk/rpihal/build/cmake/librpihal.a/ ../../sdk/rpihal/build/cmake/librpihal.a/)
+add_subdirectory(../../sdk/rpihal/build/librpihal.a/ ../../sdk/rpihal/build/librpihal.a/)
 
 
 

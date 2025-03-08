@@ -2,9 +2,9 @@
 /build/cmake/*
 !/build/cmake/CMakeLists.txt
 
-!/build/cmake/librpihal.a
-/build/cmake/librpihal.a/*
-!/build/cmake/librpihal.a/CMakeLists.txt
+!/build/librpihal.a
+/build/librpihal.a/*
+!/build/librpihal.a/CMakeLists.txt
 
 /build/packed/
 

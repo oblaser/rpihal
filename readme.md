@@ -30,7 +30,7 @@ See [build/readme.md](./build/readme.md) for the different build methods.
 
 ### Build Configuration
 #### CMake
-- `RPIHAL_CMAKE_CONFIG_EMU` only used in [librpihal.a/CMakeLists.txt](build/cmake/librpihal.a/CMakeLists.txt) (has to be set to 1 before the `add_subdirectory()` call in the parent CMakeLists if needed)
+- `RPIHAL_CMAKE_CONFIG_EMU` only used in [librpihal.a/CMakeLists.txt](build/librpihal.a/CMakeLists.txt) (has to be set to 1 before the `add_subdirectory()` call in the parent CMakeLists if needed)
 
 #### Definitions on Compiler Level
 - `RPIHAL_EMU` has to be defined on compiler level for the linking code (most likely your application) and rpihal. If using _librpihal.a/CMakeLists.txt_, it has to be added before the `add_subdirectory()` call in the parent CMakeLists.
