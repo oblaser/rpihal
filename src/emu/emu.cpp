@@ -682,6 +682,9 @@ static const std::map<RPIHAL_model_t, RPIHAL_EMU_dt_comp_model> rpihal_emu_dt_co
     { RPIHAL_model_400,     RPIHAL_EMU_dt_comp_model("raspberrypi,400,brcm,bcm2711",                                "Raspberry Pi 400 Rev 1.0"                            ) },
     { RPIHAL_model_cm4,     RPIHAL_EMU_dt_comp_model("raspberrypi,4-compute-module,brcm,bcm2711",                   "Raspberry Pi Compute Module 4 Rev 1.0" /* guessed */ ) },
     { RPIHAL_model_cm4s,    RPIHAL_EMU_dt_comp_model("raspberrypi,4s-compute-module,brcm,bcm2711",                  "Raspberry Pi Compute Module 4S Rev 1.0"/* guessed */ ) },
+    { RPIHAL_model_5,       RPIHAL_EMU_dt_comp_model("raspberrypi,5-model-b,brcm,bcm2712",                          "Raspberry Pi 5 Model B Rev 1.0"                      ) },
+    { RPIHAL_model_500,     RPIHAL_EMU_dt_comp_model("raspberrypi,500,brcm,bcm2712",                                "Raspberry Pi 500 Rev 1.0" /* guessed */              ) },
+    { RPIHAL_model_cm5,     RPIHAL_EMU_dt_comp_model("raspberrypi,5-compute-module,brcm,bcm2712",                   "Raspberry Pi Compute Module 4 Rev 1.0" /* guessed */ ) },
     // clang-format on
 };
 

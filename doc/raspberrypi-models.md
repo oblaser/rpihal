@@ -68,8 +68,11 @@ cat /proc/device-tree/compatible | tr '\0' '\n' ; echo "##########" ; cat /proc/
 
 ---
 
+Thanks to:
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
 - https://github.com/AndrewFromMelbourne/raspberry_pi_revision
 - https://gist.github.com/jperkin/c37a574379ef71e339361954be96be12
+
+
 
 [^1]: Some models (3A+, A, A+) will use the "b" equivalents (3B+, B, B+), respectively: https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/configuration/device-tree.adoc#dtbs-overlays-and-configtxt

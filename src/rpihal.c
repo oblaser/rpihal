@@ -85,6 +85,9 @@ RPIHAL_model_t RPIHAL_getModel()
             else if (strncmp(modelStr, "400 Rev ", 8) == 0) { model = RPIHAL_model_400; }                     // test OK
             else if (strncmp(modelStr, "Compute Module 4 Rev ", 21) == 0) { model = RPIHAL_model_cm4; }       // guessed, to be tested
             else if (strncmp(modelStr, "Compute Module 4S Rev ", 22) == 0) { model = RPIHAL_model_cm4s; }     // guessed, to be tested
+            else if (strncmp(modelStr, "5 Model B Rev ", 14) == 0) { model = RPIHAL_model_5; }                // to be tested
+            else if (strncmp(modelStr, "500 Rev ", 8) == 0) { model = RPIHAL_model_500; }                     // guessed, to be tested
+            else if (strncmp(modelStr, "Compute Module 5 Rev ", 21) == 0) { model = RPIHAL_model_cm5; }       // guessed, to be tested
         }
 
 

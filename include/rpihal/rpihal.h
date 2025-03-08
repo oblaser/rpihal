@@ -93,11 +93,9 @@ typedef enum
 
     // BCM2712
     RPIHAL_model_bcm2712 =      0x00060000,
-#if 0 // ADDHW
     RPIHAL_model_5 =            0x00061000, // `5`                  Raspberry Pi 5
     RPIHAL_model_500 =          0x00062000, // `500`                Raspberry Pi 500
     RPIHAL_model_cm5 =          0x00063000, // `CM5`                Raspberry Pi Compute Module 5
-#endif
 
     RPIHAL_model_bcm_NEXT_ =    0x00070000,
 

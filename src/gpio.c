@@ -208,7 +208,16 @@ int RPIHAL_GPIO_init() // TODO make internal (each function has to check gpio_ba
     if (RPIHAL_model_SoC_is_bcm2836(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2836 + PERI_ADR_OFFSET_GPIO; }
     else if (RPIHAL_model_SoC_is_bcm2837_any(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2837 + PERI_ADR_OFFSET_GPIO; }
     else if (RPIHAL_model_SoC_is_bcm2711(hwModel)) { mmapoffs = PERI_ADR_BASE_BCM2711 + PERI_ADR_OFFSET_GPIO; }
-    else { return -(__LINE__); }
+    else
+    {
+        const char* dt = RPIHAL_dt_model();
+        if (!dt) { dt = RPIHAL_dt_compatible(); }
+        if (!dt) { dt = "UNKNOWN MODEL"; }
+
+        LOG_ERR("GPIO for %s is not yet supported", dt);
+
+        return -(__LINE__);
+    }
 
     if (!gpio_base)
     {
