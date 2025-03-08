@@ -34,6 +34,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "internal/platform_check.h"
 #include "rpihal/rpihal.h"
 
+#include <limits.h>
+#include <sys/types.h>
+
+
 #define LOG_MODULE_LEVEL LOG_LEVEL_INF
 #define LOG_MODULE_NAME  RPIHAL
 #include "internal/log.h"
@@ -141,6 +145,17 @@ const char* RPIHAL_dt_model()
 
 
 
+/**
+ * @brief Reads a text file.
+ *
+ * Reads all bytes into `buffer` until EOF. Thus the buffer may contain null characters which are not terminating null
+ * characters. If the function succeeds a null terminator is appended to `buffer`.
+ *
+ * @param filename The file to read
+ * @param buffer Pointer to the destination string buffer
+ * @param bufsz Size of the destination string buffer
+ * @return Number of read bytes (not including the appended null terminator), or -1 on error
+ */
 ssize_t readAllText(const char* filename, char* buffer, size_t bufsz)
 {
     ssize_t r = (-1);
@@ -149,22 +164,35 @@ ssize_t readAllText(const char* filename, char* buffer, size_t bufsz)
 
     if (fp)
     {
-        fseek(fp, 0, SEEK_END);
-        const long sz = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
+        int fseekError = 0;
 
-        if ((sz >= 0) && (sz < (bufsz - 1)))
+        if (fseek(fp, 0, SEEK_END) != 0) { fseekError |= 0x01; }
+        const long sz = ftell(fp);
+        if (fseek(fp, 0, SEEK_SET) != 0) { fseekError |= 0x02; }
+
+        if (sz > (long)INT32_MAX)
+        {
+            // `sz` gets castet to `size_t` and `ssize_t`
+#if (SSIZE_MAX < INT32_MAX)
+#error "invalid check in the if() above"
+#endif
+
+            LOG_WRN("can't read file of size %lli bytes", (long long)sz);
+            fseekError |= 0x04;
+        }
+
+        if ((fseekError == 0) && (sz >= 0) && ((size_t)sz < (bufsz - 1)))
         {
             const size_t nRead = fread(buffer, 1, (size_t)sz, fp);
 
             if (nRead == (size_t)sz)
             {
-                buffer[sz] = 0;
-                r = (ssize_t)nRead;
+                buffer[sz] = 0;  // append null terminator
+                r = (ssize_t)sz; // "return" number of read bytes
             }
             else { LOG_ERR("failed to read \"%s\", size: %li, nRead: %llu", filename, sz, (uint64_t)nRead); }
         }
-        else { LOG_ERR("failed to read \"%s\", invalid fseek/tell", filename); }
+        else { LOG_ERR("failed to read \"%s\", fseek/ftell failed or insufficient buffer size", filename); }
 
         fclose(fp);
     }

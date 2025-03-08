@@ -40,6 +40,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+
 #define LOG_MODULE_LEVEL LOG_LEVEL_DBG
 #define LOG_MODULE_NAME  I2C
 #include "internal/log.h"

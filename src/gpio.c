@@ -39,6 +39,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/types.h>
 #include <unistd.h>
 
+
 #define LOG_MODULE_LEVEL LOG_LEVEL_INF
 #define LOG_MODULE_NAME  GPIO
 #include "internal/log.h"
