@@ -675,12 +675,13 @@ static const std::map<RPIHAL_model_t, RPIHAL_EMU_dt_comp_model> rpihal_emu_dt_co
     { RPIHAL_model_3B,      RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b,brcm,bcm2837",                          "Raspberry Pi 3 Model B Rev 1.2"                      ) },
     { RPIHAL_model_cm3,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-compute-module,brcm,bcm2837",                   "Raspberry Pi Compute Module 3 Rev 1.0"               ) },
     { RPIHAL_model_z2W,     RPIHAL_EMU_dt_comp_model("raspberrypi,model-zero-2-w,brcm,bcm2837",                     "Raspberry Pi Zero 2 W Rev 1.0"                       ) },
-    { RPIHAL_model_3Ap,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b-plus,brcm,bcm2837",                     "Raspberry Pi 3 Model A Plus Rev 1.0"                 ) }, // yes ..-b-.. is correct, see /doc/raspberrypi-models.md
+    { RPIHAL_model_3Ap,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b-plus,brcm,bcm2837",                     "Raspberry Pi 3 Model A Plus Rev 1.0"                 ) }, // yes "..-b-.." is correct, see /doc/raspberrypi-models.md
     { RPIHAL_model_3Bp,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b-plus,brcm,bcm2837",                     "Raspberry Pi 3 Model B Plus Rev 1.3"                 ) },
     { RPIHAL_model_cm3p,    RPIHAL_EMU_dt_comp_model("raspberrypi,3-compute-module-plus,brcm,bcm2837",              "Raspberry Pi Compute Module 3 Plus Rev 1.0"          ) },
     { RPIHAL_model_4B,      RPIHAL_EMU_dt_comp_model("raspberrypi,4-model-b,brcm,bcm2711",                          "Raspberry Pi 4 Model B Rev 1.1"                      ) },
     { RPIHAL_model_400,     RPIHAL_EMU_dt_comp_model("raspberrypi,400,brcm,bcm2711",                                "Raspberry Pi 400 Rev 1.0"                            ) },
     { RPIHAL_model_cm4,     RPIHAL_EMU_dt_comp_model("raspberrypi,4-compute-module,brcm,bcm2711",                   "Raspberry Pi Compute Module 4 Rev 1.0" /* guessed */ ) },
+    { RPIHAL_model_cm4s,    RPIHAL_EMU_dt_comp_model("raspberrypi,4s-compute-module,brcm,bcm2711",                  "Raspberry Pi Compute Module 4S Rev 1.0"/* guessed */ ) },
     // clang-format on
 };
 

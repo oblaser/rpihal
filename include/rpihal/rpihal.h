@@ -89,6 +89,7 @@ typedef enum
     RPIHAL_model_4B =           0x00051000, // `4B`                 Raspberry Pi 4 Model B
     RPIHAL_model_400 =          0x00052000, // `400`                Raspberry Pi 400
     RPIHAL_model_cm4 =          0x00053000, // `CM4`                Raspberry Pi Compute Module 4
+    RPIHAL_model_cm4s =         0x00054000, // `CM4S`               Raspberry Pi Compute Module 4S
 
     // BCM2712
     RPIHAL_model_bcm2712 =      0x00060000,
