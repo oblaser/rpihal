@@ -18,11 +18,11 @@ project(rpihal)
 
 set(BINNAME rpihal)
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/../../../include/)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../include/)
 
 set(SOURCES_INTERNAL
-../../../src/internal/gpio.c
-../../../src/internal/util.c
+../../src/internal/gpio.c
+../../src/internal/util.c
 )
 
 if(RPIHAL_CMAKE_CONFIG_EMU)
@@ -37,13 +37,13 @@ else() # RPIHAL_CMAKE_CONFIG_EMU
 
     set(SOURCES
     ${SOURCES_INTERNAL}
-    ../../../src/gpio.c
-    ../../../src/i2c.c
-    ../../../src/int.c
-    ../../../src/rpihal.c
-    ../../../src/spi.c
-    ../../../src/sys.c
-    ../../../src/uart.c
+    ../../src/gpio.c
+    ../../src/i2c.c
+    ../../src/int.c
+    ../../src/rpihal.c
+    ../../src/spi.c
+    ../../src/sys.c
+    ../../src/uart.c
     )
 
 endif() # RPIHAL_CMAKE_CONFIG_EMU
@@ -51,7 +51,7 @@ endif() # RPIHAL_CMAKE_CONFIG_EMU
 
 
 add_library(${BINNAME} STATIC ${SOURCES})
-set_target_properties(${BINNAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../lib/)
+set_target_properties(${BINNAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../lib/)
 target_compile_options(${BINNAME} PRIVATE -Wall -Werror=return-type -Werror=discarded-qualifiers -Werror=int-conversion -Werror=implicit-function-declaration)
 
 if(RPIHAL_CMAKE_CONFIG_EMU AND UNIX AND NOT APPLE)
