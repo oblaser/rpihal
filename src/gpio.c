@@ -26,8 +26,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "internal/gpio.h"
 #include "internal/platform_check.h"
@@ -250,7 +252,7 @@ int RPIHAL_GPIO_init() // TODO make internal (each function has to check gpio_ba
             }
         }
 
-        // TODO can fd be closed after mmap?
+        if (close(fd) != 0) { LOG_WRN("failed to close fd from mmap (%i %s)", errno, strerror(errno)); }
     }
 
     return r;
