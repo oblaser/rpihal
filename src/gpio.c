@@ -467,8 +467,6 @@ int RPIHAL_GPIO_isUsingGpiomem() { return usingGpiomem; }
 
 int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
 
-uint64_t RPIHAL_GPIO_pintobit(int pin) { return iGPIO_pintobit(pin); }
-
 
 
 #include <stdio.h>
@@ -506,7 +504,7 @@ void RPIHAL_GPIO_dumpAltFuncReg(uint64_t pins)
         for (int j = 0; j <= jMax; ++j)
         {
             const int pin = (i * 10) + j;
-            const uint64_t pinBit = RPIHAL_GPIO_pintobit(pin);
+            const uint64_t pinBit = RPIHAL_GPIO_BIT(pin);
 
             shift = 3 * j; // shift = 3 * (pin % 10);
 
@@ -537,11 +535,11 @@ void RPIHAL_GPIO_dumpAltFuncReg(uint64_t pins)
 
             if (pins & pinBit)
             {
-                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[90m");
+                if (!(userPinsMask & RPIHAL_GPIO_BIT(pin))) printf("\033[90m");
 
                 printf("  %2i: 0b%s %s", pin, binStr, afStr);
 
-                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[39m");
+                if (!(userPinsMask & RPIHAL_GPIO_BIT(pin))) printf("\033[39m");
                 printf("\n");
             }
         }
@@ -585,7 +583,7 @@ void RPIHAL_GPIO_dumpPullUpDnReg(uint64_t pins)
         for (int j = 0; j <= jMax; ++j)
         {
             const int pin = (i * 16) + j;
-            const uint64_t pinBit = RPIHAL_GPIO_pintobit(pin);
+            const uint64_t pinBit = RPIHAL_GPIO_BIT(pin);
 
             shift = 2 * j; // shift = 2 * (pin % 16);
 
@@ -609,11 +607,11 @@ void RPIHAL_GPIO_dumpPullUpDnReg(uint64_t pins)
 
             if (pins & pinBit)
             {
-                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[90m");
+                if (!(userPinsMask & RPIHAL_GPIO_BIT(pin))) printf("\033[90m");
 
                 printf("  %2i: 0b%s %s", pin, binStr, pudStr);
 
-                if (!(userPinsMask & RPIHAL_GPIO_pintobit(pin))) printf("\033[39m");
+                if (!(userPinsMask & RPIHAL_GPIO_BIT(pin))) printf("\033[39m");
                 printf("\n");
             }
         }

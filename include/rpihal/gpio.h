@@ -37,6 +37,9 @@ extern "C" {
 #endif
 
 
+#define RPIHAL_GPIO_BIT(_pin) (1ull << (_pin))
+
+
 enum RPIHAL_GPIO_MODE
 {
     RPIHAL_GPIO_MODE_IN = 0,
@@ -164,7 +167,7 @@ int RPIHAL_GPIO_isUsingGpiomem();
 //!
 int RPIHAL_GPIO_bittopin(uint64_t bit);
 
-uint64_t RPIHAL_GPIO_pintobit(int pin);
+static inline uint64_t RPIHAL_GPIO_pintobit(int pin) { return RPIHAL_GPIO_BIT(pin); }
 
 
 /**

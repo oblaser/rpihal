@@ -170,5 +170,3 @@ int iGPIO_bittopin(uint64_t bit)
 
     return -1;
 }
-
-uint64_t iGPIO_pintobit(int pin) { return (1ull << pin); }

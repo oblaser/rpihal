@@ -57,8 +57,6 @@ int iGPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
 
 int iGPIO_bittopin(uint64_t bit);
 
-uint64_t iGPIO_pintobit(int pin);
-
 
 
 #ifdef __cplusplus

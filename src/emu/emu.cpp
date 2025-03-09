@@ -896,7 +896,6 @@ void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct) { iGPIO_defau
 int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct) { return iGPIO_defaultInitStructPin(pin, initStruct); }
 
 int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
-uint64_t RPIHAL_GPIO_pintobit(int pin) { return iGPIO_pintobit(pin); }
 
 //======================================================================================================================
 // sys
