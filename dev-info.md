@@ -110,6 +110,11 @@ See descriptions for `spiX-Ycs`, X is the index of the SPI peripheral and Y the 
 
 See descriptions for `i2cX`, X is the index of the I2C (BSC) peripheral.
 
+Setting clock speed:
+```
+dtoverlay=i2c1,i2c1_baudrate=400000
+```
+
 Use `i2c-gpio` for bit banged I2C.
 
 > from [raspi forum](https://forums.raspberrypi.com/viewtopic.php?t=154623#p1011384)
