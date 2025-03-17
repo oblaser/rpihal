@@ -64,7 +64,7 @@ RPIHAL_model_t RPIHAL_getModel()
 
     if ((model == RPIHAL_model_unknown) && dtModel)
     {
-        // see /doc/raspberrypi-models.md
+        // see /raspberrypi-models.md
 
         if (strncmp(dtModel, "Raspberry Pi ", 13) == 0)
         {

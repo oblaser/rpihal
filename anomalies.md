@@ -6,7 +6,7 @@ Any unexpected behaviour or anomalies are documented here.
 - [ANOM1 - GPIO alternate function registers](#anom1---gpio-alternate-function-registers)
 - [ANOM2 - Multiple SPI instances on the same device](#anom2---multiple-spi-instances-on-the-same-device)
 
----
+
 
 # ANOM1 - GPIO alternate function registers
 
@@ -49,7 +49,7 @@ Further investigation needed, WIP... `RPIHAL_GPIO_dumpAltFuncReg()`
 |  26  |      |      |      |      |      |      |
 |  27  |      |      |      |      |      |      |
 
----
+
 
 # ANOM2 - Multiple SPI instances on the same device
 
