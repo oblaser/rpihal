@@ -48,7 +48,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, int mode, uint32_t flags)
+int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, uint32_t config)
 {
     int fd;
     inst->dev[0] = 0;
@@ -75,15 +75,15 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
 
         // modeFlags |= SPI_LOOP;
 
-        if ((mode == RPIHAL_SPI_MODE_1) || (mode == RPIHAL_SPI_MODE_3)) { modeFlags |= SPI_CPHA; }
-        if ((mode == RPIHAL_SPI_MODE_2) || (mode == RPIHAL_SPI_MODE_3)) { modeFlags |= SPI_CPOL; }
+        if (config & RPIHAL_SPI_CFG_CPHA) { modeFlags |= SPI_CPHA; }
+        if (config & RPIHAL_SPI_CFG_CPOL) { modeFlags |= SPI_CPOL; }
 
-        if (flags & RPIHAL_SPI_CFG_FLAG_LSB_FIRST) { modeFlags |= SPI_LSB_FIRST; }
+        if (config & RPIHAL_SPI_CFG_LSB_FIRST) { modeFlags |= SPI_LSB_FIRST; }
 
-        if (flags & RPIHAL_SPI_CFG_FLAG_CS_HIGH) { modeFlags |= SPI_CS_HIGH; }
-        if (flags & RPIHAL_SPI_CFG_FLAG_HALFDUPLEX) { modeFlags |= SPI_3WIRE; }
+        if (config & RPIHAL_SPI_CFG_CS_HIGH) { modeFlags |= SPI_CS_HIGH; }
+        if (config & RPIHAL_SPI_CFG_HALFDUPLEX) { modeFlags |= SPI_3WIRE; }
 
-        if (flags & RPIHAL_SPI_CFG_FLAG_NO_CS) modeFlags |= SPI_NO_CS;
+        if (config & RPIHAL_SPI_CFG_NO_CS) { modeFlags |= SPI_NO_CS; }
 
         const uint32_t modeFlagsReq = modeFlags;
         ret = ioctl(fd, SPI_IOC_WR_MODE32, &modeFlags);
