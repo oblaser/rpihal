@@ -26,37 +26,57 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_SYS_H
-#define IG_RPIHAL_SYS_H
+#ifndef IG_RPIHAL_INT_H
+#define IG_RPIHAL_INT_H
 
 #include <stddef.h>
 #include <stdint.h>
-
-#include <rpihal/int.h>
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
- * @return __0__ on success
- */
-int RPIHAL_SYS_getCpuTemp(float* temperature);
+
+#define RPIHAL_8BIT_LSB (0x01)
+#define RPIHAL_8BIT_MSB (0x80)
+#define RPIHAL_8BIT_ALL (0xFF)
+
+#define RPIHAL_16BIT_LSB (0x0001)
+#define RPIHAL_16BIT_MSB (0x8000)
+#define RPIHAL_16BIT_ALL (0xFFFF)
+
+#define RPIHAL_32BIT_LSB (0x00000001)
+#define RPIHAL_32BIT_MSB (0x80000000)
+#define RPIHAL_32BIT_ALL (0xFFFFFFFF)
+
+#define RPIHAL_64BIT_LSB (0x0000000000000001)
+#define RPIHAL_64BIT_MSB (0x8000000000000000)
+#define RPIHAL_64BIT_ALL (0xFFFFFFFFFFFFFFFF)
+
+
+typedef struct
+{
+    uint64_t hi;
+    uint64_t lo;
+} RPIHAL_uint128_t;
+
+// clang-format off
+#define RPIHAL_UINT128_NULL { .hi = 0, .lo = 0 }
+// clang-format on
 
 /**
- * @brief Returns the machine ID.
+ * @brief Compares two unsigned 128 bit integers.
  *
- * Reads and parses `/etc/machine-id`.
- *
- * @return __0__ if reading failed
+ * - Negative value if `lhs` is less than `rhs`
+ * - Zero if `lhs` and `rhs` compare equal
+ * - Positive value if `lhs` is greater than `rhs`
  */
-RPIHAL_uint128_t RPIHAL_SYS_getMachineId();
+int RPIHAL_ui128_cmp(const RPIHAL_uint128_t* lhs, const RPIHAL_uint128_t* rhs); // TODO unit test
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IG_RPIHAL_SYS_H
+#endif // IG_RPIHAL_INT_H

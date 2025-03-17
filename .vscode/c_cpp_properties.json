@@ -9,7 +9,9 @@
             ],
             "defines": [
                 "__unix__",
-                "__linux__"
+                "__linux__",
+                "__arm__",
+                "__aarch64__",
             ]
         }
     ],

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.03.2024
+date            03.11.2024
 copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -33,20 +33,40 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <array>
 #include <iostream>
+#include <map>
 #include <mutex>
 #include <queue>
+#include <string>
 #include <thread>
 #include <utility>
 
 #include "emu.h"
 
+
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // still reported
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
-#define LOG_ERR(msg) cout << "\033[90mEMU \033[91mERR " << msg << "\033[39m" << endl
-#define LOG_INF(msg) cout << "\033[90mEMU \033[39mINF " << msg << "\033[39m" << endl
+
+#define LOG_MODULE_LEVEL LOG_LEVEL_INF
+#define LOG_MODULE_NAME  RPIHAL_EMU
+#include "../internal/log.h"
+
+
+
+#define LOG_ERR_cout(msg) cout << "\033[90mEMU \033[91mERR " << msg << "\033[39m" << endl
+#define LOG_INF_cout(msg) cout << "\033[90mEMU \033[39mINF " << msg << "\033[39m" << endl
 
 
 
@@ -249,7 +269,7 @@ public:
 
 public:
     SharedData()
-        : m_running(false), m_booted(false), m_terminate(false), m_pins(), m_cpuTemp(42.7)
+        : m_running(false), m_booted(false), m_terminate(false), m_pins(), m_cpuTemp(42.7f)
     {
         using emu::Pin;
 
@@ -285,11 +305,14 @@ public:
     void terminate(bool state = true) { lock_guard lg(m_mtxThCtrl); m_terminate = state; }
     bool testTerminate() const { lock_guard lg(m_mtxThCtrl); return m_terminate; }
 
-    GpioPins getPins() const { lock_guard lg(m_mtxPins); const auto r = m_pins; return r; }
+    GpioPins getPins() const { lock_guard lg(m_mtxPins); return m_pins; }
     void setPin(size_t idx, const emu::Pin& pin) { lock_guard lg(m_mtxPins); m_pins[idx] = pin; }
     void setPinState(size_t idx, bool state) { lock_guard lg(m_mtxPins); m_setPinState(idx, state); }
 
-    float getCpuTemp() const { lock_guard lg(m_mtxGeneral); const auto r = m_cpuTemp; return r; }
+    std::string getModelStr() const { lock_guard lg(m_mtxGeneral); return m_modelStr; }
+    void setModelStr(const std::string& str) { lock_guard lg(m_mtxGeneral); m_modelStr = str; }
+
+    float getCpuTemp() const { lock_guard lg(m_mtxGeneral); return m_cpuTemp; }
     void setCpuTemp(float temp) { lock_guard lg(m_mtxGeneral); m_cpuTemp = temp; }
     // clang-format on
 
@@ -301,17 +324,20 @@ public:
 
         try
         {
-            m_pins[emu::gpioPin_to_pinIdx(pin)] = gpio;
+            const size_t idx = emu::gpioPin_to_pinIdx(pin);
+            const bool state = m_pins[idx].getState();
+            m_pins[idx] = gpio;
+            m_pins[idx].setState(state);
 
             r = 0;
         }
         catch (const std::exception& ex)
         {
-            LOG_ERR("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
+            LOG_ERR_cout("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
         }
         catch (...)
         {
-            LOG_ERR("failed to convert pin number of GPIO " << pin);
+            LOG_ERR_cout("failed to convert pin number of GPIO " << pin);
         }
 
         return r;
@@ -332,11 +358,11 @@ public:
         }
         catch (const std::exception& ex)
         {
-            LOG_ERR("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
+            LOG_ERR_cout("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
         }
         catch (...)
         {
-            LOG_ERR("failed to convert pin number of GPIO " << pin);
+            LOG_ERR_cout("failed to convert pin number of GPIO " << pin);
         }
 
         return r;
@@ -352,11 +378,11 @@ public:
         }
         catch (const std::exception& ex)
         {
-            LOG_ERR("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
+            LOG_ERR_cout("failed to convert pin number of GPIO " << pin << " (" << ex.what() << ")");
         }
         catch (...)
         {
-            LOG_ERR("failed to convert pin number of GPIO " << pin);
+            LOG_ERR_cout("failed to convert pin number of GPIO " << pin);
         }
     }
 
@@ -370,6 +396,7 @@ protected:
     GpioPins m_pins;
 
     mutable std::mutex m_mtxGeneral;
+    std::string m_modelStr;
     float m_cpuTemp;
 
     void m_setPinState(size_t idx, bool state) { m_pins[idx].setState(state); }
@@ -428,82 +455,96 @@ bool EmuPge::OnUserUpdate(float tElapsed)
 
     Clear(VERY_DARK_BLUE);
 
-    const auto headerPos = vi2d(700, 50);
-    constexpr int32_t size = 30;
+    DrawString(vi2d(1, 1) * 10, thread_pge_sd.getModelStr(), WHITE, 2);
 
-    const auto pcbColor = Pixel(0x5f, 0x86, 0x45);
 
-    FillRect(headerPos - vi2d(size, size) / 2, vi2d(2 * size, 20 * size), Pixel(10, 10, 10));
 
-    int mousePin = -1;
-    size_t mousePinIdx = -1;
-
-    for (size_t i = 0; i < pins.size(); ++i)
+    //
+    // pin header
+    //
     {
-        constexpr float radius = (size / 2.0) * 0.7;
+        const auto headerPos = vi2d(700, 50);
+        constexpr int32_t size = 30;
 
-        auto pos = headerPos + vi2d(0, (i / 2) * size);
-        const auto& pin = pins[i];
+        FillRect(headerPos - vi2d(size, size) / 2, vi2d(2 * size, 20 * size), Pixel(10, 10, 10));
 
-        if (i & 1) pos.x += size;
+        int mousePin = -1;
+        size_t mousePinIdx = -1;
 
-        auto pixel = RED;
-
-        if (pin.is5V()) pixel = Pixel(150, 33, 30);
-        else if (pin.is3V3()) pixel = Pixel(130, 100, 6);
-        else if (pin.isGnd()) pixel = Pixel(0, 0, 0);
-        // else if (pin.isId()) pixel = Pixel(160, 160, 160);
-        else if (pin.isGpio())
+        for (size_t i = 0; i < pins.size(); ++i)
         {
-            const auto& gpio = pin.gpio();
+            constexpr float radius = (size / 2.0) * 0.7;
 
-            if (gpio.isInput()) pixel = (gpio.read() ? CYAN : CYAN / 3);
-            else if (gpio.isOutput()) pixel = (gpio.read() ? GREEN : GREEN / 3);
-            else if (gpio.isAltFunc()) pixel = Pixel(94, 0, 181);
-        }
-        else pixel = Pixel(50, 50, 50);
+            auto pos = headerPos + vi2d(0, (i / 2) * size);
+            const auto& pin = pins[i];
 
-        FillCircle(pos, (int32_t)(radius + 0.5), pixel);
+            if (i & 1) { pos.x += size; }
 
-        // const auto pinRectSize = vi2d(5, 5);
-        // FillRect(pos - pinRectSize / 2, pinRectSize, Pixel(255, 215, 0));
+            auto pixel = RED;
 
-        // mouse is on pin
-        if ((pos - mousePos).mag2() <= (radius * radius))
-        {
-            auto mouseColor = RED;
-
-            try
+            if (pin.is5V()) { pixel = Pixel(150, 33, 30); }
+            else if (pin.is3V3()) { pixel = Pixel(130, 100, 6); }
+            else if (pin.isGnd()) { pixel = Pixel(0, 0, 0); }
+            // else if (pin.isId()) { pixel = Pixel(160, 160, 160); }
+            else if (pin.isGpio())
             {
-                mousePin = emu::pinIdx_to_gpioPin(i);
-                mousePinIdx = i;
+                const auto& gpio = pin.gpio();
 
-                if (pins[i].isGpio() && pins[i].gpio().isInput())
+                if (gpio.isInput()) { pixel = (gpio.read() ? CYAN : CYAN / 3); }
+                else if (gpio.isOutput()) { pixel = (gpio.read() ? GREEN : GREEN / 3); }
+                else if (gpio.isAltFunc()) { pixel = Pixel(94, 0, 181); }
+            }
+            else { pixel = Pixel(50, 50, 50); }
+
+            FillCircle(pos, (int32_t)(radius + 0.5), pixel);
+
+            // const auto pinRectSize = vi2d(5, 5);
+            // FillRect(pos - pinRectSize / 2, pinRectSize, Pixel(255, 215, 0));
+
+            // mouse is on pin
+            if ((pos - mousePos).mag2() <= (radius * radius))
+            {
+                auto mouseColor = RED;
+
+                try
                 {
-                    if (mouseL.bPressed) { thread_pge_sd.setGpioState(mousePin, true); }
-                    if (mouseL.bReleased) { thread_pge_sd.setGpioState(mousePin, false); }
+                    mousePin = emu::pinIdx_to_gpioPin(i);
+                    mousePinIdx = i;
 
-                    if (mouseR.bReleased)
+                    if (pins[i].isGpio() && pins[i].gpio().isInput())
                     {
-                        const auto state = pins[mousePinIdx].getState();
-                        thread_pge_sd.setGpioState(mousePin, !state);
+                        if (mouseL.bPressed || mouseL.bReleased) // left mouse button generates click, neg or pos is depending on current state
+                        {
+                            const auto state = pins[mousePinIdx].getState();
+                            thread_pge_sd.setGpioState(mousePin, !state);
+                        }
+
+                        if (mouseR.bReleased) // right mouse button toggles the pin
+                        {
+                            const auto state = pins[mousePinIdx].getState();
+                            thread_pge_sd.setGpioState(mousePin, !state);
+                        }
+
+                        mouseColor = WHITE;
                     }
+                    else { mouseColor = GREEN; }
 
-                    mouseColor = WHITE;
+                    if (pins[i].isId()) { mouseColor = RED; }
                 }
-                else mouseColor = GREEN;
+                catch (...)
+                {
+                    mouseColor = RED;
+                }
 
-                if (pins[i].isId()) mouseColor = RED;
+                DrawCircle(pos, (int32_t)(radius + 0.5), mouseColor);
             }
-            catch (...)
-            {
-                mouseColor = RED;
-            }
-
-            DrawCircle(pos, (int32_t)(radius + 0.5), mouseColor);
         }
 
+
+
+        //
         // CPU temp slider
+        //
         {
             static bool mouseDownWasOnSlider = false;
             static int32_t mouseOffset = 0;
@@ -525,11 +566,11 @@ bool EmuPge::OnUserUpdate(float tElapsed)
             auto temp_to_normal = [&](const float& temp) { return 1 - ((temp - tempLo) / tempSpan); };
             auto normal_to_temp = [&](const float& norm) { return tempLo + (1 - norm) * tempSpan; };
 
-            int32_t value = len * temp_to_normal(cpuTemp) + 0.5f;
+            int32_t value = (int32_t)(len * temp_to_normal(cpuTemp) + 0.5f);
 
             if (mouseDownWasOnSlider)
             {
-                value = (float)(mousePos.y) - origY - mouseOffset;
+                value = mousePos.y - origY - mouseOffset;
                 clamp(value, 0, len);
             }
             else
@@ -609,9 +650,84 @@ static void emuMain()
 //======================================================================================================================
 // rpihal.h
 
-int RPIHAL_EMU_init()
+static RPIHAL_model_t rpihal_emu_model = RPIHAL_model_unknown;
+
+class RPIHAL_EMU_dt_comp_model
+{
+public:
+    RPIHAL_EMU_dt_comp_model() = delete;
+    RPIHAL_EMU_dt_comp_model(const std::string& compatible, const std::string& model)
+        : m_compatible(compatible), m_model(model)
+    {}
+    const std::string& compatible() const { return m_compatible; }
+    const std::string& model() const { return m_model; }
+
+private:
+    std::string m_compatible;
+    std::string m_model;
+};
+
+static const std::map<RPIHAL_model_t, RPIHAL_EMU_dt_comp_model> rpihal_emu_dt_comp_model_map = {
+    // clang-format off
+    { RPIHAL_model_unknown, RPIHAL_EMU_dt_comp_model("raspberrypi,?,brcm,?",                                        "unknown"                                             ) },
+    { RPIHAL_model_2B,      RPIHAL_EMU_dt_comp_model("raspberrypi,2-model-b,brcm,bcm2836",                          "Raspberry Pi 2 Model B Rev 1.1"                      ) },
+    { RPIHAL_model_2B_v1_2, RPIHAL_EMU_dt_comp_model("raspberrypi,2-model-b,brcm,bcm2837" /* guessed "bcm2837" */,  "Raspberry Pi 2 Model B Rev 1.2"                      ) },
+    { RPIHAL_model_3B,      RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b,brcm,bcm2837",                          "Raspberry Pi 3 Model B Rev 1.2"                      ) },
+    { RPIHAL_model_cm3,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-compute-module,brcm,bcm2837",                   "Raspberry Pi Compute Module 3 Rev 1.0"               ) },
+    { RPIHAL_model_z2W,     RPIHAL_EMU_dt_comp_model("raspberrypi,model-zero-2-w,brcm,bcm2837",                     "Raspberry Pi Zero 2 W Rev 1.0"                       ) },
+    { RPIHAL_model_3Ap,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b-plus,brcm,bcm2837",                     "Raspberry Pi 3 Model A Plus Rev 1.0"                 ) }, // yes "..-b-.." is correct, see /doc/raspberrypi-models.md
+    { RPIHAL_model_3Bp,     RPIHAL_EMU_dt_comp_model("raspberrypi,3-model-b-plus,brcm,bcm2837",                     "Raspberry Pi 3 Model B Plus Rev 1.3"                 ) },
+    { RPIHAL_model_cm3p,    RPIHAL_EMU_dt_comp_model("raspberrypi,3-compute-module-plus,brcm,bcm2837",              "Raspberry Pi Compute Module 3 Plus Rev 1.0"          ) },
+    { RPIHAL_model_4B,      RPIHAL_EMU_dt_comp_model("raspberrypi,4-model-b,brcm,bcm2711",                          "Raspberry Pi 4 Model B Rev 1.1"                      ) },
+    { RPIHAL_model_400,     RPIHAL_EMU_dt_comp_model("raspberrypi,400,brcm,bcm2711",                                "Raspberry Pi 400 Rev 1.0"                            ) },
+    { RPIHAL_model_cm4,     RPIHAL_EMU_dt_comp_model("raspberrypi,4-compute-module,brcm,bcm2711",                   "Raspberry Pi Compute Module 4 Rev 1.0" /* guessed */ ) },
+    { RPIHAL_model_cm4s,    RPIHAL_EMU_dt_comp_model("raspberrypi,4s-compute-module,brcm,bcm2711",                  "Raspberry Pi Compute Module 4S Rev 1.0"/* guessed */ ) },
+    { RPIHAL_model_5,       RPIHAL_EMU_dt_comp_model("raspberrypi,5-model-b,brcm,bcm2712",                          "Raspberry Pi 5 Model B Rev 1.0"                      ) },
+    { RPIHAL_model_500,     RPIHAL_EMU_dt_comp_model("raspberrypi,500,brcm,bcm2712",                                "Raspberry Pi 500 Rev 1.0" /* guessed */              ) },
+    { RPIHAL_model_cm5,     RPIHAL_EMU_dt_comp_model("raspberrypi,5-compute-module,brcm,bcm2712",                   "Raspberry Pi Compute Module 4 Rev 1.0" /* guessed */ ) },
+    // clang-format on
+};
+
+RPIHAL_model_t RPIHAL_getModel() { return rpihal_emu_model; }
+
+const char* RPIHAL_dt_compatible()
+{
+    const char* r = "#ERROR#";
+
+    try
+    {
+        r = rpihal_emu_dt_comp_model_map.at(rpihal_emu_model).compatible().c_str();
+    }
+    catch (...)
+    {
+        LOG_ERR("%s failed for %lli 0x%08llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
+    }
+
+    return r;
+}
+
+const char* RPIHAL_dt_model()
+{
+    const char* r = "#ERROR#";
+
+    try
+    {
+        r = rpihal_emu_dt_comp_model_map.at(rpihal_emu_model).model().c_str();
+    }
+    catch (...)
+    {
+        LOG_ERR("%s failed for %lli 0x%08llx", __func__, (long long)rpihal_emu_model, (long long)rpihal_emu_model);
+    }
+
+    return r;
+}
+
+int RPIHAL_EMU_init(RPIHAL_model_t model)
 {
     int r = -1;
+
+    rpihal_emu_model = model;
+    thread_pge_sd.setModelStr(RPIHAL_dt_model());
 
     try
     {
@@ -630,6 +746,19 @@ int RPIHAL_EMU_init()
     return r;
 }
 
+void RPIHAL_ENU_setInitialGpioState(uint64_t mask)
+{
+    // const uint64_t pinsMask = iGPIO_getBcmPinsMask();
+    const uint64_t pinsMask = iGPIO_getUserPinsMask();
+
+    for (int pin = 0; pin < 64; ++pin)
+    {
+        const uint64_t m = (1llu << pin);
+
+        if (m & pinsMask) { thread_pge_sd.setGpioState(pin, (mask & m) != 0); }
+    }
+}
+
 void RPIHAL_EMU_cleanup()
 {
     volatile int dummy = 0;
@@ -640,18 +769,13 @@ void RPIHAL_EMU_cleanup()
     thread_pge.join();
 }
 
-int RPIHAL_EMU_isRunning()
-{
-    return thread_pge_sd.isRunning();
-}
+int RPIHAL_EMU_isRunning() { return thread_pge_sd.isRunning(); }
 
 //======================================================================================================================
 // gpio.h
 
 static const int sysGpioLocked = 1;
-static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy
-
-static int checkPin(int pin);
+constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy to make copy-paste more easy
 
 int RPIHAL_GPIO_init() { return 0; } // nop
 
@@ -659,8 +783,28 @@ int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
 {
     int r = 0;
 
-    if (gpio_base && initStruct && checkPin(pin)) thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct));
-    else r = 1;
+    if (gpio_base && initStruct && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct)); }
+    else { r = 1; }
+
+    return r;
+}
+
+int RPIHAL_GPIO_initPins(uint64_t bits, const RPIHAL_GPIO_init_t* initStruct)
+{
+    int r = 0;
+
+    uint64_t mask = 0x01ull;
+
+    while (mask)
+    {
+        if (mask & bits)
+        {
+            const int err = RPIHAL_GPIO_initPin(RPIHAL_GPIO_bittopin(mask), initStruct);
+            if (err) { r = -(__LINE__); }
+        }
+
+        mask <<= 1;
+    }
 
     return r;
 }
@@ -669,17 +813,20 @@ int RPIHAL_GPIO_readPin(int pin)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) r = thread_pge_sd.getGpioState(pin);
-    else r = -1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { r = thread_pge_sd.getGpioState(pin); }
+    else { r = -1; }
 
     return r;
 }
 
-uint32_t RPIHAL_GPIO_read()
-{
-    uint32_t value = 0;
+uint32_t RPIHAL_GPIO_read() { return (uint32_t)(RPIHAL_GPIO_read64() & 0x00000000FFFFFFFFllu); }
+uint32_t RPIHAL_GPIO_readHi() { return (uint32_t)((RPIHAL_GPIO_read64() >> 32) & 0x00000000FFFFFFFFllu); }
 
-    auto pins = thread_pge_sd.getPins();
+uint64_t RPIHAL_GPIO_read64()
+{
+    uint64_t value = 0;
+
+    const auto pins = thread_pge_sd.getPins();
 
     for (size_t i = 0; i < pins.size(); ++i)
     {
@@ -689,7 +836,7 @@ uint32_t RPIHAL_GPIO_read()
         {
             try
             {
-                value |= (1u << emu::pinIdx_to_gpioPin(i));
+                value |= (1llu << emu::pinIdx_to_gpioPin(i));
             }
             catch (...)
             {
@@ -705,8 +852,8 @@ int RPIHAL_GPIO_writePin(int pin, int state)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) thread_pge_sd.setGpioState(pin, state != 0);
-    else r = 1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, state != 0); }
+    else { r = 1; }
 
     return r;
 }
@@ -727,8 +874,8 @@ int RPIHAL_GPIO_togglePin(int pin)
 {
     int r = 0;
 
-    if (gpio_base && checkPin(pin)) thread_pge_sd.setGpioState(pin, !thread_pge_sd.getGpioState(pin));
-    else r = -1;
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, !thread_pge_sd.getGpioState(pin)); }
+    else { r = -1; }
 
     return r;
 }
@@ -745,35 +892,10 @@ int RPIHAL_GPIO_resetPin(int pin)
     return 0;
 }
 
-int RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct)
-{
-    /* TODO */
-    return 0;
-}
+void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct) { iGPIO_defaultInitStruct(initStruct); }
+int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct) { return iGPIO_defaultInitStructPin(pin, initStruct); }
 
-int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct)
-{
-    /* TODO */
-    return 0;
-}
-
-//! @param pin BCM GPIO pin number
-//! @return Boolean value TRUE (`1`) if it's allowed to access the pin, otherwhise FALSE (`0`)
-int checkPin(int pin)
-{
-    int r = 0;
-
-    if (sysGpioLocked)
-    {
-        if ((pin >= FIRST_USER_PIN) && (pin <= LAST_USER_PIN)) r = 1;
-    }
-    else
-    {
-        if ((pin >= FIRST_PIN) && (pin <= LAST_PIN)) r = 1;
-    }
-
-    return r;
-}
+int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
 
 //======================================================================================================================
 // sys

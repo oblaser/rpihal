@@ -19,15 +19,22 @@ set(UNIT_TEST_EXE_STATIC ${BINNAME}-unit-test-static)
 include_directories(../../include/)
 
 set(SOURCES
+../../src/internal/gpio.c
 ../../src/internal/util.c
 ../../src/gpio.c
+../../src/i2c.c
+../../src/int.c
 ../../src/rpihal.c
+../../src/spi.c
 ../../src/sys.c
 ../../src/uart.c
 )
 
 add_library(${BINSHARED} SHARED ${SOURCES})
+target_compile_options(${BINSHARED} PRIVATE -Wall -Werror=return-type -Werror=discarded-qualifiers -Werror=int-conversion -Werror=implicit-function-declaration)
+
 add_library(${BINSTATIC} STATIC ${SOURCES})
+add_compile_options(${BINSTATIC} PRIVATE -Wall -Werror=return-type -Werror=discarded-qualifiers -Werror=int-conversion -Werror=implicit-function-declaration)
 
 
 # unit test

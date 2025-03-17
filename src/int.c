@@ -26,37 +26,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_SYS_H
-#define IG_RPIHAL_SYS_H
-
 #include <stddef.h>
 #include <stdint.h>
 
-#include <rpihal/int.h>
+#include "rpihal/int.h"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+int RPIHAL_ui128_cmp(const RPIHAL_uint128_t* lhs, const RPIHAL_uint128_t* rhs)
+{
+    int r;
 
-/**
- * @param [out] temperature Pointer to the variable receiving the CPU temperature in degree Celsius
- * @return __0__ on success
- */
-int RPIHAL_SYS_getCpuTemp(float* temperature);
+    if (lhs->hi < rhs->hi) { r = -1; }
+    else if (lhs->hi == rhs->hi)
+    {
+        if (lhs->lo < rhs->lo) { r = -1; }
+        else if (lhs->lo == rhs->lo) { r = 0; }
+        else { r = 1; }
+    }
+    else { r = 1; }
 
-/**
- * @brief Returns the machine ID.
- *
- * Reads and parses `/etc/machine-id`.
- *
- * @return __0__ if reading failed
- */
-RPIHAL_uint128_t RPIHAL_SYS_getMachineId();
-
-
-#ifdef __cplusplus
+    return r;
 }
-#endif
-
-#endif // IG_RPIHAL_SYS_H

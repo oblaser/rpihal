@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 
-//...
+// voi UTIL_...
 
 
 #ifdef __cplusplus

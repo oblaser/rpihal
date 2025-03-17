@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            25.03.2024
+date            03.11.2024
 copyright       MIT - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -30,14 +30,37 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef IG_RPIHAL_INTERNAL_GPIO_H
 #define IG_RPIHAL_INTERNAL_GPIO_H
 
+#include <stdint.h>
 
-// !!! DEVICE SPECIFIC !!! DEVSPEC - valid for RasPi (2|3|4) B[+] / 3 A+
-// https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header
-#define USER_PINS_MASK (0x0FFFFFFC)
-#define FIRST_PIN      0
-#define FIRST_USER_PIN 2
-#define LAST_USER_PIN  27
-#define LAST_PIN       53
+#include <rpihal/gpio.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+//! @param pin BCM GPIO pin number
+//! @param sysGpioLocked Has to be TRUE (`1`), might only be unlocked (set to FALSE) on compute modules
+//! @return Boolean value TRUE (`1`) if it's allowed to access the pin, otherwhise FALSE (`0`)
+int iGPIO_checkPin(int pin, int sysGpioLocked);
+
+//! @return 0 if the hardware model is not supported, otherwise the USER_PINS_MASK_x
+uint64_t iGPIO_getUserPinsMask();
+
+//! @return 0 if the hardware model is not supported, otherwise the BCMx_PINS_MASK
+uint64_t iGPIO_getBcmPinsMask();
+
+void iGPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct);
+
+int iGPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct);
+
+int iGPIO_bittopin(uint64_t bit);
+
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IG_RPIHAL_INTERNAL_GPIO_H
