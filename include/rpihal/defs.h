@@ -38,8 +38,8 @@ extern "C" {
 // see https://semver.org/spec/v2.0.0.html
 #define RPIHAL_VERSION_MAJ   0
 #define RPIHAL_VERSION_MIN   2
-#define RPIHAL_VERSION_PAT   0
-#define RPIHAL_VERSION_PRSTR ""
+#define RPIHAL_VERSION_PAT   1
+#define RPIHAL_VERSION_PRSTR "alpha"
 #define RPIHAL_VERSION_BUILD ""
 
 
