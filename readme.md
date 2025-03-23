@@ -11,7 +11,7 @@ The library automatically detects the Raspberry Pi Model.
 > __CAUTION!__ Unexpected behaviour may be observed on alternate functions (see [ANOM1](anomalies.md#anom1---gpio-alternate-function-registers)).
 
 ### Supported Models
-`2B` and newer, except `5` and it's derivates. Zeros, Compute Modules and the `400` could not yet be tested.
+`2B` and newer, except `5` and it's derivates. Compute Modules could not yet be tested.
 
 > Search for _ADDHW_ comments in code to find sections which are crucial for implementation of more hardware support.
 
@@ -46,6 +46,8 @@ See [build/readme.md](./build/readme.md) for the different build methods.
 
 ## Emulator
 
+> I2C, SPI and UART are not yet supported in the emulator.
+
 ### Build
 > Yet only GPIOs are implemented in the emulator.
 The emulator can be used to run your project on your working machine. To build the emulator project
@@ -62,14 +64,3 @@ The left and right mouse button can be used to click (push a button) or toggle a
 
 ### Credits
 The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine) for the graphics.
-
-
-
----
-
-## TODO
-- add more `RPIHAL_ui128_..` functions
-- add to unit test
-  - `RPIHAL_GPIO_bittopin`
-  - `RPIHAL_GPIO_pintobit`
-  - `RPIHAL_ui128_..`

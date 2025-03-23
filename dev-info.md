@@ -1,4 +1,19 @@
-#### just some links
+# rpihal developper info - cheat-sheet - link collection
+
+## TODO
+- add more `RPIHAL_ui128_..` functions
+- add to unit test
+  - `RPIHAL_GPIO_bittopin`
+  - `RPIHAL_GPIO_pintobit`
+  - `RPIHAL_ui128_..`
+
+## files to edit on version update
+- `build/dep_vstr.txt`
+- `include/rpihal/defs.h`
+
+
+
+## just some links
 - https://elinux.org/RPi_GPIO_Code_Samples
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#general-purpose-io-gpio
 - https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf + https://elinux.org/BCM2835_datasheet_errata
@@ -14,7 +29,7 @@
 - https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/raspberry-pi/revision-codes.adoc
 
 
-## 32bit vs 64bit
+### 32bit vs 64bit
 - https://raspberrypi.stackexchange.com/a/143293
 #### 32bit (2024-03-15-raspios-bookworm-armhf)
 ```

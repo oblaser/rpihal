@@ -61,12 +61,3 @@ Eexcept the `pack_*` scripts don't.
 ```
 $ ./build.sh [cleanAll] cmake make
 ```
-
-
-
----
-
-### files to edit on version update
-
-- `build/dep_vstr.txt`
-- `include/rpihal/defs.h`
