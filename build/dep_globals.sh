@@ -9,7 +9,7 @@ prjDisplayName="Raspberry Pi Hardware Abstraction Layer"
 prjBinName=$prjName
 prjDirName=$prjName
 repoDirName=$prjName
-copyrightYear="2022"
+copyrightYear="2025"
 
 versionstr=$(head -n 1 dep_vstr.txt)
 

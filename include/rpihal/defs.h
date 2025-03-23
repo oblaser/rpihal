@@ -39,7 +39,7 @@ extern "C" {
 #define RPIHAL_VERSION_MAJ   0
 #define RPIHAL_VERSION_MIN   2
 #define RPIHAL_VERSION_PAT   0
-#define RPIHAL_VERSION_PRSTR "alpha.1"
+#define RPIHAL_VERSION_PRSTR ""
 #define RPIHAL_VERSION_BUILD ""
 
 
