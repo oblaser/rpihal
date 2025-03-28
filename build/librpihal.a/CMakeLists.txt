@@ -30,7 +30,7 @@ if(RPIHAL_CMAKE_CONFIG_EMU)
     # note that the RPIHAL_EMU symbol has to be defined on project level
     set(SOURCES 
     ${SOURCES_INTERNAL}
-    ../../../src/emu/emu.cpp
+    ../../src/emu/emu.cpp
     )
 
 else() # RPIHAL_CMAKE_CONFIG_EMU

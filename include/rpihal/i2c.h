@@ -32,7 +32,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stddef.h>
 #include <stdint.h>
 
-#include <sys/types.h>
+#include "../rpihal/common/types.h"
 
 
 #ifdef __cplusplus
@@ -76,7 +76,7 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr);
  * @param inst
  * @param data
  * @param count
- * @return Number of written bytes on success, negative on failure
+ * @return Number of written bytes on success, __-1__ on error
  */
 ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count);
 
@@ -88,7 +88,7 @@ ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data,
  * @param inst
  * @param buffer
  * @param count
- * @return Number of read bytes on success, negative on failure
+ * @return Number of read bytes on success, __-1__ on error
  */
 ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count);
 

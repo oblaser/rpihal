@@ -27,7 +27,7 @@ public:
 private:
     EmuPge(const EmuPge& other) = delete;
     EmuPge(const EmuPge&& other) = delete;
-    const EmuPge& operator=(const EmuPge& b) { return b; }
+    const EmuPge& operator=(const EmuPge& b) = delete;
 };
 
 #endif // IG_RPIHAL_EMU_H
