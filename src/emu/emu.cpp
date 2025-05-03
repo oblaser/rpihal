@@ -496,7 +496,7 @@ bool EmuPge::OnUserUpdate(float tElapsed)
             }
             else { pixel = Pixel(50, 50, 50); }
 
-            FillCircle(pos, (int32_t)(radius + 0.5), pixel);
+            FillCircle(pos, (int32_t)(radius + 0.5f), pixel);
 
             // const auto pinRectSize = vi2d(5, 5);
             // FillRect(pos - pinRectSize / 2, pinRectSize, Pixel(255, 215, 0));
@@ -536,7 +536,7 @@ bool EmuPge::OnUserUpdate(float tElapsed)
                     mouseColor = RED;
                 }
 
-                DrawCircle(pos, (int32_t)(radius + 0.5), mouseColor);
+                DrawCircle(pos, (int32_t)(radius + 0.5f), mouseColor);
             }
         }
 
@@ -625,7 +625,9 @@ bool EmuPge::OnUserDestroy() { return true; }
 
 #include "../../include/rpihal/defs.h"
 #include "../../include/rpihal/gpio.h"
+#include "../../include/rpihal/i2c.h"
 #include "../../include/rpihal/rpihal.h"
+#include "../../include/rpihal/spi.h"
 #include "../../include/rpihal/sys.h"
 #include "../../include/rpihal/uart.h"
 #include "../internal/gpio.h"
@@ -645,6 +647,141 @@ static void emuMain()
     if (emu_pge.Construct(EmuPge::pgeWindowSize.x, EmuPge::pgeWindowSize.y, EmuPge::pgePixelSize, EmuPge::pgePixelSize, false, vSync)) { emu_pge.Start(); }
 
     thread_pge_sd.setRunning(false);
+}
+
+//======================================================================================================================
+// gpio.h
+
+static const int sysGpioLocked = 1;
+static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy to make copy-paste more easy
+
+int RPIHAL_GPIO_init() { return 0; } // nop
+
+int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
+{
+    int r = 0;
+
+    if (gpio_base && initStruct && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct)); }
+    else { r = 1; }
+
+    return r;
+}
+
+int RPIHAL_GPIO_initPins(uint64_t bits, const RPIHAL_GPIO_init_t* initStruct)
+{
+    int r = 0;
+
+    uint64_t mask = 0x01ull;
+
+    while (mask)
+    {
+        if (mask & bits)
+        {
+            const int err = RPIHAL_GPIO_initPin(RPIHAL_GPIO_bittopin(mask), initStruct);
+            if (err) { r = -(__LINE__); }
+        }
+
+        mask <<= 1;
+    }
+
+    return r;
+}
+
+int RPIHAL_GPIO_readPin(int pin)
+{
+    int r = 0;
+
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { r = thread_pge_sd.getGpioState(pin); }
+    else { r = -1; }
+
+    return r;
+}
+
+uint32_t RPIHAL_GPIO_read() { return (uint32_t)(RPIHAL_GPIO_read64() & 0x00000000FFFFFFFFllu); }
+uint32_t RPIHAL_GPIO_readHi() { return (uint32_t)((RPIHAL_GPIO_read64() >> 32) & 0x00000000FFFFFFFFllu); }
+
+uint64_t RPIHAL_GPIO_read64()
+{
+    uint64_t value = 0;
+
+    const auto pins = thread_pge_sd.getPins();
+
+    for (size_t i = 0; i < pins.size(); ++i)
+    {
+        const auto& pin = pins[i];
+
+        if (pin.isGpio() && pin.getState())
+        {
+            try
+            {
+                value |= (1llu << emu::pinIdx_to_gpioPin(i));
+            }
+            catch (...)
+            {
+                // nop
+            }
+        }
+    }
+
+    return value;
+}
+
+int RPIHAL_GPIO_writePin(int pin, int state)
+{
+    int r = 0;
+
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, state != 0); }
+    else { r = 1; }
+
+    return r;
+}
+
+int RPIHAL_GPIO_set(uint32_t bits)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
+int RPIHAL_GPIO_clr(uint32_t bits)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
+int RPIHAL_GPIO_togglePin(int pin)
+{
+    int r = 0;
+
+    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, !thread_pge_sd.getGpioState(pin)); }
+    else { r = -1; }
+
+    return r;
+}
+
+int RPIHAL_GPIO_reset()
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
+int RPIHAL_GPIO_resetPin(int pin)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
+void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct) { iGPIO_defaultInitStruct(initStruct); }
+int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct) { return iGPIO_defaultInitStructPin(pin, initStruct); }
+
+int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
+
+//======================================================================================================================
+// i2c.h
+
+int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
 }
 
 //======================================================================================================================
@@ -772,130 +909,13 @@ void RPIHAL_EMU_cleanup()
 int RPIHAL_EMU_isRunning() { return thread_pge_sd.isRunning(); }
 
 //======================================================================================================================
-// gpio.h
+// spi.h
 
-static const int sysGpioLocked = 1;
-static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy to make copy-paste more easy
-
-int RPIHAL_GPIO_init() { return 0; } // nop
-
-int RPIHAL_GPIO_initPin(int pin, const RPIHAL_GPIO_init_t* initStruct)
+int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, uint32_t config)
 {
-    int r = 0;
-
-    if (gpio_base && initStruct && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioConfig(pin, emu::Gpio(*initStruct)); }
-    else { r = 1; }
-
-    return r;
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
 }
-
-int RPIHAL_GPIO_initPins(uint64_t bits, const RPIHAL_GPIO_init_t* initStruct)
-{
-    int r = 0;
-
-    uint64_t mask = 0x01ull;
-
-    while (mask)
-    {
-        if (mask & bits)
-        {
-            const int err = RPIHAL_GPIO_initPin(RPIHAL_GPIO_bittopin(mask), initStruct);
-            if (err) { r = -(__LINE__); }
-        }
-
-        mask <<= 1;
-    }
-
-    return r;
-}
-
-int RPIHAL_GPIO_readPin(int pin)
-{
-    int r = 0;
-
-    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { r = thread_pge_sd.getGpioState(pin); }
-    else { r = -1; }
-
-    return r;
-}
-
-uint32_t RPIHAL_GPIO_read() { return (uint32_t)(RPIHAL_GPIO_read64() & 0x00000000FFFFFFFFllu); }
-uint32_t RPIHAL_GPIO_readHi() { return (uint32_t)((RPIHAL_GPIO_read64() >> 32) & 0x00000000FFFFFFFFllu); }
-
-uint64_t RPIHAL_GPIO_read64()
-{
-    uint64_t value = 0;
-
-    const auto pins = thread_pge_sd.getPins();
-
-    for (size_t i = 0; i < pins.size(); ++i)
-    {
-        const auto& pin = pins[i];
-
-        if (pin.isGpio() && pin.getState())
-        {
-            try
-            {
-                value |= (1llu << emu::pinIdx_to_gpioPin(i));
-            }
-            catch (...)
-            {
-                // nop
-            }
-        }
-    }
-
-    return value;
-}
-
-int RPIHAL_GPIO_writePin(int pin, int state)
-{
-    int r = 0;
-
-    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, state != 0); }
-    else { r = 1; }
-
-    return r;
-}
-
-int RPIHAL_GPIO_set(uint32_t bits)
-{
-    /* TODO */
-    return 0;
-}
-
-int RPIHAL_GPIO_clr(uint32_t bits)
-{
-    /* TODO */
-    return 0;
-}
-
-int RPIHAL_GPIO_togglePin(int pin)
-{
-    int r = 0;
-
-    if (gpio_base && iGPIO_checkPin(pin, sysGpioLocked)) { thread_pge_sd.setGpioState(pin, !thread_pge_sd.getGpioState(pin)); }
-    else { r = -1; }
-
-    return r;
-}
-
-int RPIHAL_GPIO_reset()
-{
-    /* TODO */
-    return 0;
-}
-
-int RPIHAL_GPIO_resetPin(int pin)
-{
-    /* TODO */
-    return 0;
-}
-
-void RPIHAL_GPIO_defaultInitStruct(RPIHAL_GPIO_init_t* initStruct) { iGPIO_defaultInitStruct(initStruct); }
-int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct) { return iGPIO_defaultInitStructPin(pin, initStruct); }
-
-int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
 
 //======================================================================================================================
 // sys.h
@@ -912,6 +932,15 @@ int RPIHAL_SYS_getCpuTemp(float* temperature)
     else r = 1;
 
     return r;
+}
+
+//======================================================================================================================
+// uart.h
+
+int RPIHAL_UART_open(RPIHAL_UART_port_t* port, const char* name, int baud /*, parity, nStop*/)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
 }
 
 //======================================================================================================================
