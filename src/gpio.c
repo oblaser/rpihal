@@ -758,3 +758,8 @@ void writePin(int pin, int state)
 
     BCM2835_reg_write(addr, bit);
 }
+
+
+
+#define iGPIO_DEFINE_FUNCTIONS
+#include "internal/gpio.h"

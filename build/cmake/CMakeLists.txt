@@ -19,8 +19,6 @@ set(UNIT_TEST_EXE_STATIC ${BINNAME}-unit-test-static)
 include_directories(../../include/)
 
 set(SOURCES
-../../src/internal/gpio.c
-../../src/internal/util.c
 ../../src/gpio.c
 ../../src/i2c.c
 ../../src/int.c

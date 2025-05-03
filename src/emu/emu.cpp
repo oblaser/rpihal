@@ -775,7 +775,7 @@ int RPIHAL_EMU_isRunning() { return thread_pge_sd.isRunning(); }
 // gpio.h
 
 static const int sysGpioLocked = 1;
-constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy to make copy-paste more easy
+static constexpr /*RPIHAL_regptr_t*/ bool gpio_base = true; // dummy to make copy-paste more easy
 
 int RPIHAL_GPIO_init() { return 0; } // nop
 
@@ -898,7 +898,7 @@ int RPIHAL_GPIO_defaultInitStructPin(int pin, RPIHAL_GPIO_init_t* initStruct) { 
 int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
 
 //======================================================================================================================
-// sys
+// sys.h
 
 int RPIHAL_SYS_getCpuTemp(float* temperature)
 {
@@ -913,3 +913,9 @@ int RPIHAL_SYS_getCpuTemp(float* temperature)
 
     return r;
 }
+
+//======================================================================================================================
+// definitions of header only modules
+
+#define iGPIO_DEFINE_FUNCTIONS
+#include "../internal/gpio.h"

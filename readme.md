@@ -54,8 +54,8 @@ The left and right mouse button can be used to click (push a button) or toggle a
 
 ### Build
 To build the emulator project include all the same files as in the main project, plus the [emu.cpp](./src/emu/emu.cpp)
-file and the source files in [src/internal](./src/internal/) (don't include any other rpihal source file to the build,
-nor link to the rpihal), and define `RPIHAL_EMU` on compiler level (not anyehere in source nor header files).
+file (don't include any other rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` on
+compiler level (not anyehere in source nor header files).
 
 > To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an
 > empty console application. Then add all the needed source files described above and add the include directories.
