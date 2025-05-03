@@ -784,6 +784,24 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr)
     return -1;
 }
 
+ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
+ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
+int RPIHAL_I2C_close(RPIHAL_I2C_instance_t* inst)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
 //======================================================================================================================
 // rpihal.h
 
@@ -917,6 +935,18 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
     return -1;
 }
 
+int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData, uint8_t* rxBuffer, size_t count)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
+int RPIHAL_SPI_close(RPIHAL_SPI_instance_t* inst)
+{
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    return -1;
+}
+
 //======================================================================================================================
 // sys.h
 
@@ -932,6 +962,17 @@ int RPIHAL_SYS_getCpuTemp(float* temperature)
     else r = 1;
 
     return r;
+}
+
+RPIHAL_uint128_t RPIHAL_SYS_getMachineId()
+{
+    RPIHAL_uint128_t machineId;
+
+    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
+    machineId.hi = UINT64_MAX;
+    machineId.lo = UINT64_MAX;
+
+    return machineId;
 }
 
 //======================================================================================================================
