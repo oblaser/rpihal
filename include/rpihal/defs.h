@@ -1,12 +1,12 @@
 /*
 author          Oliver Blaser
-date            11.05.2022
-copyright       MIT - Copyright (c) 2022 Oliver Blaser
+date            03.05.2025
+copyright       MIT - Copyright (c) 2025 Oliver Blaser
 */
 
 /*
 
-Copyright (c) 2022 Oliver Blaser
+Copyright (c) 2025 Oliver Blaser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,8 +27,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-#ifndef IG_RPIHAL_UART_H
-#define IG_RPIHAL_UART_H
+#ifndef IG_RPIHAL_DEFS_H
+#define IG_RPIHAL_DEFS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,4 +47,4 @@ extern "C" {
 }
 #endif
 
-#endif // IG_RPIHAL_UART_H
+#endif // IG_RPIHAL_DEFS_H
