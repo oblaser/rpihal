@@ -43,6 +43,11 @@ extern "C" {
 #define RPIHAL_I2C_INSTANCE_DEV_SIZE (300)
 
 
+#ifdef RPIHAL_EMU
+typedef ssize_t (*RPIHAL_EMU_i2c_read_cb_t)(uint8_t* buffer, size_t count);
+typedef ssize_t (*RPIHAL_EMU_i2c_write_cb_t)(const uint8_t* data, size_t count);
+#endif
+
 /**
  * @brief I2C instance.
  *
@@ -53,6 +58,10 @@ typedef struct
     char dev[RPIHAL_I2C_INSTANCE_DEV_SIZE];
     int fd;
     uint8_t addr;
+#ifdef RPIHAL_EMU
+    RPIHAL_EMU_i2c_read_cb_t read_cb;
+    RPIHAL_EMU_i2c_write_cb_t write_cb;
+#endif
 } RPIHAL_I2C_instance_t;
 
 
@@ -60,6 +69,8 @@ typedef struct
  * @brief Configures the specified I2C device and initialises the instance.
  *
  * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
+ *
+ * On the emulator this function always succeeds.
  *
  * @param [out] inst rpihal I2C instance
  * @param dev Path to the I2C device (e.g. `/dev/i2c-1`)
@@ -73,17 +84,7 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr);
  *
  * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
  *
- * @param inst
- * @param data
- * @param count
- * @return Number of written bytes on success, __-1__ on error
- */
-ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count);
-
-/**
- * @brief
- *
- * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
+ * On the emulator this function returns the return value of the `inst->read_cb` call.
  *
  * @param inst
  * @param buffer
@@ -96,6 +97,22 @@ ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size
  * @brief
  *
  * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
+ *
+ * On the emulator this function returns the return value of the `inst->write_cb` call.
+ *
+ * @param inst
+ * @param data
+ * @param count
+ * @return Number of written bytes on success, __-1__ on error
+ */
+ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count);
+
+/**
+ * @brief
+ *
+ * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
+ *
+ * On the emulator this function always succeeds.
  *
  * @param [in,out] inst
  * @return __0__ on success, negative on failure

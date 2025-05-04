@@ -37,7 +37,6 @@ extern "C" {
 #endif
 
 
-
 // Don't compare or use the value of these enum constants. Only use these enum symbols and the functions provided below!
 // The effective value (and thus the meaning of the value) of these symbols may change in future releases, as
 // requirements to these may change.
@@ -143,39 +142,6 @@ static inline int RPIHAL_model_header_is_40pin(RPIHAL_model_t model)
         (model == RPIHAL_model_2B) || (model == RPIHAL_model_2B_v1_2) || (model == RPIHAL_model_3B) || (model == RPIHAL_model_z2W) ||
         (model == RPIHAL_model_3Ap) || (model == RPIHAL_model_3Bp) || (model == RPIHAL_model_4B) || (model == RPIHAL_model_400));
 }
-
-
-
-//======================================================================================================================
-// Emulator
-
-/**
- * @brief Initialises the emulator and starts it's thread.
- *
- * @param model The Raspberry Pi model which should be emulated
- * @retval 0 on success
- */
-int RPIHAL_EMU_init(RPIHAL_model_t model);
-
-/**
- * @brief Sets the default GPIO pin states according to the hardware the Pi would be connected to.
- *
- * If needed, has to be called right after `RPIHAL_EMU_init()` succeeded.
- */
-void RPIHAL_ENU_setInitialGpioState(uint64_t mask);
-
-/**
- * @brief Cleans up resources used by the emulator.
- */
-void RPIHAL_EMU_cleanup();
-
-/**
- * @brief Checks if the emulator thread is running.
- *
- * @retval `true` (non 0) if the emulator is running
- * @retval `false` `0` if running on Pi, or if the emulator is not running
- */
-int RPIHAL_EMU_isRunning();
 
 
 #ifdef __cplusplus

@@ -56,6 +56,11 @@ extern "C" {
 #define RPIHAL_SPI_INSTANCE_DEV_SIZE (300)
 
 
+
+#ifdef RPIHAL_EMU
+typedef int (*RPIHAL_EMU_spi_transfer_cb_t)(const uint8_t* txData, uint8_t* rxBuffer, size_t count);
+#endif
+
 /**
  * @brief SPI instance.
  *
@@ -67,6 +72,9 @@ typedef struct
     int fd;
     uint32_t speed;
     uint8_t bits;
+#ifdef RPIHAL_EMU
+    RPIHAL_EMU_spi_transfer_cb_t transfer_cb;
+#endif
 } RPIHAL_SPI_instance_t;
 
 
@@ -82,6 +90,8 @@ typedef struct
  * The clock speed is a maximum value, the driver selects the highest possible clock but not higher than `maxSpeed` (see
  * [elinux.org](https://elinux.org/RPi_SPI#Speed_2) for furter information).
  *
+ * On the emulator this function always succeeds.
+ *
  * @param [out] inst rpihal SPI instance
  * @param dev Path to the SPI device (e.g. `/dev/spidev0.0`)
  * @param maxSpeed Max clock speed [Hz]
@@ -95,6 +105,8 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
  *
  * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
  *
+ * On the emulator this function returns the return value of the `inst->transfer_cb` call.
+ *
  * @param inst
  * @param txData
  * @param rxBuffer
@@ -107,6 +119,8 @@ int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData
  * @brief
  *
  * `errno` is cleared by this function. If the function fails, `errno` might be non 0, depending on the error.
+ *
+ * On the emulator this function always succeeds.
  *
  * @param [in,out] inst
  * @return __0__ on success, negative on failure

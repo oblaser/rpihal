@@ -5,7 +5,7 @@
 ### v0.2.1
 
 New
-- 
+- Added SPI and I2C callbacks for emulator
 
 
 

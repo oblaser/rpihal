@@ -108,23 +108,14 @@ int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr)
 
         LOG_INF("opened \"%s\" addr: 0x%02x", dev, addr);
 
-        strcpy(inst->dev, dev);
+        strncpy(inst->dev, dev, RPIHAL_I2C_INSTANCE_DEV_SIZE);
+        inst->dev[RPIHAL_I2C_INSTANCE_DEV_SIZE - 1] = 0;
+
         inst->fd = fd;
         inst->addr = addr;
     }
 
     return 0;
-}
-
-ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count)
-{
-    errno = 0;
-
-    const ssize_t r = write(inst->fd, data, count);
-
-    if ((r < 0) || (errno != 0)) { LOG_ERR("failed to write %u bytes to \"%s\" 0x%02x (%s, write ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
-
-    return r;
 }
 
 ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count)
@@ -134,6 +125,17 @@ ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size
     const ssize_t r = read(inst->fd, buffer, count);
 
     if ((r < 0) || (errno != 0)) { LOG_ERR("failed to read %u bytes from \"%s\" 0x%02x (%s, read ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
+
+    return r;
+}
+
+ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count)
+{
+    errno = 0;
+
+    const ssize_t r = write(inst->fd, data, count);
+
+    if ((r < 0) || (errno != 0)) { LOG_ERR("failed to write %u bytes to \"%s\" 0x%02x (%s, write ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
 
     return r;
 }

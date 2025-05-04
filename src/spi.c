@@ -139,7 +139,10 @@ int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSp
 
         inst->speed = maxSpeed;
         inst->bits = nBits;
-        strcpy(inst->dev, dev);
+
+        strncpy(inst->dev, dev, RPIHAL_SPI_INSTANCE_DEV_SIZE);
+        inst->dev[RPIHAL_SPI_INSTANCE_DEV_SIZE - 1] = 0;
+
         inst->fd = fd;
     }
 

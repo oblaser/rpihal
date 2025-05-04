@@ -40,7 +40,30 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <thread>
 #include <utility>
 
-#include "emu.h"
+
+
+#include "olcPixelGameEngine.h"
+
+class EmuPge final : public olc::PixelGameEngine
+{
+public:
+    static const olc::vi2d pgeWindowSize;
+    static constexpr int32_t pgePixelSize = 1;
+
+public:
+    EmuPge();
+    virtual ~EmuPge() {}
+
+public:
+    bool OnUserCreate() override;
+    bool OnUserUpdate(float tElapsed) override;
+    bool OnUserDestroy() override;
+
+private:
+    EmuPge(const EmuPge& other) = delete;
+    EmuPge(const EmuPge&& other) = delete;
+    const EmuPge& operator=(const EmuPge& b) = delete;
+};
 
 
 
@@ -624,6 +647,7 @@ bool EmuPge::OnUserDestroy() { return true; }
 // clang-format on
 
 #include "../../include/rpihal/defs.h"
+#include "../../include/rpihal/emu/emu.h"
 #include "../../include/rpihal/gpio.h"
 #include "../../include/rpihal/i2c.h"
 #include "../../include/rpihal/rpihal.h"
@@ -631,6 +655,10 @@ bool EmuPge::OnUserDestroy() { return true; }
 #include "../../include/rpihal/sys.h"
 #include "../../include/rpihal/uart.h"
 #include "../internal/gpio.h"
+
+
+static RPIHAL_model_t rpihal_emu_model = RPIHAL_model_unknown;
+
 
 static void emuMain()
 {
@@ -648,6 +676,55 @@ static void emuMain()
 
     thread_pge_sd.setRunning(false);
 }
+
+int RPIHAL_EMU_init(RPIHAL_model_t model)
+{
+    int r = -1;
+
+    rpihal_emu_model = model;
+    thread_pge_sd.setModelStr(RPIHAL_dt_model());
+
+    try
+    {
+        thread_pge = std::thread(emuMain);
+        r = 0;
+    }
+    catch (const std::exception& ex)
+    {
+        cout << "\033[30;41m                                   \033[39;49m" << endl;
+        cout << "\033[30;41m  failed to start emulator thread  \033[39;49m" << endl;
+        cout << "\033[30;41m                                   \033[39;49m" << endl;
+
+        cout << ex.what() << endl;
+    }
+
+    return r;
+}
+
+void RPIHAL_EMU_setInitialGpioState(uint64_t mask)
+{
+    // const uint64_t pinsMask = iGPIO_getBcmPinsMask();
+    const uint64_t pinsMask = iGPIO_getUserPinsMask();
+
+    for (int pin = 0; pin < 64; ++pin)
+    {
+        const uint64_t m = (1llu << pin);
+
+        if (m & pinsMask) { thread_pge_sd.setGpioState(pin, (mask & m) != 0); }
+    }
+}
+
+void RPIHAL_EMU_cleanup()
+{
+    volatile int dummy = 0;
+
+    while (!thread_pge_sd.hasBooted()) { ++dummy; }
+
+    thread_pge_sd.terminate();
+    thread_pge.join();
+}
+
+int RPIHAL_EMU_isRunning() { return thread_pge_sd.isRunning(); }
 
 //======================================================================================================================
 // gpio.h
@@ -780,32 +857,50 @@ int RPIHAL_GPIO_bittopin(uint64_t bit) { return iGPIO_bittopin(bit); }
 
 int RPIHAL_I2C_open(RPIHAL_I2C_instance_t* inst, const char* dev, uint8_t addr)
 {
-    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
-    return -1;
-}
+    strncpy(inst->dev, dev, RPIHAL_I2C_INSTANCE_DEV_SIZE);
+    inst->dev[RPIHAL_I2C_INSTANCE_DEV_SIZE - 1] = 0;
 
-ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count)
-{
-    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
-    return -1;
+    inst->fd = -1;
+    inst->addr = addr;
+
+    inst->read_cb = NULL;
+    inst->write_cb = NULL;
+
+    return 0;
 }
 
 ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size_t count)
 {
-    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
-    return -1;
+    ssize_t r = -1;
+
+    if (inst->read_cb) { r = inst->read_cb(buffer, count); }
+
+    return r;
+}
+
+ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data, size_t count)
+{
+    ssize_t r = -1;
+
+    if (inst->write_cb) { r = inst->write_cb(data, count); }
+
+    return r;
 }
 
 int RPIHAL_I2C_close(RPIHAL_I2C_instance_t* inst)
 {
-    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
-    return -1;
+    inst->dev[0] = 0;
+    inst->fd = -1;
+    inst->addr = -1;
+
+    inst->read_cb = NULL;
+    inst->write_cb = NULL;
+
+    return 0;
 }
 
 //======================================================================================================================
 // rpihal.h
-
-static RPIHAL_model_t rpihal_emu_model = RPIHAL_model_unknown;
 
 class RPIHAL_EMU_dt_comp_model
 {
@@ -877,74 +972,43 @@ const char* RPIHAL_dt_model()
     return r;
 }
 
-int RPIHAL_EMU_init(RPIHAL_model_t model)
-{
-    int r = -1;
-
-    rpihal_emu_model = model;
-    thread_pge_sd.setModelStr(RPIHAL_dt_model());
-
-    try
-    {
-        thread_pge = std::thread(emuMain);
-        r = 0;
-    }
-    catch (const std::exception& ex)
-    {
-        cout << "\033[30;41m                                   \033[39;49m" << endl;
-        cout << "\033[30;41m  failed to start emulator thread  \033[39;49m" << endl;
-        cout << "\033[30;41m                                   \033[39;49m" << endl;
-
-        cout << ex.what() << endl;
-    }
-
-    return r;
-}
-
-void RPIHAL_ENU_setInitialGpioState(uint64_t mask)
-{
-    // const uint64_t pinsMask = iGPIO_getBcmPinsMask();
-    const uint64_t pinsMask = iGPIO_getUserPinsMask();
-
-    for (int pin = 0; pin < 64; ++pin)
-    {
-        const uint64_t m = (1llu << pin);
-
-        if (m & pinsMask) { thread_pge_sd.setGpioState(pin, (mask & m) != 0); }
-    }
-}
-
-void RPIHAL_EMU_cleanup()
-{
-    volatile int dummy = 0;
-
-    while (!thread_pge_sd.hasBooted()) { ++dummy; }
-
-    thread_pge_sd.terminate();
-    thread_pge.join();
-}
-
-int RPIHAL_EMU_isRunning() { return thread_pge_sd.isRunning(); }
-
 //======================================================================================================================
 // spi.h
 
 int RPIHAL_SPI_open(RPIHAL_SPI_instance_t* inst, const char* dev, uint32_t maxSpeed, uint32_t config)
 {
-    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
-    return -1;
+    const uint8_t nBits = 8; // see `RPIHAL_SPI_open()` in rpihal/src/spi.c
+
+    inst->speed = maxSpeed;
+    inst->bits = nBits;
+
+    strncpy(inst->dev, dev, RPIHAL_SPI_INSTANCE_DEV_SIZE);
+    inst->dev[RPIHAL_SPI_INSTANCE_DEV_SIZE - 1] = 0;
+
+    inst->fd = -1;
+
+    inst->transfer_cb = NULL;
+
+    return 0;
 }
 
 int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData, uint8_t* rxBuffer, size_t count)
 {
-    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
-    return -1;
+    int r = -1;
+
+    if (inst->transfer_cb) { r = inst->transfer_cb(txData, rxBuffer, count); }
+
+    return r;
 }
 
 int RPIHAL_SPI_close(RPIHAL_SPI_instance_t* inst)
 {
-    LOG_ERR("%s is not yet implemented in EMU", __func__); // TODO
-    return -1;
+    inst->dev[0] = 0;
+    inst->fd = -1;
+
+    inst->transfer_cb = NULL;
+
+    return 0;
 }
 
 //======================================================================================================================
