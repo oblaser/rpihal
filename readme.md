@@ -1,6 +1,6 @@
 # raspihal
 
-A Raspberry Pi Hardware Abstraction Layer for C/C++ projects.
+A Raspberry Pi Hardware Abstraction Layer for C/C++ projects. It includes an [emulator](./emulator.md).
 
 The system tests can also be considered as examples :wink:
 
@@ -39,28 +39,3 @@ See [build/readme.md](./build/readme.md) for the different build methods.
   - **2** WARNING
   - **3** INFO
   - **4** DEBUG
-
-
-
----
-
-## Emulator
-> I2C and SPI are not yet supported, UART only on Linux
-
-The emulator allows the project to be run on a host/working machine.
-
-### Usage
-The left and right mouse button can be used to click (push a button) or toggle an input pin.
-
-### Build
-To build the emulator project include all the same files as in the main project, plus the [emu.cpp](./src/emu/emu.cpp)
-file (don't include any other rpihal source file to the build, nor link to the rpihal), and define `RPIHAL_EMU` on
-compiler level (not anyehere in source nor header files).
-
-> To create a new emu project in Visual Studio use the _New > Project From Existing Code..._ funtion and create an
-> empty console application. Then add all the needed source files described above and add the include directories.
-
-See the [rpihal-system-test](https://github.com/oblaser/rpihal-system-test) for reference.
-
-### Credits
-The emulator uses the OneLoneCoder [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine) for the graphics.
