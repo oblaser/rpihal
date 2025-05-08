@@ -73,11 +73,20 @@ private:
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
+#ifdef _MSC_VER // clang-format off
+#pragma warning(push)
+#pragma warning(disable: 4996 4018)
+#endif // clang-format on
+
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(pop)
 #endif
 
 
@@ -655,6 +664,11 @@ bool EmuPge::OnUserDestroy() { return true; }
 #include "../../include/rpihal/sys.h"
 #include "../../include/rpihal/uart.h"
 #include "../internal/gpio.h"
+
+
+#ifdef _MSC_VER // clang-format off
+#pragma warning(disable: 4996)
+#endif // clang-format on
 
 
 static RPIHAL_model_t rpihal_emu_model = RPIHAL_model_unknown;

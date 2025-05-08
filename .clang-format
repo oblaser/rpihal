@@ -240,4 +240,9 @@ Language: Cpp
 # JSON speciffic
 Language: Json
 
+---
+# JS speciffic
+Language: JavaScript
+CommentPragmas: '^#p '
+
 ...

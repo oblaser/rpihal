@@ -67,6 +67,7 @@ int iGPIO_bittopin(uint64_t bit);
 
 
 #ifdef iGPIO_DEFINE_FUNCTIONS
+#undef iGPIO_DEFINE_FUNCTIONS
 
 #include <stddef.h>
 #include <stdint.h>
