@@ -21,7 +21,7 @@ See the [rpihal-system-test](https://github.com/oblaser/rpihal-system-test) for 
 #### Ubuntu
 To build the emulator the following packages need to be installed, so that the required headers are available.
 ```sh
-sudo apt-get install libx11-dev libmesa-dev libpng-dev
+sudo apt-get install libx11-dev libpng-dev libgl1-mesa-dev # libmesa-dev
 ```
 
 ## Credits
