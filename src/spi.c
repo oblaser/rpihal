@@ -164,7 +164,7 @@ int RPIHAL_SPI_transfer(const RPIHAL_SPI_instance_t* inst, const uint8_t* txData
 
     if ((ret < 0) || (ret != (int)count))
     {
-        LOG_ERR("failed to transfer %u bytes (%s, ioctl ret: %i)", count, strerror(errno), ret);
+        LOG_ERR("failed to transfer %zu bytes (%s, ioctl ret: %i)", count, strerror(errno), ret);
         return -(__LINE__);
     }
 

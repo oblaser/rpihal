@@ -121,7 +121,10 @@ ssize_t RPIHAL_I2C_write(const RPIHAL_I2C_instance_t* inst, const uint8_t* data,
 
     const ssize_t r = write(inst->fd, data, count);
 
-    if ((r < 0) || (errno != 0)) { LOG_ERR("failed to write %u bytes to \"%s\" 0x%02x (%s, write ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
+    if ((r < 0) || (errno != 0))
+    {
+        LOG_ERR("failed to write %zu bytes to \"%s\" 0x%02x (%s, write ret: %zi)", count, inst->dev, inst->addr, strerror(errno), r);
+    }
 
     return r;
 }
@@ -132,7 +135,10 @@ ssize_t RPIHAL_I2C_read(const RPIHAL_I2C_instance_t* inst, uint8_t* buffer, size
 
     const ssize_t r = read(inst->fd, buffer, count);
 
-    if ((r < 0) || (errno != 0)) { LOG_ERR("failed to read %u bytes from \"%s\" 0x%02x (%s, read ret: %i)", count, inst->dev, inst->addr, strerror(errno), r); }
+    if ((r < 0) || (errno != 0))
+    {
+        LOG_ERR("failed to read %zu bytes from \"%s\" 0x%02x (%s, read ret: %zi)", count, inst->dev, inst->addr, strerror(errno), r);
+    }
 
     return r;
 }
